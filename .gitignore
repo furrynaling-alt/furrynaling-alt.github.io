@@ -1,0 +1,58 @@
+# === IDE 和工具 ===
+.codebuddy/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === 系统文件 ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === 依赖包 ===
+node_modules/
+**/node_modules/
+
+# === 运行时临时文件 ===
+*.log
+*.pid
+upload.log
+
+# === 上传目录 ===
+.uploads/
+
+# === SSH / 私钥 / 敏感凭据 (绝对不能上传!!!) ===
+*.pem
+*.key
+*.priv
+id_rsa*
+id_ed25519*
+known_hosts*
+.env
+.env.*
+
+# === 备份文件 ===
+*.bak
+*.backup
+*_backup.*
+~$*
+
+# === 测试/调试/部署脚本 ===
+*-test.js
+*_test.js
+test-*.js
+debug-*.js
+*debug*.js
+check-*.js
+fix-*.js
+deploy.js
+get-logs.js
+init-db.js
+token-check.js
+
+# === 非项目文件 ===
+cloudbaserc.json
+package.json
+package-lock.json

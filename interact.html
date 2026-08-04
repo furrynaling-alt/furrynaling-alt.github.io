@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>互动 - 纳棂 Naling</title>
+<script src="json/token-check.js"></script>
+<style>
+  /* ========== 变量 ========== */
+  :root{
+    --maxw:1200px;
+    --bg:#FFFDF9;
+    --bg-soft:#FFF7EC;
+    --bg-card:#FFFFFFE6;
+    --text:#202124;
+    --text-sub:#666666;
+    --text-mute:#9aa0a6;
+    --primary:#FF8A00;
+    --primary-2:#FFB347;
+    --primary-soft:#FFE5BF;
+    --primary-glow:rgba(255,138,0,.18);
+    --card-bg:rgba(255,255,255,.72);
+    --card-border:rgba(0,0,0,.06);
+    --glass:rgba(255,255,255,.72);
+    --glass-border:rgba(0,0,0,.06);
+    --border:#FFE5BF;
+    --nav-bg:rgba(255,253,249,.88);
+    --shadow:0 10px 40px rgba(255,138,0,.10);
+    --shadow-hover:0 18px 60px rgba(255,138,0,.22);
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --font-sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:"SF Mono","JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+    --radius:20px;
+  }
+
+  [data-theme="dark"] {
+    --bg:#0f0f1e;
+    --bg-soft:#1a1a2e;
+    --bg-card:#1a1a2ecc;
+    --text:#e0e0e0;
+    --text-sub:#9999bb;
+    --text-mute:#666688;
+    --primary:#ffa040;
+    --primary-2:#ffbe60;
+    --primary-soft:rgba(255,160,64,.1);
+    --primary-glow:rgba(255,160,64,.2);
+    --card-bg:rgba(26,26,46,.85);
+    --card-border:rgba(42,42,74,.6);
+    --glass:rgba(26,26,46,.85);
+    --glass-border:rgba(42,42,74,.6);
+    --border:#2a2a4a;
+    --nav-bg:rgba(15,15,30,.9);
+    --shadow:0 10px 40px rgba(0,0,0,.35);
+    --shadow-hover:0 18px 60px rgba(0,0,0,.55);
+  }
+  [data-theme="dark"] body::before {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -5%, rgba(255,160,64,.06), transparent),
+      var(--bg);
+  }
+  [data-theme="dark"] #navbar.scrolled {
+    background:rgba(20,20,38,.9);
+    border-color:var(--border);
+  }
+  [data-theme="dark"] .lang-btn {
+    color:rgba(255,255,255,.45);
+  }
+  [data-theme="dark"] .lang-btn.active {
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    box-shadow:0 4px 12px rgba(255,138,0,.3);
+  }
+  [data-theme="dark"] .chat-container {
+    border-color:rgba(42,42,74,.5);
+  }
+  [data-theme="dark"] .chat-header {
+    border-bottom-color:#2a2a4a;
+  }
+  [data-theme="dark"] .bubble {
+    background:rgba(26,26,46,.9);
+    border-color:rgba(42,42,74,.5);
+  }
+  [data-theme="dark"] .bubble.self {
+    background:rgba(255,160,64,.15);
+    border-color:rgba(255,160,64,.25);
+  }
+  [data-theme="dark"] .chat-input-area {
+    border-top-color:#2a2a4a;
+  }
+  [data-theme="dark"] #navbar .nav-links a {
+    color:rgba(255,255,255,.7);
+  }
+  [data-theme="dark"] #navbar .nav-links a.active {
+    color:var(--primary);
+    background:var(--primary-soft);
+  }
+  [data-theme="dark"] #navbar .nav-links a:hover {
+    color:var(--primary);
+  }
+  [data-theme="dark"] .lang-btn:hover {
+    color:#fff;
+    background:rgba(255,255,255,.1);
+  }
+  [data-theme="dark"] .theme-toggle-btn:hover {
+    color:#fff;
+    background:rgba(255,255,255,.1);
+  }
+  [data-theme="dark"] label,
+  [data-theme="dark"] .label {
+    color:var(--text-sub);
+  }
+  [data-theme="dark"] header h1 span {
+    color:var(--primary);
+  }
+  [data-theme="dark"] a:link,
+  [data-theme="dark"] a:visited {
+    color:var(--primary);
+  }
+  [data-theme="dark"] .nav-logo,
+  [data-theme="dark"] .nav-logo span { color:#fff; }
+  [data-theme="dark"] .nav-logo .logo-mark {
+    box-shadow:0 6px 18px var(--primary-glow);
+  }
+  [data-theme="dark"] .nav-links.open {
+    background:rgba(20,20,38,.97);
+  }
+  [data-theme="dark"] .comment-lock-tip {
+    background:rgba(255,160,64,.08);
+    border-color:rgba(255,160,64,.2);
+    color:var(--primary);
+  }
+  [data-theme="dark"] .chat-remaining.mid {
+    color:var(--primary);
+    background:rgba(255,160,64,.12);
+  }
+  [data-theme="dark"] .chat-remaining.low {
+    color:#ff6b6b;
+    background:rgba(255,107,107,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  .container{
+    width:100%;
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 32px;
+  }
+  body{
+    font-family:var(--font-sans);
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    line-height:1.6;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(60% 50% at 80% 0%,  rgba(255,179,71,.18), transparent 60%),
+      radial-gradient(50% 40% at 0% 30%,  rgba(255,138,0,.10),  transparent 60%),
+      radial-gradient(60% 50% at 50% 100%, rgba(255,229,191,.20), transparent 60%),
+      var(--bg);
+  }
+
+  /* ========== 导航栏 ========== */
+  #navbar{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    padding:22px 0;
+    transition:all .4s var(--ease);
+  }
+  #navbar.scrolled{
+    padding:14px 0;
+    background:rgba(255,253,249,.72);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 6px 30px rgba(255,138,0,.06);
+  }
+  .nav-inner{
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .nav-logo{
+    display:flex;align-items:center;gap:10px;
+    font-weight:800;font-size:20px;
+    letter-spacing:.02em;
+    text-decoration:none;
+    color:var(--text);
+  }
+  .nav-logo .logo-mark{
+    width:34px;height:34px;
+    border-radius:10px;
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(255,138,0,.35);
+    transition:transform .4s var(--ease);
+  }
+  .nav-logo .logo-mark img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .nav-logo:hover .logo-mark{transform:rotate(-8deg) scale(1.05);}
+  .nav-links{
+    list-style:none;display:flex;align-items:center;gap:8px;
+  }
+  .nav-links a{
+    text-decoration:none;position:relative;
+    padding:8px 16px;font-size:15px;
+    color:var(--text-sub);
+    border-radius:999px;
+    transition:all .3s var(--ease);
+  }
+  .nav-links a::after{
+    content:"";position:absolute;
+    left:50%;bottom:4px;
+    width:0;height:2px;
+    background:var(--primary);border-radius:2px;
+    transform:translateX(-50%);
+    transition:width .3s var(--ease);
+  }
+  .nav-links a:hover{color:var(--primary);}
+  .nav-links a:hover::after{width:18px;}
+  .nav-links a.active{
+    color:var(--primary);
+    font-weight:600;
+  }
+  .nav-links a.active::after{width:18px;background:var(--primary);}
+
+  /* 语言切换 */
+  .lang-switcher{
+    display:flex;align-items:center;gap:4px;
+    padding-left:10px;margin-left:6px;
+    border-left:1px solid var(--border);
+  }
+  /* 移动端导航子标签 - 桌面端默认隐藏 */
+  .nav-sub-tabs{display:none;}
+  .lang-btn{
+    background:none;border:none;
+    padding:6px 10px;cursor:pointer;
+    font-size:13px;font-weight:600;color:var(--text-mute);
+    border-radius:8px;
+    transition:all .3s var(--ease);
+    font-family:var(--font-sans);line-height:1;
+  }
+  .lang-btn:hover{color:var(--primary);background:var(--primary-soft);}
+  .lang-btn.active{
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    box-shadow:0 4px 12px rgba(255,138,0,.3);
+  }
+  .theme-toggle-btn{
+    padding:6px 10px;font-size:13px;font-weight:600;
+    color:var(--text-mute);border-radius:8px;
+    transition:all .3s var(--ease);cursor:pointer;
+    font-family:var(--font-sans);line-height:1;
+    background:transparent;border:none;white-space:nowrap;
+  }
+  .theme-toggle-btn:hover{color:var(--primary);background:var(--primary-soft);}
+  .theme-toggle-btn.dark{color:var(--primary);}
+
+  /* 汉堡按钮 */
+  .nav-toggle{
+    display:none;width:44px;height:44px;
+    border-radius:12px;border:none;
+    background:transparent;cursor:pointer;
+    align-items:center;justify-content:center;
+    flex-direction:column;gap:5px;
+    transition:all .3s var(--ease);
+  }
+  .nav-toggle span{
+    display:block;width:20px;height:2px;
+    background:var(--text);border-radius:2px;
+    transition:all .3s var(--ease);
+  }
+  .nav-toggle:hover span{background:var(--primary);}
+  .nav-toggle.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.active span:nth-child(2){opacity:0;}
+  .nav-toggle.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+  @media(max-width:900px){
+    .container{padding:0 24px;}
+    .nav-links{display:none;}
+    .nav-links.open{
+      display:flex;
+      position:absolute;top:calc(100% + 14px);
+      left:50%;transform:translateX(-50%);
+      width:min(400px, calc(100vw - 48px));
+      flex-direction:column;
+      background:rgba(255,253,249,.97);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border:1px solid var(--border);
+      border-radius:24px;
+      gap:20px;
+      padding:20px 4px;
+      box-shadow:0 32px 80px rgba(0,0,0,.16);
+      transform-origin:top center;
+      animation:navMenuIn .42s ease both;
+    }
+    @keyframes navMenuIn{
+      0%{opacity:0;transform:translateX(-50%) translateY(-16px) scale(.92);}
+      100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+    }
+    .nav-links.open a{
+      padding:10px 20px;border-radius:14px;text-align:center;
+      font-size:18px;
+    }
+    .nav-links.open a:hover{background:var(--primary-soft);color:var(--primary);}
+    .nav-links.open a::after{display:none;}
+    .nav-links.open .lang-switcher{
+      display:flex;justify-content:center;flex-wrap:wrap;
+      gap:4px;padding:16px 0 0;margin-top:8px;
+      border-top:none;border-left:none;padding-left:0;margin-left:0;
+      align-items:center;
+    }
+    .nav-links.open .lang-switcher .lang-btn{padding:8px 14px;font-size:16px;}
+    .nav-links.open .nav-sub-tabs{
+      display:flex;justify-content:center;
+      gap:8px;padding:8px 0 0;margin-top:4px;
+    }
+    .nav-sub-tabs .nav-tab-btn{
+      padding:8px 18px;
+      border:1px solid var(--border);
+      border-radius:50px;
+      background:transparent;
+      color:var(--text);font-size:15px;
+      cursor:pointer;
+      transition:all .2s var(--ease);
+      font-family:inherit;
+    }
+    .nav-sub-tabs .nav-tab-btn.active{
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      color:#fff;border-color:transparent;
+      box-shadow:0 2px 12px var(--primary-glow);
+    }
+    .nav-toggle{display:flex;}
+  }
+  @media(max-width:640px){
+    .container{padding:0 20px;}
+  }
+
+  /* ========== 页面主体 ========== */
+  .main-wrap{
+    max-width:800px;margin:0 auto;padding:80px 20px 60px;
+  }
+
+  /* ========== 标签页切换 ========== */
+  .tab-bar{
+    display:flex;gap:4px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:50px;
+    padding:4px;margin-bottom:28px;
+    backdrop-filter:blur(8px);
+  }
+  .tab-btn{
+    flex:1;padding:12px 24px;
+    border:none;border-radius:50px;
+    background:transparent;
+    font-size:15px;font-weight:600;
+    color:var(--text-sub);
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    font-family:inherit;
+  }
+  .tab-btn.active{
+    background:linear-gradient(120deg,var(--primary),var(--primary-2));
+    color:#fff;
+    box-shadow:0 4px 16px var(--primary-glow);
+  }
+  .tab-panel{display:none;min-height:420px;}
+  .tab-panel.active{display:block;}
+
+  /* ========== 个人资料面板 ========== */
+  .ban-warning{
+    background:linear-gradient(135deg,#fef0f0,#fff5f5);
+    border:1px solid #fca5a5;
+    border-radius:14px;
+    padding:14px 20px;
+    margin-bottom:16px;
+    font-size:13px;color:#dc2626;
+    line-height:1.7;
+  }
+  .ban-warning strong{font-size:14px;}
+  .profile-panel{
+    background:var(--card-bg);
+    border:1px solid var(--glass-border);
+    border-radius:20px;
+    padding:36px 32px;
+    text-align:center;
+  }
+  .profile-avatar-wrap{
+    position:relative;
+    width:100px;height:100px;
+    margin:0 auto 20px;
+    cursor:pointer;
+  }
+  .profile-avatar-wrap img{
+    width:100%;height:100%;
+    border-radius:50%;
+    object-fit:cover;
+    border:3px solid var(--primary);
+    box-shadow:0 0 24px var(--primary-glow);
+  }
+  .profile-avatar-wrap .avatar-placeholder{
+    width:100%;height:100%;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;color:#fff;
+    border:3px solid var(--primary);
+    box-shadow:0 0 24px var(--primary-glow);
+  }
+  .profile-avatar-wrap .avatar-edit{
+    position:absolute;bottom:0;right:0;
+    width:32px;height:32px;
+    border-radius:50%;
+    background:var(--primary);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    border:2px solid #fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    transition:transform .2s var(--ease);
+  }
+  .profile-avatar-wrap:hover .avatar-edit{transform:scale(1.1);}
+  .profile-nickname-wrap{
+    margin-bottom:24px;
+  }
+  .profile-nickname-wrap label{
+    display:block;
+    font-size:13px;color:var(--text-sub);
+    margin-bottom:8px;text-align:left;
+  }
+  .profile-nickname-wrap input{
+    width:100%;max-width:280px;
+    padding:12px 16px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    font-size:15px;
+    background:var(--bg);
+    color:var(--text);
+    text-align:center;
+    transition:border-color .2s var(--ease);
+    font-family:inherit;
+  }
+  .profile-nickname-wrap input:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px var(--primary-glow);
+  }
+  .profile-save-btn{
+    padding:12px 40px;
+    border:none;border-radius:50px;
+    background:linear-gradient(120deg,var(--primary),var(--primary-2));
+    color:#fff;font-size:15px;font-weight:600;
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    box-shadow:0 4px 16px var(--primary-glow);
+    font-family:inherit;
+  }
+  .profile-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--primary-glow);}
+  .profile-save-btn:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+  .profile-status{
+    margin-top:16px;font-size:13px;
+    min-height:20px;
+  }
+  .profile-status.success{color:#22c55e;}
+  .profile-status.error{color:#ef4444;}
+  .profile-complete-badge{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 12px;
+    border-radius:50px;
+    background:rgba(34,197,94,.1);
+    color:#22c55e;
+    font-size:12px;font-weight:600;
+    margin-top:12px;
+  }
+
+  /* 我的帖子 */
+  .my-comments-section{
+    margin-top:24px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .my-comments-title{
+    font-size:16px;font-weight:700;color:var(--text);
+    margin:0 0 16px 0;padding-bottom:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .my-comment-card{
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .my-comment-card:last-child{border-bottom:none;}
+  .my-comment-body{
+    font-size:14px;color:var(--text-sub);line-height:1.7;
+    margin-bottom:8px;word-break:break-word;
+  }
+  .my-comment-meta{
+    display:flex;align-items:center;gap:12px;
+    font-size:12px;color:var(--text-mute);
+  }
+  .my-comment-likes{color:#e74c3c;}
+  .my-delete-btn{
+    margin-left:auto;
+    padding:3px 12px;border-radius:50px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text-mute);font-size:12px;
+    cursor:pointer;transition:all .25s;
+    font-family:inherit;
+  }
+  .my-delete-btn:hover{
+    border-color:#e74c3c;color:#e74c3c;
+    background:rgba(231,76,60,.08);
+  }
+  .my-comment-empty{
+    text-align:center;padding:20px;color:var(--text-mute);font-size:13px;
+  }
+
+  .comment-form.locked{
+    opacity:.5;pointer-events:none;
+  }
+  .comment-lock-tip{
+    display:none;
+    padding:12px 16px;
+    margin-bottom:12px;
+    background:rgba(251,191,36,.08);
+    border:1px solid rgba(251,191,36,.25);
+    border-radius:12px;
+    color:#b45309;
+    font-size:13px;
+    text-align:center;
+  }
+  .comment-lock-tip.show{display:block;}
+
+  /* ========== 登录弹窗（精致版） ========== */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(0,0,0,.5);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;
+    opacity:0;
+    transition:opacity .3s var(--ease);
+  }
+  .modal-overlay.open{display:flex;opacity:1;}
+  .modal-box{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--glass-border);
+    border-radius:24px;
+    padding:40px 32px;
+    width:100%;max-width:420px;
+    box-shadow:0 24px 80px rgba(0,0,0,.15), 0 4px 24px rgba(0,0,0,.06);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    text-align:center;
+    animation:modalIn .4s var(--ease);
+    overflow:hidden;
+  }
+  .modal-box::before{
+    content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+    background:radial-gradient(circle at 30% 20%, var(--primary-glow) 0%, transparent 50%);
+    pointer-events:none;
+    opacity:.6;
+  }
+  @keyframes modalIn{
+    from{opacity:0;transform:translateY(30px) scale(.94);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .modal-box .modal-icon{
+    width:64px;height:64px;margin:0 auto 16px;
+    background:var(--primary-soft);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;
+    position:relative;z-index:1;
+  }
+  .modal-box h2{
+    font-size:22px;font-weight:700;
+    color:var(--text);
+    margin-bottom:6px;
+    position:relative;z-index:1;
+  }
+  .modal-box .modal-desc{
+    font-size:14px;color:var(--text-sub);
+    margin-bottom:28px;
+    position:relative;z-index:1;
+  }
+  .modal-box .modal-desc small{
+    display:block;margin-top:4px;
+    font-size:12px;color:var(--text-mute);
+  }
+  .modal-box .input-group{
+    position:relative;z-index:1;
+    text-align:left;
+  }
+  .modal-box .input-group label{
+    display:block;font-size:13px;font-weight:600;
+    color:var(--text-sub);
+    margin-bottom:6px;
+  }
+  .modal-box input[type=email],
+  .modal-box input[type=text]{
+    width:100%;padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:14px;
+    font-size:15px;font-family:inherit;
+    background:var(--bg-soft);
+    color:var(--text);
+    margin-bottom:14px;
+    outline:none;
+    transition:all .3s var(--ease);
+    position:relative;z-index:1;
+  }
+  .modal-box input:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px var(--primary-soft);
+  }
+  .modal-box .code-row{
+    display:flex;gap:10px;
+    position:relative;z-index:1;
+  }
+  .modal-box .code-row input{flex:1;margin-bottom:0;}
+  .modal-box .btn{
+    padding:12px 24px;border:none;border-radius:50px;
+    font-size:15px;font-weight:600;cursor:pointer;
+    font-family:inherit;
+    transition:all .3s var(--ease);
+    white-space:nowrap;
+    position:relative;z-index:1;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    color:#fff;width:100%;margin-top:16px;
+    box-shadow:0 4px 16px var(--primary-glow);
+    letter-spacing:.02em;
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 28px var(--primary-glow);
+  }
+  .btn-primary:disabled{
+    opacity:.6;cursor:not-allowed;transform:none;
+    box-shadow:none;
+  }
+  .btn-ghost{
+    background:transparent;color:var(--text-sub);
+    border:1px solid var(--border);
+    font-size:14px;
+  }
+  .btn-ghost:hover{color:var(--primary);border-color:var(--primary);}
+  .btn-secondary{
+    background:var(--primary-soft);
+    color:var(--primary);
+    padding:8px 20px;
+    font-size:14px;
+  }
+  .btn-secondary:hover{background:var(--primary);color:#fff;}
+  .modal-error{
+    color:#e74c3c;font-size:13px;margin-top:10px;
+    display:none;
+    background:rgba(231,76,60,.08);
+    padding:10px 16px;border-radius:10px;
+    position:relative;z-index:1;
+  }
+  .modal-error.show{display:block;}
+  .modal-success{
+    color:#27ae60;font-size:13px;margin-top:10px;
+    display:none;
+    background:rgba(39,174,96,.08);
+    padding:10px 16px;border-radius:10px;
+    position:relative;z-index:1;
+  }
+  .modal-success.show{display:block;}
+  .modal-back-btn{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:13px;color:var(--text-mute);
+    cursor:pointer;margin-bottom:16px;
+    position:relative;z-index:1;
+    border:none;background:none;
+    font-family:inherit;
+    transition:color .3s;
+  }
+  .modal-back-btn:hover{color:var(--primary);}
+
+  /* 已登录状态 */
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;margin-bottom:24px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:50px;
+    font-size:14px;color:var(--text-sub);
+    backdrop-filter:blur(8px);
+  }
+  .user-bar .user-email{font-weight:600;color:var(--primary);}
+  .user-bar .logout-btn{
+    background:var(--primary-soft);
+    color:var(--text-sub);
+    border:none;padding:6px 16px;border-radius:50px;
+    font-size:13px;cursor:pointer;
+    transition:all .3s;
+    font-family:inherit;
+  }
+  .user-bar .logout-btn:hover{background:#e74c3c;color:#fff;}
+
+  .user-bar .delete-account-btn{
+    background:transparent;
+    color:var(--text-mute);
+    border:1px solid var(--border);
+    padding:5px 14px;border-radius:50px;
+    font-size:12px;cursor:pointer;
+    transition:all .3s;
+    font-family:inherit;
+    margin-left:6px;
+  }
+  .user-bar .delete-account-btn:hover{background:#e74c3c;color:#fff;border-color:#e74c3c;}
+
+  /* 注销确认弹窗 */
+  .delete-modal-overlay{
+    position:fixed;inset:0;z-index:2000;
+    background:rgba(0,0,0,.5);
+    display:none;align-items:center;justify-content:center;
+  }
+  .delete-modal-overlay.open{display:flex;}
+  .delete-modal{
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:32px;
+    max-width:400px;width:90%;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
+    animation:fadeIn .3s var(--ease);
+  }
+  .delete-modal h3{color:var(--text);margin-bottom:8px;font-size:18px;}
+  .delete-modal p{color:var(--text-sub);font-size:14px;margin-bottom:24px;line-height:1.6;}
+  .delete-modal .btn-row{display:flex;gap:12px;justify-content:center;}
+  .delete-modal .btn-cancel{
+    padding:10px 24px;border-radius:50px;
+    border:1px solid var(--border);background:transparent;
+    color:var(--text);cursor:pointer;
+    font-family:inherit;font-size:14px;
+    transition:all .3s;
+  }
+  .delete-modal .btn-cancel:hover{background:var(--primary-soft);}
+  .delete-modal .btn-confirm{
+    padding:10px 24px;border-radius:50px;
+    border:none;background:#e74c3c;
+    color:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:600;
+    transition:all .3s;
+  }
+  .delete-modal .btn-confirm:hover{background:#c0392b;}
+  .delete-modal .btn-confirm:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* ========== OC聊天样式 ========== */
+  .chat-layout{
+    display:flex;
+    height:520px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(8px);
+    overflow:hidden;
+  }
+  /* 左侧侧边栏 */
+  .chat-sidebar{
+    width:260px;min-width:260px;
+    display:flex;flex-direction:column;
+    border-right:1px solid var(--border);
+    background:var(--bg-soft);
+    transition:all .3s var(--ease);
+    overflow:hidden;
+  }
+  .chat-sidebar.collapsed{
+    width:0;min-width:0;
+    border-right:none;
+  }
+  .sidebar-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;
+    font-size:14px;font-weight:700;
+    color:var(--text);
+    border-bottom:1px solid var(--border);
+  }
+  .sidebar-toggle-btn{
+    width:30px;height:30px;
+    border:none;border-radius:8px;
+    background:transparent;
+    color:var(--text-sub);
+    font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s var(--ease);
+  }
+  .sidebar-toggle-btn:hover{background:var(--border);color:var(--text);}
+  .new-chat-btn{
+    margin:10px 12px;
+    padding:10px 0;
+    border:1px dashed var(--border);
+    border-radius:12px;
+    background:transparent;
+    color:var(--primary);
+    font-size:14px;font-weight:600;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    font-family:inherit;
+    flex-shrink:0;
+  }
+  .new-chat-btn:hover{
+    background:var(--primary-glow);
+    border-color:var(--primary);
+  }
+  .conv-list{
+    flex:1;overflow-y:auto;
+    padding:0 8px 8px;
+  }
+  .conv-list::-webkit-scrollbar{width:4px;}
+  .conv-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  .conv-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;
+    margin-bottom:2px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    font-size:13px;color:var(--text);
+    position:relative;
+  }
+  .conv-item:hover{background:var(--border);}
+  .conv-item.active{
+    background:linear-gradient(135deg,var(--primary-glow),rgba(0,0,0,0));
+    color:var(--primary);font-weight:600;
+  }
+  .conv-item .conv-title{
+    flex:1;overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    padding-right:6px;
+  }
+  .conv-item .conv-del{
+    width:24px;height:24px;
+    border-radius:6px;
+    border:none;background:transparent;
+    color:var(--text-mute);font-size:14px;
+    cursor:pointer;
+    display:none;align-items:center;justify-content:center;
+    transition:all .2s var(--ease);
+    flex-shrink:0;
+  }
+  .conv-item:hover .conv-del{display:flex;}
+  .conv-item .conv-del:hover{background:rgba(231,76,60,.15);color:#e74c3c;}
+  .conv-empty{
+    text-align:center;padding:30px 16px;
+    color:var(--text-mute);font-size:13px;
+  }
+  /* 右侧聊天主体 */
+  .chat-main{
+    flex:1;display:flex;flex-direction:column;
+    min-width:0;
+  }
+  /* 聊天顶部栏 */
+  .chat-header{
+    display:flex;align-items:center;
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-soft);
+    flex-shrink:0;
+  }
+  .chat-header-btn{
+    width:36px;height:36px;
+    border:none;border-radius:8px;
+    background:transparent;
+    color:var(--text-sub);
+    font-size:18px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s var(--ease);
+    flex-shrink:0;
+  }
+  .chat-header-btn:hover{background:var(--primary-soft);color:var(--primary);}
+  .chat-title{
+    flex:1;text-align:center;
+    font-size:14px;font-weight:700;
+    color:var(--text);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    margin:0 12px;
+  }
+  .chat-remaining{
+    font-size:11px;font-weight:600;
+    color:var(--text-sub);
+    background:var(--primary-soft);
+    padding:3px 10px;border-radius:20px;
+    white-space:nowrap;flex-shrink:0;
+    cursor:default;
+  }
+  .chat-remaining.low{color:#e74c3c;background:#fde8e8;}
+  .chat-remaining.mid{color:#e67e22;background:#fef3e2;}
+  /* 聊天主体全屏 */
+  .chat-layout.chat-fullscreen{
+    position:fixed;inset:0;z-index:9999;
+    border-radius:0;height:100vh;
+    background:var(--bg);
+  }
+  .chat-layout.chat-fullscreen .chat-messages{flex:1;overflow-y:auto;}
+  .chat-messages{
+    flex:1;overflow-y:auto;
+    padding:20px;
+    display:flex;flex-direction:column;
+    gap:14px;
+  }
+  .chat-messages::-webkit-scrollbar{width:5px;}
+  .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  .chat-empty-state{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    color:var(--text-mute);
+  }
+  .chat-empty-state .empty-icon{font-size:48px;margin-bottom:12px;}
+  .chat-empty-state p{font-size:14px;}
+  .chat-msg{
+    max-width:80%;padding:12px 16px;
+    border-radius:18px;
+    font-size:14px;line-height:1.6;
+    animation:msgIn .3s var(--ease);
+    word-break:break-word;
+  }
+  @keyframes msgIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .chat-msg.user{
+    align-self:flex-end;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    color:#fff;
+    border-bottom-right-radius:6px;
+  }
+  .chat-msg.oc{
+    align-self:flex-start;
+    background:var(--bg-soft);
+    color:var(--text);
+    border-bottom-left-radius:6px;
+    border:1px solid var(--border);
+  }
+  .chat-msg .msg-label{
+    font-size:11px;font-weight:600;opacity:.7;margin-bottom:4px;
+    letter-spacing:.05em;
+  }
+  .chat-msg.error{
+    background:rgba(231,76,60,.1);
+    color:#e74c3c;
+    border:1px solid rgba(231,76,60,.2);
+  }
+  .chat-spinner{
+    align-self:flex-start;
+    display:flex;gap:6px;padding:12px 16px;
+  }
+  .chat-spinner span{
+    width:8px;height:8px;
+    background:var(--primary);
+    border-radius:50%;
+    animation:bounce 1.4s infinite var(--ease);
+  }
+  .chat-spinner span:nth-child(2){animation-delay:.2s;}
+  .chat-spinner span:nth-child(3){animation-delay:.4s;}
+  @keyframes bounce{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+  .chat-input-wrap{
+    display:flex;gap:10px;
+    padding:16px 20px;
+    border-top:1px solid var(--border);
+    background:var(--bg-soft);
+  }
+  .chat-input-wrap input{
+    flex:1;padding:10px 16px;
+    border:1px solid var(--border);
+    border-radius:50px;
+    font-size:14px;font-family:inherit;
+    background:var(--card-bg);
+    color:var(--text);
+    outline:none;
+    transition:border .3s;
+  }
+  .chat-input-wrap input:focus{border-color:var(--primary);}
+  .chat-input-wrap .send-btn{
+    width:44px;height:44px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    color:#fff;font-size:20px;
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    flex-shrink:0;
+  }
+  .chat-input-wrap .send-btn:hover{transform:scale(1.08);box-shadow:0 4px 16px var(--primary-glow);}
+  .chat-input-wrap .send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+  /* 移动端侧边栏 */
+  @media (max-width:768px){
+    .chat-layout{position:relative;}
+    .chat-sidebar{
+      position:fixed;top:0;left:0;bottom:0;z-index:1100;
+      width:280px;max-width:85vw;
+      box-shadow:4px 0 20px rgba(0,0,0,.15);
+      transform:translateX(-100%);
+      transition:transform .3s ease;
+    }
+    .chat-sidebar.open{transform:translateX(0);}
+    .chat-sidebar.collapsed{transform:translateX(-100%);}
+    .chat-sidebar-overlay{
+      display:none;
+      position:fixed;left:0;top:0;right:0;bottom:0;
+      background:rgba(0,0,0,.45);z-index:1090;
+    }
+    .chat-sidebar.open ~ .chat-sidebar-overlay{display:block;}
+  }
+
+  /* ========== 评论区样式 ========== */
+  .comment-form{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;margin-bottom:24px;
+    backdrop-filter:blur(8px);
+  }
+  .comment-form textarea{
+    width:100%;min-height:100px;
+    padding:12px 16px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    font-size:14px;font-family:inherit;
+    background:var(--bg-soft);
+    color:var(--text);
+    outline:none;
+    resize:vertical;
+    transition:border .3s;
+    margin-bottom:12px;
+  }
+  .comment-form textarea:focus{border-color:var(--primary);}
+  .comment-form .form-footer{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;
+  }
+  .comment-form .char-count{font-size:13px;color:var(--text-mute);font-family:var(--font-mono);}
+
+  .comment-list{
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .comment-card{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    backdrop-filter:blur(8px);
+    transition:all .3s var(--ease);
+  }
+  .comment-card:hover{
+    border-color:var(--primary);
+    transform:translateY(-2px);
+    box-shadow:var(--shadow);
+  }
+  .comment-card .c-header{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:8px;
+  }
+  .comment-card .c-avatar{
+    width:36px;height:36px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:14px;font-weight:700;
+    flex-shrink:0;
+  }
+  .comment-card .c-avatar-img{
+    width:36px;height:36px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid var(--primary);
+    flex-shrink:0;
+  }
+  .comment-card .c-name{font-size:14px;font-weight:600;color:var(--text);}
+  .comment-card .c-time{font-size:12px;color:var(--text-mute);margin-left:auto;}
+  .comment-card .c-body{font-size:14px;color:var(--text-sub);line-height:1.7;}
+  .comment-card .c-footer{
+    display:flex;align-items:center;gap:8px;margin-top:10px;
+    padding-top:10px;border-top:1px solid var(--border);
+  }
+  .c-like-btn{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 12px;border-radius:50px;
+    border:1px solid var(--border);
+    background:var(--card-bg);
+    color:var(--text-sub);font-size:13px;
+    cursor:pointer;transition:all .25s var(--ease);
+    font-family:inherit;
+  }
+  .c-like-btn:hover:not(:disabled){
+    border-color:#e74c3c;color:#e74c3c;
+    background:rgba(231,76,60,.06);
+  }
+  .c-like-btn.liked{
+    border-color:#e74c3c;color:#e74c3c;
+    background:rgba(231,76,60,.1);
+  }
+  .c-like-btn:disabled{cursor:not-allowed;opacity:.5;}
+  .c-delete-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:50%;
+    border:none;background:transparent;
+    color:var(--text-mute);font-size:20px;font-weight:700;
+    cursor:pointer;transition:all .25s;
+    line-height:1;padding:0;margin-left:4px;font-family:inherit;
+  }
+  .c-delete-btn:hover{background:rgba(231,76,60,.12);color:#e74c3c;}
+  .comment-empty{text-align:center;padding:40px 20px;color:var(--text-mute);}
+  .pagination{
+    display:flex;justify-content:center;gap:8px;margin-top:24px;
+  }
+  .pagination button{
+    width:40px;height:40px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--card-bg);
+    color:var(--text-sub);
+    font-size:14px;cursor:pointer;
+    transition:all .3s;
+    font-family:inherit;
+  }
+  .pagination button:hover:not(:disabled){border-color:var(--primary);color:var(--primary);}
+  .pagination button:disabled{opacity:.4;cursor:default;}
+  .pagination button.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+  /* ========== 登录提示居中 ========== */
+  .login-prompt{
+    text-align:center;padding:60px 20px;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(8px);
+  }
+  .login-prompt .prompt-icon{font-size:48px;margin-bottom:16px;}
+  .login-prompt h3{font-size:20px;color:var(--text);margin-bottom:8px;}
+  .login-prompt p{font-size:14px;color:var(--text-sub);margin-bottom:20px;}
+
+</style>
+</head>
+<body>
+<!-- ========== 导航栏（统一） ========== -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="纳棂 NALING" data-i18n-aria="aria.brand">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span data-i18n="brand">纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" class="active" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh" data-i18n-title="lang.zh" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" data-i18n-title="lang.zhTW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" data-i18n-title="lang.bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" data-i18n-title="lang.en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" data-i18n-title="lang.ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+      <li class="nav-sub-tabs">
+        <button class="nav-tab-btn active" data-subtab="chat" data-i18n="tab.chat">OC聊天</button>
+        <button class="nav-tab-btn" data-subtab="comments" data-i18n="tab.comments">评论区</button>
+        <button class="nav-tab-btn" data-subtab="profile" data-i18n="tab.profile">个人</button>
+      </li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单" data-i18n-aria="aria.menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ========== 页面主体 ========== -->
+<main class="main-wrap">
+
+  <!-- 标签页切换 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="chat" data-i18n="tab.chat">OC聊天</button>
+    <button class="tab-btn" data-tab="comments" data-i18n="tab.comments">评论区</button>
+    <button class="tab-btn" data-tab="profile" data-i18n="tab.profile">个人</button>
+  </div>
+
+  <!-- 已登录状态栏 -->
+  <div class="user-bar" id="userBar" style="display:none">
+    <span>已登录：<span class="user-email" id="userEmail"></span></span>
+    <div>
+      <button class="delete-account-btn" id="deleteAccountBtn">注销账号</button>
+      <button class="logout-btn" id="logoutBtn" data-i18n="login.logout">退出登录</button>
+    </div>
+  </div>
+
+  <!-- 账号注销确认弹窗 -->
+  <div class="delete-modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+      <h3>确认注销账号？</h3>
+      <p>注销后该账号将无法登录，但历史数据（聊天记录、评论等）仍会保留在系统中。</p>
+      <div class="btn-row">
+        <button class="btn-cancel" id="deleteCancelBtn">取消</button>
+        <button class="btn-confirm" id="deleteConfirmBtn">确认注销</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OC聊天面板 -->
+  <div class="tab-panel active" id="panelChat">
+    <div id="chatGuest">
+      <div class="login-prompt">
+        <div class="prompt-icon">🔐</div>
+        <h3 data-i18n="login.need">请先登录</h3>
+        <p data-i18n="login.profile.required">需要邮箱验证码登录后才能使用</p>
+        <button class="btn-primary" id="showLoginBtn" style="width:auto;padding:12px 36px;" data-i18n="login.submit">登录</button>
+      </div>
+    </div>
+    <div id="chatLogged" style="display:none">
+      <div class="chat-layout">
+        <!-- 左侧历史对话侧边栏 -->
+        <aside class="chat-sidebar" id="chatSidebar">
+          <div class="sidebar-header">
+            <span data-i18n="chat.loading">对话历史</span>
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="收起侧边栏">☰</button>
+          </div>
+          <button class="new-chat-btn" id="newChatBtn" data-i18n="chat.new">+ 新建对话</button>
+          <div class="conv-list" id="convList">
+            <div class="conv-empty" data-i18n="chat.no.conversations">暂无对话记录</div>
+          </div>
+        </aside>
+        <div class="chat-sidebar-overlay" id="chatSidebarOverlay"></div>
+        <!-- 右侧聊天主体 -->
+        <div class="chat-main">
+          <div class="chat-header">
+            <button class="chat-header-btn" id="chatSidebarToggle" title="对话历史">☰</button>
+            <span class="chat-title" id="chatTitle">纳棂</span>
+            <span class="chat-remaining" id="chatRemaining" title="今日剩余对话次数"></span>
+            <button class="chat-header-btn" id="chatFullscreenBtn" title="全屏" aria-label="全屏">
+              <svg class="fs-icon-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+              <svg class="fs-icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <polyline points="4 8 4 4 8 4"></polyline>
+                <polyline points="20 16 20 20 16 20"></polyline>
+                <line x1="4" y1="4" x2="11" y2="11"></line>
+                <line x1="20" y1="20" x2="13" y2="13"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty-state" id="chatEmpty">
+              <div class="empty-icon">🐾</div>
+              <p data-i18n="chat.no.conversations">选择一个对话或新建一个，开始和纳棂聊天吧~</p>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <input type="text" id="chatInput" data-i18n-placeholder="chat.placeholder" placeholder="登录后直接和纳棂聊天..." maxlength="2000" disabled>
+            <button class="send-btn" id="chatSend" disabled data-i18n="chat.send">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 评论区面板 -->
+  <div class="tab-panel" id="panelComments">
+    <div id="commentGuest">
+      <div class="login-prompt">
+        <div class="prompt-icon">💌</div>
+        <h3 data-i18n="login.need">请先登录</h3>
+        <p data-i18n="login.profile.required">需要邮箱验证码登录后才能评论</p>
+        <button class="btn-primary" id="showLoginBtn2" style="width:auto;padding:12px 36px;" data-i18n="login.submit">登录</button>
+      </div>
+    </div>
+    <div id="commentLogged" style="display:none">
+      <div class="comment-lock-tip" id="commentLockTip" data-i18n="comment.locked">⚠️ 请先在「个人」标签页完善资料（昵称+头像）后再发表评论</div>
+    <div class="comment-form" id="commentFormWrap">
+        <textarea id="commentInput" data-i18n-placeholder="comment.placeholder" placeholder="写下你的想法..." maxlength="1000"></textarea>
+        <div class="form-footer">
+          <span class="char-count" id="charCount">0 / 1000</span>
+          <button class="btn-secondary" id="commentSubmit" data-i18n="comment.submit">发表评论</button>
+        </div>
+      </div>
+      <div class="comment-list" id="commentList"></div>
+      <div class="pagination" id="commentPages"></div>
+    </div>
+  </div>
+
+  <!-- 个人资料面板 -->
+  <div class="tab-panel" id="panelProfile">
+    <div id="profileGuest">
+      <div class="login-prompt">
+        <div class="prompt-icon">👤</div>
+        <h3 data-i18n="login.need">请先登录</h3>
+        <p data-i18n="login.profile.required">设置头像和昵称后即可参与评论</p>
+      </div>
+    </div>
+    <div id="profileLogged" style="display:none">
+      <div class="ban-warning" id="banWarning" style="display:none"></div>
+      <div class="profile-panel">
+        <div class="profile-avatar-wrap" id="avatarWrap">
+          <img id="avatarImg" src="" alt="头像" style="display:none">
+          <div class="avatar-placeholder" id="avatarPlaceholder">🐾</div>
+          <div class="avatar-edit" data-i18n="profile.avatar.edit">✎</div>
+        </div>
+        <input type="file" id="avatarFile" accept="image/*" style="display:none">
+        <div class="profile-nickname-wrap">
+          <label data-i18n="profile.nickname">昵称</label>
+          <input type="text" id="nicknameInput" data-i18n-placeholder="profile.nickname.placeholder" placeholder="给自己取个名字吧~" maxlength="20">
+        </div>
+        <button class="profile-save-btn" id="profileSaveBtn" data-i18n="profile.save">保存资料</button>
+        <div class="profile-status" id="profileStatus"></div>
+        <div class="profile-complete-badge" id="profileBadge" style="display:none" data-i18n="profile.saved">✓ 资料已完善</div>
+      </div>
+      <!-- 我的帖子 -->
+      <div class="my-comments-section">
+        <h3 class="my-comments-title" data-i18n="profile.my.posts">📝 我的帖子</h3>
+        <div id="myCommentsList"><div class="my-comment-empty" data-i18n="profile.loading">加载中...</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ========== 登录弹窗 ========== -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-icon">✉️</div>
+    <h2 data-i18n="login.title">邮箱登录</h2>
+    <p class="modal-desc" data-i18n="login.need">无需注册，输入邮箱即可快速登录<small>我们会向您的邮箱发送6位验证码</small></p>
+    <div id="stepEmail">
+      <div class="input-group">
+        <label data-i18n="login.email">📬 邮箱地址</label>
+        <input type="email" id="loginEmail" data-i18n-placeholder="login.email.placeholder" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <button class="btn-primary" id="sendCodeBtn" data-i18n="login.send">发送验证码</button>
+      <div class="modal-error" id="emailError"></div>
+      <div class="modal-success" id="emailSuccess"></div>
+    </div>
+    <div id="stepCode" style="display:none">
+      <button class="modal-back-btn" id="backBtn" data-i18n="login.email">← 更换邮箱</button>
+      <div class="input-group">
+        <label data-i18n="login.code">🔢 验证码</label>
+        <div class="code-row">
+          <input type="text" id="loginCode" data-i18n-placeholder="login.code.placeholder" placeholder="输入6位验证码" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+        </div>
+      </div>
+      <button class="btn-primary" id="verifyBtn" data-i18n="login.submit">验证并登录</button>
+      <div class="modal-error" id="codeError"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== API 配置 ==========
+const API_BASE = 'https://**************************.service.tcloudbase.com/api';
+
+// ========== 工具函数 ==========
+const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+const $$ = (sel, ctx) => (ctx || document).querySelectorAll(sel);
+
+async function api(path, method, body) {
+  const token = localStorage.getItem('naling-token');
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (body) opts.body = JSON.stringify(body);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超时
+  opts.signal = controller.signal;
+
+  try {
+    const resp = await fetch(API_BASE + path, opts);
+    clearTimeout(timeoutId);
+    if (!resp.ok) {
+      let errMsg = `请求失败 (${resp.status})`;
+      try {
+        const body = await resp.json();
+        if (body && body.error) errMsg = body.error;
+      } catch (_) {
+        // 非 JSON 响应，使用默认错误信息
+      }
+      console.error('API请求失败:', resp.status, errMsg);
+      return { ok: false, error: errMsg };
+    }
+    return resp.json();
+  } catch (e) {
+    clearTimeout(timeoutId);
+    console.error('网络错误:', e);
+    if (e.name === 'AbortError') {
+      return { ok: false, error: '请求超时，请检查网络连接' };
+    }
+    return { ok: false, error: '网络错误，请检查连接后重试' };
+  }
+}
+
+function isLoggedIn() {
+  const token = localStorage.getItem('naling-token');
+  if (!token) return false;
+  // 检查 token 是否过期（JWT 解析 exp 字段）
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      // token 过期，清除登录状态
+      localStorage.removeItem('naling-token');
+      localStorage.removeItem('naling-email');
+      return false;
+    }
+  } catch(e) { /* 非 JWT token，忽略过期检查 */ }
+  return true;
+}
+
+function getEmail() {
+  return localStorage.getItem('naling-email') || '';
+}
+
+// ========== 登录弹窗 ==========
+function showLogin() {
+  $('#stepEmail').style.display = 'block';
+  $('#stepCode').style.display = 'none';
+  $('#emailError').classList.remove('show');
+  $('#emailSuccess').classList.remove('show');
+  $('#codeError').classList.remove('show');
+  $('#loginEmail').value = '';
+  $('#loginCode').value = '';
+  $('#loginModal').classList.add('open');
+}
+
+function hideLogin() {
+  $('#loginModal').classList.remove('open');
+}
+
+$('#loginModal').addEventListener('click', function(e) {
+  if (e.target === this) hideLogin();
+});
+
+$('#sendCodeBtn').addEventListener('click', async function() {
+  const email = $('#loginEmail').value.trim().toLowerCase();
+  const err = $('#emailError');
+  const ok = $('#emailSuccess');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    err.textContent = '请输入正确的邮箱地址';
+    err.classList.add('show');
+    return;
+  }
+
+  // 前端邮箱域名白名单检查
+  const allowedDomains = ['qq.com','foxmail.com','gmail.com','googlemail.com','outlook.com','hotmail.com','live.com','msn.com','icloud.com','me.com','mac.com','163.com','126.com','yeah.net'];
+  const domain = email.split('@')[1];
+  if (!allowedDomains.includes(domain)) {
+    err.textContent = '仅支持常用个人邮箱（QQ/谷歌/微软/苹果/网易），不支持企业邮箱';
+    err.classList.add('show');
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = '发送中...';
+
+  try {
+    const resp = await api('/send-code', 'POST', { email });
+    if (resp.ok) {
+      ok.textContent = '验证码已发送，请检查邮箱（含垃圾邮件箱）';
+      ok.classList.add('show');
+      $('#stepEmail').style.display = 'none';
+      $('#stepCode').style.display = 'block';
+      $('#loginCode').focus();
+      // 60秒后可重新发送
+      this.disabled = false;
+      this.textContent = '获取验证码';
+    } else {
+      err.textContent = resp.error || '发送失败，请检查网络连接';
+      err.classList.add('show');
+      this.disabled = false;
+      this.textContent = '获取验证码';
+    }
+  } catch (e) {
+    err.textContent = '网络异常，请稍后再试';
+    err.classList.add('show');
+    this.disabled = false;
+    this.textContent = '获取验证码';
+  }
+});
+
+$('#verifyBtn').addEventListener('click', async function() {
+  const email = $('#loginEmail').value.trim().toLowerCase();
+  const code = $('#loginCode').value.trim();
+  const err = $('#codeError');
+  err.classList.remove('show');
+
+  if (!code || code.length !== 6) {
+    err.textContent = '请输入6位验证码';
+    err.classList.add('show');
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = '验证中...';
+
+  try {
+    const resp = await api('/login', 'POST', { email, code });
+    if (resp.ok) {
+      localStorage.setItem('naling-token', resp.token);
+      localStorage.setItem('naling-email', resp.email);
+      hideLogin();
+      updateAuthUI();
+      loadComments();
+    } else {
+      err.textContent = resp.error || '验证失败';
+      err.classList.add('show');
+      this.disabled = false;
+      this.textContent = '验证并登录';
+    }
+  } catch (e) {
+    err.textContent = '网络错误';
+    err.classList.add('show');
+    this.disabled = false;
+    this.textContent = '验证并登录';
+  }
+});
+
+$('#backBtn').addEventListener('click', function() {
+  $('#stepCode').style.display = 'none';
+  $('#stepEmail').style.display = 'block';
+  $('#codeError').classList.remove('show');
+  $('#emailError').classList.remove('show');
+  $('#emailSuccess').classList.remove('show');
+});
+
+function updateAuthUI() {
+  const logged = isLoggedIn();
+  $('#userBar').style.display = logged ? 'flex' : 'none';
+  $('#chatGuest').style.display = logged ? 'none' : 'block';
+  $('#chatLogged').style.display = logged ? 'block' : 'none';
+  $('#commentGuest').style.display = logged ? 'none' : 'block';
+  $('#commentLogged').style.display = logged ? 'block' : 'none';
+  $('#profileGuest').style.display = logged ? 'none' : 'block';
+  $('#profileLogged').style.display = logged ? 'block' : 'none';
+  if (logged) {
+    $('#userEmail').textContent = getEmail();
+    loadProfile();
+    loadConversations(); // 登录后加载对话列表
+    updateChatRemaining(); // 更新剩余对话次数
+    loadComments(); // 刷新点赞状态
+    enableChatInput(); // 登录后立即可输入
+  } else {
+    $('#commentLockTip').classList.remove('show');
+    $('#commentFormWrap').classList.remove('locked');
+    $('#chatRemaining').textContent = '';
+    // 登出后重置聊天
+    currentConvId = null;
+    convList = [];
+    renderConvList();
+    resetChatView();
+    $('#chatInput').disabled = true;
+    $('#chatSend').disabled = true;
+    loadComments(); // 刷新去登录态
+  }
+}
+
+$('#logoutBtn').addEventListener('click', function() {
+  localStorage.removeItem('naling-token');
+  localStorage.removeItem('naling-email');
+  updateAuthUI();
+});
+
+// ========== 账号注销 ==========
+$('#deleteAccountBtn').addEventListener('click', function() {
+  $('#deleteModal').classList.add('open');
+});
+
+$('#deleteCancelBtn').addEventListener('click', function() {
+  $('#deleteModal').classList.remove('open');
+});
+
+$('#deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) $('#deleteModal').classList.remove('open');
+});
+
+$('#deleteConfirmBtn').addEventListener('click', async function() {
+  const token = localStorage.getItem('naling-token');
+  if (!token) return;
+
+  this.disabled = true;
+  this.textContent = '注销中...';
+
+  try {
+    const resp = await api('/account', 'DELETE', {}, token);
+    if (resp.ok) {
+      alert(t('account.deleted'));
+      // 清除登录状态
+      localStorage.removeItem('naling-token');
+      localStorage.removeItem('naling-email');
+      $('#deleteModal').classList.remove('open');
+      updateAuthUI();
+    } else {
+      alert(resp.error || t('account.deleteFailed'));
+    }
+  } catch (e) {
+    alert(t('error.network'));
+  } finally {
+    this.disabled = false;
+    this.textContent = t('account.confirm');
+  }
+});
+
+// ========== 标签页切换 ==========
+$$('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    $$('.tab-btn').forEach(b => b.classList.remove('active'));
+    $$('.tab-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    $('#panel' + this.dataset.tab.charAt(0).toUpperCase() + this.dataset.tab.slice(1)).classList.add('active');
+    // 同步导航栏子标签高亮
+    var tabName = this.dataset.tab;
+    navLinks.querySelectorAll('.nav-tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.subtab === tabName);
+    });
+    // 更新当前标签
+    currentTab = tabName;
+    // 切换标签时加载对应内容
+    if (tabName === 'profile' && isLoggedIn()) {
+      loadProfile();
+      loadMyComments();
+    }
+    if (tabName === 'comments') loadComments();
+    if (tabName === 'chat' && isLoggedIn()) loadConversations();
+  });
+});
+
+$('#showLoginBtn').addEventListener('click', showLogin);
+$('#showLoginBtn2').addEventListener('click', showLogin);
+
+// ========== 个人资料管理 ==========
+let profileNickname = '';
+let profileAvatar = '';
+
+async function loadProfile() {
+  try {
+    const resp = await api('/profile', 'GET');
+    if (resp.ok && resp.profile) {
+      profileNickname = resp.profile.nickname || '';
+      profileAvatar = resp.profile.avatar || '';
+      // 更新个人面板
+      updateProfilePanel();
+      // 更新评论区锁定状态
+      updateCommentLock();
+      // 处理封禁状态：禁封账号隐藏/禁用注销按钮
+      if (resp.profile.isBanned) {
+        const deleteBtn = $('#deleteAccountBtn');
+        if (deleteBtn) {
+          deleteBtn.style.display = 'none';
+          deleteBtn.title = resp.profile.banMessage || '账号已被封禁';
+        }
+        // 个人面板显示封禁/违规警告
+        const banWarn = $('#banWarning');
+        if (banWarn) {
+          if (resp.profile.isPermanentlyBanned) {
+            banWarn.innerHTML = '<strong>⚠️ 账号已被永久封禁</strong><br>由于累计违规5次，此账号已被永久封禁，无法注销。';
+          } else {
+            const vc = resp.profile.violationCount || 0;
+            banWarn.innerHTML = '<strong>⚠️ 违规警告</strong><br>累计违规 <b>' + vc + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
+          }
+          banWarn.style.display = 'block';
+        }
+        // 显示封禁提示（如果永久封禁）
+        if (resp.profile.isPermanentlyBanned) {
+          const bar = $('#userBar');
+          if (bar && !bar.querySelector('.ban-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'ban-badge';
+            badge.textContent = '已永久封禁';
+            badge.style.cssText = 'font-size:11px;color:#e74c3c;background:#fde8e8;padding:2px 8px;border-radius:10px;margin-left:8px;';
+            bar.appendChild(badge);
+          }
+        }
+      } else if (resp.profile.violationCount > 0) {
+        // 有违规记录但未封禁
+        const banWarn = $('#banWarning');
+        if (banWarn) {
+          banWarn.innerHTML = '<strong>⚠️ 违规警告</strong><br>累计违规 <b>' + resp.profile.violationCount + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
+          banWarn.style.display = 'block';
+        }
+      }
+    }
+  } catch (e) {
+    // 静默处理
+  }
+}
+
+function updateProfilePanel() {
+  $('#nicknameInput').value = profileNickname;
+  if (profileAvatar) {
+    $('#avatarImg').src = profileAvatar;
+    $('#avatarImg').style.display = 'block';
+    $('#avatarPlaceholder').style.display = 'none';
+  } else {
+    $('#avatarImg').style.display = 'none';
+    $('#avatarPlaceholder').style.display = 'flex';
+  }
+  if (profileNickname && profileAvatar) {
+    $('#profileBadge').style.display = 'inline-flex';
+  } else {
+    $('#profileBadge').style.display = 'none';
+  }
+}
+
+function isProfileComplete() {
+  return profileNickname && profileAvatar;
+}
+
+function updateCommentLock() {
+  if (isProfileComplete()) {
+    $('#commentLockTip').classList.remove('show');
+    $('#commentFormWrap').classList.remove('locked');
+  } else {
+    $('#commentLockTip').classList.add('show');
+    $('#commentFormWrap').classList.add('locked');
+  }
+}
+
+// 头像点击上传
+$('#avatarWrap').addEventListener('click', function() {
+  $('#avatarFile').click();
+});
+
+$('#avatarFile').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    setProfileStatus('图片不能超过 2MB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    profileAvatar = e.target.result;
+    updateProfilePanel();
+  };
+  reader.readAsDataURL(file);
+});
+
+// 昵称输入
+$('#nicknameInput').addEventListener('input', function() {
+  profileNickname = this.value.trim();
+});
+
+// 保存资料
+$('#profileSaveBtn').addEventListener('click', async function() {
+  const nick = profileNickname || $('#nicknameInput').value.trim();
+  if (!nick) {
+    setProfileStatus('请输入昵称', 'error');
+    return;
+  }
+  if (!profileAvatar) {
+    setProfileStatus('请上传头像', 'error');
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = t('profile.status.saving');
+  setProfileStatus('', '');
+
+  try {
+    const body = { nickname: nick };
+    if (profileAvatar) body.avatar = profileAvatar;
+    const resp = await api('/profile', 'POST', body);
+    if (resp.ok) {
+      profileNickname = nick;
+      updateProfilePanel();
+      updateCommentLock();
+      setProfileStatus('✓ 资料已保存', 'success');
+      // 刷新评论列表以更新显示
+      if (isLoggedIn()) loadComments();
+    } else {
+      setProfileStatus(resp.error || '保存失败', 'error');
+    }
+  } catch (e) {
+    setProfileStatus('网络错误', 'error');
+  } finally {
+    this.disabled = false;
+    this.textContent = t('profile.save');
+  }
+});
+
+function setProfileStatus(msg, type) {
+  const el = $('#profileStatus');
+  el.textContent = msg;
+  el.className = 'profile-status';
+  if (type) el.classList.add(type);
+}
+
+// ========== 评论区 ==========
+let commentPage = 1;
+const COMMENTS_PER_PAGE = 10;
+
+$('#commentInput').addEventListener('input', function() {
+  $('#charCount').textContent = this.value.length + ' / 1000';
+});
+
+async function loadComments() {
+  try {
+    const resp = await api(`/comments?page=${commentPage}&pageSize=${COMMENTS_PER_PAGE}`, 'GET');
+    const list = $('#commentList');
+    const pages = $('#commentPages');
+
+    if (!resp.ok || !resp.data || resp.data.length === 0) {
+      list.innerHTML = `<div class="comment-empty">${resp.total === 0 ? t('comment.empty') : t('comment.empty')}</div>`;
+      pages.innerHTML = '';
+      return;
+    }
+
+    const myEmail = getMyEmail();
+    list.innerHTML = resp.data.map(c => {
+      const nick = c.nickname || c.email;
+      const avatar = c.avatar;
+      const avatarHtml = avatar
+        ? `<img src="${escapeHtml(avatar)}" alt="头像" class="c-avatar-img">`
+        : `<div class="c-avatar">${nick.charAt(0).toUpperCase()}</div>`;
+      const isMine = myEmail && c.rawEmail === myEmail;
+      const likeClass = c.likedByMe ? 'liked' : '';
+      const likeIcon = c.likedByMe ? '❤️' : '🤍';
+      return `
+      <div class="comment-card" id="comment-${c.id}">
+        <div class="c-header">
+          ${avatarHtml}
+          <span class="c-name">${escapeHtml(nick)}</span>
+          <span class="c-time">${fmtTime(c.createdAt)}</span>
+          ${isMine ? `<button class="c-delete-btn" onclick="deleteMyComment('${c.id}')" title="删除">×</button>` : ''}
+        </div>
+        <div class="c-body">${escapeHtml(c.content)}</div>
+        <div class="c-footer">
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${c.id}')" ${isLoggedIn() ? '' : 'disabled title="请先登录"'}>
+            ${likeIcon} <span>${c.likeCount || 0}</span>
+          </button>
+        </div>
+      </div>
+      `;
+    }).join('');
+
+    // 分页
+    const totalPages = Math.ceil(resp.total / COMMENTS_PER_PAGE);
+    if (totalPages > 1) {
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="${i === commentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      }
+      pages.innerHTML = html;
+    } else {
+      pages.innerHTML = '';
+    }
+  } catch (e) {
+    $('#commentList').innerHTML = '<div class="comment-empty">' + t('comment.load.error') + '</div>';
+  }
+}
+
+function goPage(p) {
+  commentPage = p;
+  loadComments();
+  $('#commentList').scrollIntoView({ behavior: 'smooth' });
+}
+
+$('#commentSubmit').addEventListener('click', async function() {
+  const content = $('#commentInput').value.trim();
+  if (!content) return;
+  if (content.length > 1000) {
+    alert(t('comment.tooLong'));
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = '提交中...';
+
+  try {
+    const resp = await api('/comments', 'POST', { content });
+    if (resp.ok) {
+      $('#commentInput').value = '';
+      $('#charCount').textContent = '0 / 1000';
+      commentPage = 1;
+      loadComments();
+    } else if (resp.needProfile) {
+      alert(t('comment.locked'));
+      // 自动切换到个人标签页
+      $$('.tab-btn').forEach(b => { b.classList.remove('active'); if(b.dataset.tab==='profile') b.classList.add('active'); });
+      $$('.tab-panel').forEach(p => { p.classList.remove('active'); if(p.id==='panelProfile') p.classList.add('active'); });
+      navLinks.querySelectorAll('.nav-tab-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.subtab === 'profile');
+      });
+    } else if (resp.blocked) {
+      alert('⚠️ 评论因「' + (resp.reason || resp.category || '违规内容') + '」被拦截\n\n累计违规5次将永久封禁账号，请注意文明交流');
+    } else {
+      alert(resp.error || t('comment.postFailed'));
+    }
+  } catch (e) {
+    alert(t('error.network'));
+  }
+
+  this.disabled = false;
+  this.textContent = '发表评论';
+});
+
+// ========== OC聊天 ==========
+let waitingReply = false;
+let currentConvId = null;
+let convList = []; // [{id, title, messageCount, updatedAt}]
+
+// ---- 对话列表管理 ----
+async function loadConversations() {
+  try {
+    const resp = await api('/chat/conversations', 'GET');
+    if (resp.ok) {
+      convList = resp.data;
+      renderConvList();
+    }
+  } catch (e) { /* 静默处理 */ }
+}
+
+function renderConvList() {
+  const container = $('#convList');
+  if (convList.length === 0) {
+    container.innerHTML = '<div class="conv-empty">' + t('chat.no.conversations') + '</div>';
+    return;
+  }
+  container.innerHTML = convList.map(c => {
+    const activeClass = c.id === currentConvId ? ' active' : '';
+    return `<div class="conv-item${activeClass}" data-id="${c.id}">
+      <span class="conv-title">${escapeHtml(c.title)}</span>
+      <button class="conv-del" data-id="${c.id}" title="删除">×</button>
+    </div>`;
+  }).join('');
+
+  // 点击切换对话
+  container.querySelectorAll('.conv-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      if (e.target.classList.contains('conv-del')) return;
+      const id = this.dataset.id;
+      if (id !== currentConvId) switchConversation(id);
+    });
+  });
+  // 删除按钮
+  container.querySelectorAll('.conv-del').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      if (!confirm(t('chat.delete.confirm'))) return;
+      const id = this.dataset.id;
+      await api('/chat/conversations', 'DELETE', { conversationId: id });
+      convList = convList.filter(c => c.id !== id);
+      if (currentConvId === id) {
+        currentConvId = null;
+        resetChatView();
+      }
+      renderConvList();
+    });
+  });
+}
+
+async function switchConversation(id) {
+  currentConvId = id;
+  renderConvList();
+  enableChatInput();
+  // 加载该对话的消息
+  try {
+    const resp = await api('/chat/messages?conversationId=' + encodeURIComponent(id), 'GET');
+    if (resp.ok) {
+      renderMessages(resp.data);
+    }
+  } catch (e) {
+    addChatMessage('error', '加载对话失败', '⚠️ 错误');
+  }
+}
+
+async function createNewConversation() {
+  try {
+    const resp = await api('/chat/conversations', 'POST', { title: '新对话' });
+    if (resp.ok) {
+      convList.unshift({ id: resp.id, title: resp.title, messageCount: 0, updatedAt: Date.now() });
+      currentConvId = resp.id;
+      renderConvList();
+      resetChatView();
+      enableChatInput();
+    } else {
+      addChatMessage('error', resp.error || '创建对话失败', '⚠️ 错误');
+    }
+  } catch (e) {
+    addChatMessage('error', '创建对话失败', '⚠️ 错误');
+  }
+}
+
+$('#newChatBtn').addEventListener('click', async function() {
+  await createNewConversation();
+  closeMobileSidebar();
+});
+
+// 侧边栏收起/展开（侧边栏内的按钮 + 聊天顶栏的三条杠）
+  function toggleChatSidebar() {
+    const sidebar = $('#chatSidebar');
+    if (window.innerWidth <= 768) {
+      // 移动端：侧边栏覆盖显示/隐藏
+      sidebar.classList.toggle('open');
+      if (sidebar.classList.contains('open')) {
+        renderConvList();
+      }
+    } else {
+      // 桌面端：收起/展开侧边栏
+      sidebar.classList.toggle('collapsed');
+    }
+  }
+
+  function closeMobileSidebar() {
+    const sidebar = $('#chatSidebar');
+    if (sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+    }
+  }
+$('#sidebarToggle').addEventListener('click', toggleChatSidebar);
+$('#chatSidebarToggle').addEventListener('click', toggleChatSidebar);
+$('#chatSidebarOverlay').addEventListener('click', closeMobileSidebar);
+
+// 主题切换
+(function(){
+  var THEME_KEY = 'naling-theme';
+  var btn = document.getElementById('themeToggle');
+  function getTheme(){
+    var s = localStorage.getItem(THEME_KEY);
+    if(s === 'dark' || s === 'light') return s;
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    return 'light';
+  }
+  function apply(theme){
+    if(theme === 'dark'){ document.documentElement.setAttribute('data-theme','dark'); }
+    else { document.documentElement.removeAttribute('data-theme'); }
+    if(btn){
+      if(theme==='dark'){ btn.classList.add('dark'); btn.textContent='明亮'; }
+      else { btn.classList.remove('dark'); btn.textContent='阴暗'; }
+    }
+  }
+  function toggle(){
+    var next = getTheme()==='dark'?'light':'dark';
+    localStorage.setItem(THEME_KEY, next);
+    apply(next);
+  }
+  if(btn) btn.addEventListener('click', toggle);
+  apply(getTheme());
+})();
+
+// 全屏切换
+$('#chatFullscreenBtn').addEventListener('click', function() {
+  const layout = $('.chat-layout');
+  const isFull = layout.classList.toggle('chat-fullscreen');
+  const openIcon = this.querySelector('.fs-icon-open');
+  const closeIcon = this.querySelector('.fs-icon-close');
+  if (openIcon) openIcon.style.display = isFull ? 'none' : '';
+  if (closeIcon) closeIcon.style.display = isFull ? '' : 'none';
+  this.title = isFull ? '退出全屏' : '全屏';
+});
+
+// Esc 退出全屏
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const layout = $('.chat-layout');
+    if (layout && layout.classList.contains('chat-fullscreen')) {
+      layout.classList.remove('chat-fullscreen');
+      const btn = $('#chatFullscreenBtn');
+      if (btn) {
+        const openIcon = btn.querySelector('.fs-icon-open');
+        const closeIcon = btn.querySelector('.fs-icon-close');
+        if (openIcon) openIcon.style.display = '';
+        if (closeIcon) closeIcon.style.display = 'none';
+        btn.title = '全屏';
+      }
+    }
+  }
+});
+
+function enableChatInput() {
+  $('#chatInput').disabled = false;
+  $('#chatSend').disabled = false;
+  $('#chatInput').focus();
+}
+
+function resetChatView() {
+  const msgs = $('#chatMessages');
+  msgs.innerHTML = '<div class="chat-empty-state"><div class="empty-icon">🐾</div><p>' + t('chat.no.conversations') + '</p></div>';
+}
+
+function renderMessages(messages) {
+  const msgs = $('#chatMessages');
+  msgs.innerHTML = '';
+  if (!messages || messages.length === 0) {
+    resetChatView();
+    return;
+  }
+  messages.forEach(m => {
+    if (m.role === 'user') {
+      addChatMessageEl('user', m.content, '我');
+    } else if (m.role === 'assistant') {
+      addChatMessageEl('oc', m.content, '🐾 纳棂');
+    }
+  });
+}
+
+function addChatMessageEl(type, text, label) {
+  const msgs = $('#chatMessages');
+  // 清除空状态
+  const empty = msgs.querySelector('.chat-empty-state');
+  if (empty) empty.remove();
+
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + type;
+  if (label) {
+    div.innerHTML = `<div class="msg-label">${label}</div>${escapeHtml(text)}`;
+  } else {
+    div.textContent = text;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addChatMessage(type, text, label) {
+  addChatMessageEl(type, text, label);
+}
+
+function showSpinner() {
+  const msgs = $('#chatMessages');
+  const empty = msgs.querySelector('.chat-empty-state');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'chat-spinner';
+  div.id = 'chatSpinner';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideSpinner() {
+  const spinner = $('#chatSpinner');
+  if (spinner) spinner.remove();
+}
+
+$('#chatSend').addEventListener('click', sendMessage);
+$('#chatInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') sendMessage();
+});
+
+async function sendMessage() {
+  if (waitingReply) return;
+  if (!isLoggedIn()) { alert('请先登录后再聊天'); return; }
+  const input = $('#chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // 立即禁用输入，显示加载状态
+  waitingReply = true;
+  $('#chatSend').disabled = true;
+  input.disabled = true;
+  showSpinner();
+
+  try {
+    // 如果没有当前对话，自动创建
+    if (!currentConvId) {
+      await createNewConversation();
+      if (!currentConvId) {
+        addChatMessage('error', '创建对话失败，请稍后再试', '⚠️ 错误');
+        return;
+      }
+      renderConvList();
+      showSpinner(); // createNewConversation 内 resetChatView 清掉了加载动画，重新显示
+    }
+
+    addChatMessage('user', msg, '我');
+    input.value = '';
+
+    const resp = await api('/chat', 'POST', { message: msg, conversationId: currentConvId });
+    hideSpinner();
+    if (resp.ok) {
+      addChatMessage('oc', resp.reply, '🐾 纳棂');
+      // 更新剩余次数
+      if (resp.remaining !== undefined) updateChatRemainingDisplay(resp.remaining);
+    } else if (resp.blocked) {
+      addChatMessage('error', '⚠️ 消息因「' + (resp.reason || resp.category || '违规内容') + '」被拦截\n\n累计违规5次将永久封禁账号，请注意文明交流', '⚠️ 内容审核');
+    } else {
+      addChatMessage('error', resp.error || 'AI暂时无法回复', '⚠️ 提示');
+    }
+  } catch (e) {
+    hideSpinner();
+    addChatMessage('error', '网络错误，请稍后再试', '⚠️ 错误');
+  } finally {
+    waitingReply = false;
+    input.disabled = false;
+    $('#chatSend').disabled = false;
+    input.focus();
+  }
+}
+
+// ========== 剩余对话次数 ==========
+async function updateChatRemaining() {
+  if (!isLoggedIn()) { $('#chatRemaining').textContent = ''; return; }
+  try {
+    const resp = await api('/chat/limit', 'GET');
+    if (resp.ok) updateChatRemainingDisplay(resp.remaining);
+  } catch (e) { /* 静默 */ }
+}
+
+function updateChatRemainingDisplay(remaining) {
+  const el = $('#chatRemaining');
+  el.textContent = '剩余 ' + remaining + ' 次';
+  el.classList.remove('low', 'mid');
+  if (remaining <= 10) el.classList.add('low');
+  else if (remaining <= 50) el.classList.add('mid');
+}
+
+// ========== 辅助函数 ==========
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+function fmtTime(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getMyEmail() {
+  try {
+    const token = localStorage.getItem('naling-token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.email;
+  } catch(e) { return null; }
+}
+
+async function toggleLike(commentId) {
+  if (!isLoggedIn()) { alert(t('login.need')); showLogin(); return; }
+  try {
+    const resp = await api('/comments/like', 'POST', { commentId });
+    if (!resp.ok) throw new Error(resp.error);
+    // 更新页面中的点赞数和状态
+    const btn = document.querySelector(`#comment-${commentId} .c-like-btn`);
+    if (btn) {
+      btn.classList.toggle('liked', resp.liked);
+      btn.innerHTML = (resp.liked ? '❤️' : '🤍') + ' <span>' + resp.likeCount + '</span>';
+    }
+  } catch(e) { alert(t('comment.like.failed') + e.message); }
+}
+
+async function deleteMyComment(commentId) {
+  if (!confirm(t('comment.delete.confirm'))) return;
+  try {
+    const resp = await api('/comments/delete', 'POST', { commentId });
+    if (!resp.ok) throw new Error(resp.error);
+    // 移除卡片
+    const card = document.getElementById('comment-' + commentId);
+    if (card) card.style.opacity = '0', setTimeout(() => card.remove(), 300);
+    // 刷新我的帖子列表
+    if (currentTab === 'profile') loadMyComments();
+  } catch(e) { alert(t('comment.delete.failed') + e.message); }
+}
+
+// 加载我的帖子列表（个人资料页）
+async function loadMyComments() {
+  const container = $('#myCommentsList');
+  if (!container) return;
+  if (!isLoggedIn()) { container.innerHTML = ''; return; }
+  try {
+    const resp = await api('/comments/mine?pageSize=50', 'GET');
+    if (!resp.ok || !resp.data || resp.data.length === 0) {
+      container.innerHTML = '<div class="my-comment-empty">' + t('profile.no.posts') + '</div>';
+      return;
+    }
+    container.innerHTML = resp.data.map(c => `
+      <div class="my-comment-card">
+        <div class="my-comment-body">${escapeHtml(c.content)}</div>
+        <div class="my-comment-meta">
+          <span class="my-comment-time">${fmtTime(c.createdAt)}</span>
+          <span class="my-comment-likes">❤️ ${c.likeCount || 0}</span>
+          <button class="my-delete-btn" onclick="deleteMyComment('${c.id}')">删除</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<div class="my-comment-empty">' + t('profile.load.failed') + '</div>';
+  }
+}
+
+// ========== 多语言 i18n ==========
+var LOCALE = localStorage.getItem("naling-locale") || "zh";
+var i18nDict = {
+  "zh":{
+    "brand":"纳棂","page.title":"互动 - 纳棂 NALING",
+    "nav.home":"首页","nav.interact":"互动","nav.team":"团队","nav.updates":"文档",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"纳棂 NALING","aria.menu":"菜单",
+    "tab.chat":"OC聊天","tab.comments":"评论区","tab.profile":"个人",
+    "login.title":"登录","login.email":"邮箱地址","login.email.placeholder":"请输入邮箱","login.code":"验证码","login.code.placeholder":"6位验证码",
+    "login.send":"发送验证码","login.sent":"已发送","login.submit":"登录","login.logout":"退出登录",
+    "login.need":"请先登录","login.profile.required":"请完善个人资料后再评论",
+    "chat.new":"+ 新对话","chat.new.default":"新对话","chat.delete":"删除","chat.delete.confirm":"确定删除该对话？",
+    "chat.placeholder":"输入消息...","chat.send":"发送","chat.loading":"加载中...","chat.empty":"暂无对话",
+    "chat.thinking":"思考中...","chat.error":"发送失败，请重试","chat.no.conversations":"点击 + 开始新对话",
+    "comment.title":"评论区","comment.empty":"✨ 还没有帖子，来说点什么吧~","comment.load.error":"⚠️ 加载失败，请重试",
+    "comment.placeholder":"分享你的想法...","comment.submit":"发布","comment.login.tip":"请先登录后再发布帖子",
+    "comment.locked":"请先完善个人资料（头像 + 昵称）后再发布帖子",
+    "comment.delete.confirm":"确定要删除这条帖子吗？","comment.delete.failed":"删除失败：",
+    "comment.like.failed":"操作失败：","profile.title":"个人资料",
+    "profile.nickname":"昵称","profile.nickname.placeholder":"给自己取个名字吧~","profile.save":"保存资料",
+    "profile.saved":"✓ 资料已完善","profile.avatar.edit":"✎",
+    "profile.my.posts":"📝 我的帖子","profile.no.posts":"还没有发过帖子","profile.load.failed":"加载失败",
+    "profile.loading":"加载中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功 ✓",
+    "profile.status.error":"保存失败，请重试",
+    "account.deleted":"账号已成功注销。","account.deleteFailed":"注销失败，请稍后再试",
+    "account.confirm":"确认注销","error.network":"网络错误，请稍后再试",
+    "comment.tooLong":"内容过长，请控制在1000字以内","comment.blocked":"内容未通过审核：",
+    "comment.postFailed":"发表失败"
+  },
+  "zh-TW":{
+    "brand":"納棂","page.title":"互動 - 納棂 NALING",
+    "nav.home":"首頁","nav.interact":"互動","nav.team":"團隊","nav.updates":"文檔",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"納棂 NALING","aria.menu":"選單",
+    "tab.chat":"OC聊天","tab.comments":"評論區","tab.profile":"個人",
+    "login.title":"登入","login.email":"電子郵件","login.email.placeholder":"請輸入電子郵件","login.code":"驗證碼","login.code.placeholder":"6位驗證碼",
+    "login.send":"發送驗證碼","login.sent":"已發送","login.submit":"登入","login.logout":"登出",
+    "login.need":"請先登入","login.profile.required":"請完善個人資料後再評論",
+    "chat.new":"+ 新對話","chat.new.default":"新對話","chat.delete":"刪除","chat.delete.confirm":"確定刪除此對話？",
+    "chat.placeholder":"輸入訊息...","chat.send":"發送","chat.loading":"載入中...","chat.empty":"暫無對話",
+    "chat.thinking":"思考中...","chat.error":"發送失敗，請重試","chat.no.conversations":"點擊 + 開始新對話",
+    "comment.title":"評論區","comment.empty":"✨ 還沒有貼文，來說點什麼吧~","comment.load.error":"⚠️ 載入失敗，請重試",
+    "comment.placeholder":"分享你的想法...","comment.submit":"發布","comment.login.tip":"請先登入後再發布貼文",
+    "comment.locked":"請先完善個人資料（頭像 + 暱稱）後再發布貼文",
+    "comment.delete.confirm":"確定要刪除此貼文嗎？","comment.delete.failed":"刪除失敗：",
+    "comment.like.failed":"操作失敗：","profile.title":"個人資料",
+    "profile.nickname":"暱稱","profile.nickname.placeholder":"給自己取個名字吧~","profile.save":"儲存資料",
+    "profile.saved":"✓ 資料已完善","profile.avatar.edit":"✎",
+    "profile.my.posts":"📝 我的貼文","profile.no.posts":"還沒有發過貼文","profile.load.failed":"載入失敗",
+    "profile.loading":"載入中...","profile.status.saving":"儲存中...","profile.status.saved":"儲存成功 ✓",
+    "profile.status.error":"儲存失敗，請重試",
+    "account.deleted":"帳號已成功註銷。","account.deleteFailed":"註銷失敗，請稍後再試",
+    "account.confirm":"確認註銷","error.network":"網絡錯誤，請稍後再試",
+    "comment.tooLong":"內容過長，請控制在1000字以內","comment.blocked":"內容未通過審核：",
+    "comment.postFailed":"發布失敗"
+  },
+  "bo":{
+    "brand":"ན་ལིང་།","page.title":"ཕན་ཚུན། - ན་ལིང་། NALING",
+    "nav.home":"མདུན་ངོས།","nav.interact":"ཕན་ཚུན།","nav.team":"ཚོགས་པ།","nav.updates":"ཡིག་ཆ།",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"ན་ལིང་། NALING","aria.menu":"དཀར་ཆག",
+    "tab.chat":"OC སྐད་ཆ།","tab.comments":"དཔྱད་གཏམ།","tab.profile":"མི་སྒེར།",
+    "login.title":"ཐོ་འགོད།","login.email":"གློག་འཕྲིན།","login.email.placeholder":"གློག་འཕྲིན་ནང་འཇུག","login.code":"ངོས་འཛིན་ཨང་གྲངས།","login.code.placeholder":"ཨང་གྲངས་ ༦",
+    "login.send":"ངོས་འཛིན་ཨང་གྲངས་གཏོང་།","login.sent":"གཏོང་ཟིན།","login.submit":"ཐོ་འགོད།","login.logout":"ཕྱིར་བྱོལ།",
+    "login.need":"སྔོན་ལ་ཐོ་འགོད་གནང་།","login.profile.required":"སྔོན་ལ་མི་སྒེར་གནས་ཚུལ་ཚང་བཅོས་གནང་།",
+    "chat.new":"+ སྐད་ཆ་གསར་པ།","chat.new.default":"སྐད་ཆ་གསར་པ།","chat.delete":"གསུབ།","chat.delete.confirm":"སྐད་ཆ་འདི་གསུབ་རྩིས་ཡོད་དམ།",
+    "chat.placeholder":"གཏམ་འཇུག...","chat.send":"གཏོང་།","chat.loading":"འཇུག་བཞིན་པ...","chat.empty":"སྐད་ཆ་མེད།",
+    "chat.thinking":"བསམ་གཞིགས་བྱེད་བཞིན་པ...","chat.error":"གཏོང་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།","chat.no.conversations":"+ སྐད་ཆ་གསར་པ་འགོ་འཛུགས།",
+    "comment.title":"དཔྱད་གཏམ།","comment.empty":"✨ ད་དུང་ཡིག་ཟམ་མེད། ཅི་ཞིག་ལབ་དང་།","comment.load.error":"⚠️ འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
+    "comment.placeholder":"ཁྱེད་ཀྱི་བསམ་ཚུལ་བརྗོད།","comment.submit":"སྤེལ།","comment.login.tip":"སྔོན་ལ་ཐོ་འགོད་གནང་།",
+    "comment.locked":"སྔོན་ལ་མི་སྒེར་གནས་ཚུལ་ཚང་བཅོས་གནང་།",
+    "comment.delete.confirm":"ཡིག་ཟམ་འདི་གསུབ་རྩིས་ཡོད་དམ།","comment.delete.failed":"གསུབ་མ་ཐུབ། ",
+    "comment.like.failed":"བྱ་བ་མ་ཐུབ། ","profile.title":"མི་སྒེར་གནས་ཚུལ།",
+    "profile.nickname":"མིང་།","profile.nickname.placeholder":"རང་ཉིད་ལ་མིང་ཞིག་འདོགས།","profile.save":"གནས་ཚུལ་ཉར་ཚགས།",
+    "profile.saved":"✓ གནས་ཚུལ་ཚང་ཟིན།","profile.avatar.edit":"✎",
+    "profile.my.posts":"📝 ངའི་ཡིག་ཟམ།","profile.no.posts":"ད་དུང་ཡིག་ཟམ་མ་སྤེལ།","profile.load.failed":"འཇུག་མ་ཐུབ།",
+    "profile.loading":"འཇུག་བཞིན་པ...","profile.status.saving":"ཉར་ཚགས་བྱེད་བཞིན་པ...","profile.status.saved":"ཉར་ཚགས་འཕྲོད་སོང་། ✓",
+    "profile.status.error":"ཉར་ཚགས་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
+    "account.deleted":"ཐོ་ཐོབ་ལེགས་པར་མེད་པར་བཟོས།","account.deleteFailed":"མེད་པར་མ་བཟོད། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
+    "account.confirm":"མེད་པར་བཟོ་རྩིས།","error.network":"དྲ་རྒྱ་ནོར་འཁྲུལ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
+    "comment.tooLong":"ནང་དོན་རིང་དྲགས། ཡིག་འབྲུ་༡༠༠༠ ནང་ཚད་འཛིན་གནང་།","comment.blocked":"ནང་དོན་ཞིབ་བཤེར་མ་ཐུབ། ",
+    "comment.postFailed":"སྤེལ་མ་ཐུབ།"
+  },
+  "en":{
+    "brand":"NALING","page.title":"Interact - NALING",
+    "nav.home":"Home","nav.interact":"Interact","nav.team":"Team","nav.updates":"Docs",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"NALING","aria.menu":"Menu",
+    "tab.chat":"OC Chat","tab.comments":"Comments","tab.profile":"Profile",
+    "login.title":"Login","login.email":"Email","login.email.placeholder":"Enter your email","login.code":"Code","login.code.placeholder":"6-digit code",
+    "login.send":"Send Code","login.sent":"Sent","login.submit":"Login","login.logout":"Logout",
+    "login.need":"Please login first","login.profile.required":"Please complete your profile before commenting",
+    "chat.new":"+ New Chat","chat.new.default":"New Chat","chat.delete":"Delete","chat.delete.confirm":"Delete this conversation?",
+    "chat.placeholder":"Type a message...","chat.send":"Send","chat.loading":"Loading...","chat.empty":"No conversations",
+    "chat.thinking":"Thinking...","chat.error":"Send failed, please retry","chat.no.conversations":"Click + to start a new chat",
+    "comment.title":"Comments","comment.empty":"✨ No posts yet, say something~","comment.load.error":"⚠️ Load failed, please retry",
+    "comment.placeholder":"Share your thoughts...","comment.submit":"Post","comment.login.tip":"Please login to post",
+    "comment.locked":"Please complete your profile (avatar + nickname) before posting",
+    "comment.delete.confirm":"Delete this post?","comment.delete.failed":"Delete failed: ",
+    "comment.like.failed":"Action failed: ","profile.title":"Profile",
+    "profile.nickname":"Nickname","profile.nickname.placeholder":"Give yourself a name~","profile.save":"Save Profile",
+    "profile.saved":"✓ Profile Complete","profile.avatar.edit":"✎",
+    "profile.my.posts":"📝 My Posts","profile.no.posts":"No posts yet","profile.load.failed":"Load failed",
+    "profile.loading":"Loading...","profile.status.saving":"Saving...","profile.status.saved":"Saved ✓",
+    "profile.status.error":"Save failed, please retry",
+    "account.deleted":"Account deleted successfully.","account.deleteFailed":"Delete failed, please retry",
+    "account.confirm":"Confirm Delete","error.network":"Network error, please retry",
+    "comment.tooLong":"Content too long, please limit to 1000 characters","comment.blocked":"Content flagged: ",
+    "comment.postFailed":"Post failed"
+  },
+  "ja":{
+    "brand":"ナリン","page.title":"交流 - ナリン NALING",
+    "nav.home":"ホーム","nav.interact":"交流","nav.team":"チーム","nav.updates":"文書",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"ナリン NALING","aria.menu":"メニュー",
+    "tab.chat":"OCチャット","tab.comments":"コメント","tab.profile":"プロフィール",
+    "login.title":"ログイン","login.email":"メールアドレス","login.email.placeholder":"メールアドレスを入力","login.code":"認証コード","login.code.placeholder":"6桁のコード",
+    "login.send":"コード送信","login.sent":"送信済み","login.submit":"ログイン","login.logout":"ログアウト",
+    "login.need":"先にログインしてください","login.profile.required":"コメントする前にプロフィールを完成させてください",
+    "chat.new":"+ 新規チャット","chat.new.default":"新規チャット","chat.delete":"削除","chat.delete.confirm":"この会話を削除しますか？",
+    "chat.placeholder":"メッセージを入力...","chat.send":"送信","chat.loading":"読み込み中...","chat.empty":"会話がありません",
+    "chat.thinking":"考え中...","chat.error":"送信に失敗しました。再試行してください","chat.no.conversations":"+ をクリックして新規チャットを開始",
+    "comment.title":"コメント","comment.empty":"✨ まだ投稿がありません。何か話しましょう〜","comment.load.error":"⚠️ 読み込みに失敗しました。再試行してください",
+    "comment.placeholder":"あなたの考えを共有...","comment.submit":"投稿","comment.login.tip":"投稿するにはログインしてください",
+    "comment.locked":"投稿する前にプロフィール（アバター＋ニックネーム）を完成させてください",
+    "comment.delete.confirm":"この投稿を削除しますか？","comment.delete.failed":"削除失敗：",
+    "comment.like.failed":"操作失敗：","profile.title":"プロフィール",
+    "profile.nickname":"ニックネーム","profile.nickname.placeholder":"名前をつけましょう〜","profile.save":"プロフィール保存",
+    "profile.saved":"✓ プロフィール完了","profile.avatar.edit":"✎",
+    "profile.my.posts":"📝 自分の投稿","profile.no.posts":"まだ投稿がありません","profile.load.failed":"読み込み失敗",
+    "profile.loading":"読み込み中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功 ✓",
+    "profile.status.error":"保存に失敗しました。再試行してください",
+    "account.deleted":"アカウントが正常に削除されました。","account.deleteFailed":"削除に失敗しました。再試行してください",
+    "account.confirm":"削除確認","error.network":"ネットワークエラー、再試行してください",
+    "comment.tooLong":"内容が長すぎます。1000文字以内にしてください","comment.blocked":"内容が審査に通りませんでした：",
+    "comment.postFailed":"投稿失敗"
+  },
+};
+
+function t(key){
+  var dict = i18nDict[LOCALE] || i18nDict["zh"];
+  return dict[key] || i18nDict["zh"][key] || key;
+}
+
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    var key = el.getAttribute("data-i18n");
+    var text = t(key);
+    if(text) el.textContent = text;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-title");
+    var text = t(key);
+    if(text) el.setAttribute("title", text);
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-aria");
+    var text = t(key);
+    if(text) el.setAttribute("aria-label", text);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-placeholder");
+    var text = t(key);
+    if(text) el.setAttribute("placeholder", text);
+  });
+  document.title = t("page.title") || ("互动 · " + t("brand"));
+}
+
+// 语言切换按钮
+(function(){
+  var btns = document.querySelectorAll("#navLinks .lang-btn");
+  function updateActive(){
+    btns.forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-lang") === LOCALE);
+    });
+  }
+  btns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      LOCALE = this.dataset.lang;
+      localStorage.setItem("naling-locale", LOCALE);
+      updateActive();
+      applyI18n();
+    });
+  });
+  updateActive();
+  applyI18n();
+})();
+
+// ========== 导航滚动效果 ==========
+var navbar = document.getElementById('navbar');
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 30) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+}, { passive: true });
+if (window.scrollY > 30) navbar.classList.add('scrolled');
+
+// ========== 移动端菜单 ==========
+var navToggle = document.getElementById('navToggle');
+var navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', function() {
+  navToggle.classList.toggle('active');
+  navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    navToggle.classList.remove('active');
+    navLinks.classList.remove('open');
+  });
+});
+
+// 导航栏内子标签切换联动
+navLinks.querySelectorAll('.nav-tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var tabName = this.dataset.subtab;
+    // 同步主标签栏
+    $$('.tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+      if (b.dataset.tab === tabName) b.classList.add('active');
+    });
+    $$('.tab-panel').forEach(function(p) {
+      p.classList.remove('active');
+      if (p.id === 'panel' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) p.classList.add('active');
+    });
+    // 同步导航按钮高亮
+    navLinks.querySelectorAll('.nav-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    this.classList.add('active');
+    // 关闭菜单
+    navToggle.classList.remove('active');
+    navLinks.classList.remove('open');
+    // 加载对应内容
+    currentTab = tabName;
+    if (tabName === 'profile' && isLoggedIn()) { loadProfile(); loadMyComments(); }
+    if (tabName === 'comments') loadComments();
+    if (tabName === 'chat' && isLoggedIn()) loadConversations();
+  });
+});
+
+// ========== 初始化 ==========
+let currentTab = 'chat';
+updateAuthUI();
+loadComments(); // 未登录也能浏览帖子
+</script>
+</body>
+</html>

@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<title>团队 - 纳棂 NALING</title>
+<meta name="description" content="海纳柏舛" />
+<meta name="theme-color" content="#FF8A00" />
+
+<link rel="icon" type="image/png" href="tpzy/n.png" />
+<link rel="shortcut icon" type="image/png" href="tpzy/n.png" />
+<link rel="apple-touch-icon" href="tpzy/n.png" />
+<script src="json/token-check.js"></script>
+
+<style>
+  :root{
+    --bg:          #FFFDF9;
+    --bg-soft:     #FFF7EC;
+    --bg-card:    #FFFFFFE6;
+    --primary:     #FF8A00;
+    --primary-2:   #FFB347;
+    --primary-light:#ffb347;
+    --primary-soft:#FFE5BF;
+    --text:        #202124;
+    --text-sub:    #666666;
+    --text-mute:   #9aa0a6;
+    --border:      #FFE5BF;
+    --shadow:      0 10px 40px rgba(255,138,0,.10);
+    --shadow-hover:0 18px 60px rgba(255,138,0,.22);
+    --radius:      20px;
+    --radius-lg:   28px;
+    --maxw:        1200px;
+    --ease:        cubic-bezier(.22,.61,.36,1);
+    --ease-out:    cubic-bezier(.16,1,.3,1);
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "PingFang SC", "Microsoft YaHei", "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Fira Code",
+                 Consolas, "Courier New", monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  html::-webkit-scrollbar{ width:0; height:0; }
+  html{ scrollbar-width:none; -ms-overflow-style:none; }
+  body{
+    font-family:var(--font-sans);
+    background:
+      url(tpzy/bj.jpg) center/cover no-repeat fixed,
+      #1a1a2e;
+    color:var(--text);
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:rgba(0,0,0,.55);
+    pointer-events:none;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255,138,0,.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,179,71,.05) 0%, transparent 60%);
+    pointer-events:none;
+  }
+
+  .container{ width:100%; max-width:var(--maxw); margin:0 auto; padding:0 32px; }
+
+  /* ===== 导航栏 ===== */
+  #navbar{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    padding:22px 0;
+    transition:all .4s var(--ease);
+  }
+  #navbar.scrolled{
+    padding:14px 0;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    box-shadow:0 6px 30px rgba(0,0,0,.3);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-logo{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; font-size:20px;
+    letter-spacing:.02em;
+    text-decoration:none; color:#fff;
+  }
+  .nav-logo .logo-mark{
+    width:34px; height:34px;
+    border-radius:10px;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(255,138,0,.35);
+    transition:transform .4s var(--ease);
+  }
+  .nav-logo .logo-mark img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .nav-logo:hover .logo-mark{ transform:rotate(-8deg) scale(1.05); }
+
+  .nav-links{
+    display:flex; align-items:center; gap:8px; list-style:none;
+  }
+  .nav-links a{
+    text-decoration:none; position:relative;
+    padding:8px 16px; font-size:15px;
+    color:rgba(255,255,255,.7);
+    border-radius:999px;
+    transition:all .3s var(--ease);
+  }
+  .nav-links a::after{
+    content:""; position:absolute;
+    left:50%; bottom:4px;
+    width:0; height:2px;
+    background:var(--primary); border-radius:2px;
+    transform:translateX(-50%);
+    transition:width .3s var(--ease);
+  }
+  .nav-links a:hover{ color:var(--primary); }
+  .nav-links a:hover::after{ width:18px; }
+  .nav-links a.active{
+    color:var(--primary);
+    font-weight:600;
+  }
+  .nav-links a.active::after{ width:18px; background:var(--primary); }
+
+  /* 语言切换 */
+  .lang-switcher{
+    display:flex; align-items:center; gap:4px;
+    padding-left:10px; margin-left:6px;
+    border-left:1px solid rgba(255,255,255,.15);
+  }
+  .lang-btn{
+    padding:6px 10px; border:none; border-radius:8px;
+    background:transparent; color:rgba(255,255,255,.45);
+    font-size:13px; font-weight:600; cursor:pointer;
+    transition:all .3s var(--ease);
+    font-family:var(--font-sans); line-height:1;
+  }
+  .lang-btn:hover{ color:#fff; background:rgba(255,255,255,.1); }
+  .lang-btn.active{
+    color:#fff;
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow:0 4px 12px rgba(255,138,0,.3);
+  }
+  .theme-toggle-btn{
+    padding:6px 10px;font-size:13px;font-weight:600;
+    color:var(--text-mute);border-radius:8px;
+    transition:all .3s var(--ease);cursor:pointer;
+    font-family:var(--font-sans);line-height:1;
+    background:transparent;border:none;white-space:nowrap;
+  }
+  .theme-toggle-btn:hover{color:#fff;background:rgba(255,255,255,.1);}
+  .theme-toggle-btn.dark{color:var(--primary);}
+
+  /* 汉堡按钮 */
+  .nav-toggle{
+    display:none; flex-direction:column;
+    background:none; border:none; cursor:pointer;
+    padding:8px; gap:5px;
+  }
+  .nav-toggle span{
+    width:20px; height:2px;
+    background:#fff; border-radius:2px;
+    transition:all .3s var(--ease);
+  }
+  .nav-toggle.active span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.active span:nth-child(2){ opacity:0; }
+  .nav-toggle.active span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+  @media(max-width:900px){
+    .nav-links{
+      display:none;
+    }
+    .nav-links.open{
+      display:flex;
+      position:absolute;
+      top:calc(100% + 14px);
+      left:50%; transform:translateX(-50%);
+      width:min(400px, calc(100vw - 48px));
+      flex-direction:column;
+      background:rgba(0,0,0,.85);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:24px;
+      gap:20px;
+      padding:20px 4px;
+      box-shadow:0 32px 80px rgba(0,0,0,.5);
+      transform-origin:top center;
+      animation:navMenuIn .42s var(--ease) both;
+    }
+    @keyframes navMenuIn{
+      0%{ opacity:0; transform:translateX(-50%) translateY(-16px) scale(.92); }
+      100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+    }
+    .nav-links.open a{
+      padding:10px 20px; border-radius:14px; text-align:center;
+      font-size:18px;
+    }
+    .nav-links.open a:hover{ background:rgba(255,138,0,.15); color:var(--primary); }
+    .nav-links.open a::after{ display:none; }
+    .nav-links.open .lang-switcher{
+      display:flex; justify-content:center; flex-wrap:wrap; gap:4px;
+      padding:16px 0 0; margin-top:8px;
+      border-top:none; border-left:none; padding-left:0; margin-left:0;
+    }
+    .nav-links.open .lang-switcher .lang-btn{ padding:8px 14px; font-size:16px; }
+    .nav-toggle{ display:flex; }
+  }
+  @media(max-width:640px){
+    .container{ padding:0 20px; }
+  }
+
+  /* ===== 页面主内容 ===== */
+  main{ padding-top:0; padding-bottom:0; }
+
+  /* ===== 滚动分页 ===== */
+  .page{
+    scroll-snap-align:start;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:120px 0 60px;
+    width:100%;
+  }
+  /* ===== 团队标题 ===== */
+  .team-header{
+    text-align:center; margin-bottom:40px;
+    width:100%;
+  }
+  .team-header h1{
+    font-size:clamp(32px, 5vw, 48px);
+    font-weight:800; letter-spacing:-.02em;
+    color:#fff;
+    margin-bottom:8px;
+  }
+  .team-header .team-subtitle{
+    font-size:16px; color:rgba(255,255,255,.65);
+    letter-spacing:.08em;
+    margin-bottom:20px;
+  }
+  .team-header .desc{
+    font-size:16px; color:rgba(255,255,255,.55);
+    max-width:600px; margin:0 auto;
+    line-height:1.8;
+  }
+
+  /* ===== P1 标题页 ===== */
+  .hero-page{
+    justify-content:center;
+    padding-top:100px;
+  }
+  .hero-page .team-header{
+    max-width:680px;
+  }
+  @keyframes heroFadeIn{
+    0%{ opacity:0; transform:translateY(24px); }
+    100%{ opacity:1; transform:translateY(0); }
+  }
+  .hero-page .team-header h1{
+    animation:heroFadeIn .8s var(--ease-out) .1s both;
+    font-size:clamp(40px, 7vw, 64px);
+    margin-bottom:4px;
+  }
+  .hero-page .team-header .team-subtitle{
+    animation:heroFadeIn .8s var(--ease-out) .25s both;
+    font-size:18px;
+  }
+  .hero-page .team-header .desc{
+    animation:heroFadeIn .8s var(--ease-out) .4s both;
+  }
+  .hero-page .team-header .docs-entry{
+    animation:heroFadeIn .8s var(--ease-out) .55s both;
+  }
+
+  /* 团队文档库入口 */
+  .docs-entry{
+    margin-top:36px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .docs-entry-link{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:14px 32px;
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    color:#fff;
+    font-size:16px; font-weight:700;
+    border-radius:999px;
+    text-decoration:none;
+    letter-spacing:.04em;
+    transition:all .4s var(--ease);
+    box-shadow:0 8px 28px rgba(255,138,0,.35);
+  }
+  .docs-entry-link:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 40px rgba(255,138,0,.5);
+    background:linear-gradient(135deg, #FF9A1F, var(--primary-2));
+  }
+  .docs-entry-link .arrow{
+    display:inline-block;
+    transition:transform .3s var(--ease);
+  }
+  .docs-entry-link:hover .arrow{
+    transform:translateX(4px);
+  }
+  .docs-entry-hint{
+    font-size:13px; color:rgba(255,255,255,.45);
+    max-width:420px; text-align:center;
+    line-height:1.6;
+  }
+
+  /* P2 人物页标题 */
+  .page-members{ justify-content:flex-start; padding-top:140px; }
+  .section-title{
+    font-size:clamp(24px, 4vw, 36px);
+    font-weight:800;
+    color:#fff;
+    letter-spacing:-.01em;
+    text-align:center;
+    margin-bottom:40px;
+    width:100%;
+    text-shadow:0 2px 12px rgba(0,0,0,.3);
+  }
+
+  /* ===== 成员网格 ===== */
+  .team-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:28px;
+    width:100%;
+    max-width:var(--maxw);
+  }
+  @media(max-width:960px){
+    .team-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  @media(max-width:520px){
+    .team-grid{ grid-template-columns:1fr; }
+  }
+
+  /* === iOS 液态玻璃卡片 === */
+  .member-card{
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(80px) saturate(250%) brightness(1.1);
+    -webkit-backdrop-filter:blur(80px) saturate(250%) brightness(1.1);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:var(--radius-lg);
+    padding:40px 28px;
+    text-align:center;
+    box-shadow:
+      0 8px 48px rgba(0,0,0,.18),
+      0 2px 8px rgba(0,0,0,.08),
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -1px 0 rgba(255,255,255,.08);
+    transition:all .5s var(--ease);
+    position:relative;
+    overflow:hidden;
+    color:#fff;
+  }
+  /* 顶部高光 */
+  .member-card::before{
+    content:"";
+    position:absolute; top:0; left:30px; right:30px; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    pointer-events:none; z-index:2;
+    transition:all .5s;
+  }
+  /* 玻璃透光层 */
+  .member-card::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(
+        135deg,
+        rgba(255,255,255,.1) 0%,
+        rgba(255,255,255,.02) 25%,
+        rgba(255,255,255,0) 45%,
+        rgba(255,255,255,.03) 70%,
+        rgba(255,255,255,.05) 100%
+      );
+    pointer-events:none; z-index:0;
+    border-radius:inherit;
+  }
+  .member-card > *{ position:relative; z-index:1; }
+  .member-card:hover{
+    transform:translateY(-10px) scale(1.02);
+    background:rgba(255,255,255,.22);
+    box-shadow:
+      0 16px 64px rgba(0,0,0,.22),
+      0 4px 12px rgba(0,0,0,.12),
+      inset 0 1px 0 rgba(255,255,255,.6),
+      inset 0 -1px 0 rgba(255,255,255,.12),
+      0 0 0 1px rgba(255,255,255,.08);
+  }
+  .member-card:hover::before{
+    left:15px; right:15px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  }
+  /* 扫光动画 */
+  .member-card .card-shine{
+    position:absolute; top:-80%; left:-50%; width:200%; height:200%;
+    background:
+      radial-gradient(ellipse 40% 25% at 50% 0%, rgba(255,255,255,.1) 0%, transparent 70%);
+    pointer-events:none; z-index:0;
+    opacity:0;
+    transition:opacity .6s;
+  }
+  .member-card:hover .card-shine{
+    opacity:1;
+  }
+
+  .member-avatar{
+    width:100px; height:100px;
+    border-radius:50%;
+    margin:0 auto 20px;
+    overflow:hidden;
+    border:3px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.05);
+    transition:border-color .4s;
+  }
+  .member-card:hover .member-avatar{ border-color:rgba(255,255,255,.5); }
+  .member-avatar img{
+    width:100%; height:100%;
+    object-fit:cover; display:block;
+  }
+  .member-avatar .avatar-placeholder{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:40px; color:#ffb347;
+    font-weight:700;
+    background:rgba(255,138,0,.1);
+  }
+
+  .member-name{
+    font-size:20px; font-weight:700;
+    letter-spacing:-.01em;
+    margin-bottom:6px;
+    color:#fff;
+  }
+  .member-role{
+    display:inline-block;
+    font-size:13px; font-weight:600;
+    color:#ffb347;
+    background:rgba(255,138,0,.15);
+    padding:4px 16px; border-radius:12px;
+    margin-bottom:12px;
+    font-family:var(--font-mono);
+    letter-spacing:.04em;
+  }
+  .member-bio{
+    font-size:14px; color:rgba(255,255,255,.65);
+    line-height:1.7;
+  }
+
+  /* ===== 成员卡片底部操作栏 ===== */
+  .member-actions{
+    margin-top:20px;
+    display:flex; flex-direction:column;
+    gap:10px;
+  }
+  .member-actions .action-row{
+    display:flex; align-items:center; justify-content:center;
+    gap:12px;
+    font-size:13px; color:rgba(255,255,255,.6);
+    flex-wrap:wrap;
+  }
+  .member-actions .action-row .action-label{
+    font-weight:600;
+    color:rgba(255,255,255,.45);
+    letter-spacing:.04em;
+    flex-shrink:0;
+  }
+  .member-actions .action-row .action-icon{
+    width:22px; height:22px;
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    opacity:.75;
+    filter:brightness(1.4);
+  }
+  .member-actions .action-row .action-icon:hover{
+    opacity:1;
+    filter:brightness(1.8);
+    transform:scale(1.15);
+  }
+  .member-actions .action-row .action-icon.qq-placeholder{
+    opacity:.35;
+    cursor:default;
+  }
+  .member-actions .action-row .action-icon.qq-placeholder:hover{
+    opacity:.45;
+    transform:none;
+  }
+
+  /* 联系链接 */
+  .member-actions .action-row .contact-link{
+    width:22px; height:22px;
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    opacity:.65;
+    color:rgba(255,255,255,.6);
+    text-decoration:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .member-actions .action-row .contact-link:hover{
+    opacity:1;
+    color:#ffb347;
+    transform:scale(1.15);
+  }
+  .member-actions .action-row .contact-link img{
+    width:100%; height:100%;
+  }
+
+  /* ===== QR 打赏弹窗 ===== */
+  .qr-overlay{
+    display:none;
+    position:absolute; inset:0; z-index:10;
+    background:rgba(255,253,249,.97);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-radius:var(--radius-lg);
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:20px 16px 24px;
+    animation:qrFadeIn .35s var(--ease);
+  }
+  .qr-overlay.show{
+    display:flex;
+  }
+  @keyframes qrFadeIn{
+    0%{ opacity:0; transform:scale(.94); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  .qr-overlay-header{
+    width:100%;
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .qr-overlay-header span{
+    font-size:15px; font-weight:700;
+    color:var(--primary);
+    letter-spacing:.04em;
+  }
+  .qr-close{
+    width:28px; height:28px;
+    border:none; border-radius:50%;
+    background:var(--primary-soft);
+    color:var(--primary);
+    font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .3s var(--ease);
+    flex-shrink:0;
+  }
+  .qr-close:hover{ background:var(--primary); color:#fff; }
+
+  .qr-tabs{
+    display:flex; gap:4px;
+    margin-bottom:14px;
+    background:var(--primary-soft);
+    border-radius:10px; padding:3px;
+    width:100%;
+  }
+  .qr-tab{
+    flex:1; padding:7px 6px;
+    border:none; border-radius:8px;
+    background:transparent;
+    font-size:12px; font-weight:600;
+    color:var(--text-sub);
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    font-family:var(--font-sans);
+    display:flex; align-items:center; justify-content:center;
+    gap:4px;
+    white-space:nowrap;
+  }
+  .qr-tab img{ width:14px; height:14px; }
+  .qr-tab.active{
+    background:#fff;
+    color:var(--primary);
+    box-shadow:0 2px 8px rgba(255,138,0,.18);
+  }
+
+  .qr-tab-content{ display:none; width:100%; }
+  .qr-tab-content.active{ display:block; }
+
+  .qr-code-wrap{
+    display:flex; justify-content:center;
+    margin-bottom:10px;
+  }
+  .qr-code-wrap canvas,
+  .qr-code-wrap img{
+    border-radius:12px;
+    padding:6px;
+    background:#fff;
+    box-shadow:0 4px 16px rgba(0,0,0,.06);
+  }
+  .qr-address-label{
+    font-size:11px; color:var(--text-mute);
+    text-align:center; margin-bottom:6px;
+  }
+  .qr-address{
+    font-size:9px; font-family:var(--font-mono);
+    color:var(--text-sub); text-align:center;
+    word-break:break-all;
+    padding:8px 10px;
+    background:var(--bg-soft);
+    border-radius:8px;
+    margin-bottom:10px;
+    line-height:1.5;
+    user-select:all;
+  }
+  .qr-notice{
+    font-size:10px; color:var(--text-mute);
+    text-align:center; margin-top:6px;
+    line-height:1.5;
+  }
+
+  /* ===== P3 关于页 ===== */
+  .about-page{
+    text-align:center;
+    max-width:640px;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:var(--radius-lg);
+    padding:52px 44px;
+  }
+  .about-page h2{
+    font-size:clamp(32px, 6vw, 48px);
+    font-weight:800;
+    color:var(--primary);
+    margin-bottom:4px;
+    letter-spacing:-.01em;
+  }
+  .about-subtitle{
+    font-size:clamp(16px, 3vw, 22px);
+    font-weight:600;
+    color:#fff;
+    margin-bottom:28px;
+    letter-spacing:.04em;
+  }
+  .about-desc{
+    font-size:15px; color:rgba(255,255,255,.55);
+    line-height:2;
+    max-width:520px; margin:0 auto;
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 导航栏 ===== -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="纳棂 NALING" data-i18n-aria="aria.brand">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span data-i18n="brand">纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" class="active" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh" data-i18n-title="lang.zh" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" data-i18n-title="lang.zhTW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" data-i18n-title="lang.bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" data-i18n-title="lang.en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" data-i18n-title="lang.ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单" data-i18n-aria="aria.menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== 主内容 ===== -->
+<main>
+  <div class="container">
+
+    <!-- ===== P1：标题页 ===== -->
+    <section class="page hero-page" id="page-hero">
+    <div class="team-header">
+      <h1 data-i18n="team.title">HNBC</h1>
+      <p class="team-subtitle" data-i18n="team.tag">海纳柏舛</p>
+      <p class="desc" data-i18n="team.desc">一群志同道合的小伙伴，各自负责不同方向，一起打造属于我们的世界。</p>
+    </div>
+    </section>
+
+    <!-- ===== P2：人物页 ===== -->
+    <section class="page page-members" id="page-members">
+    <h2 class="section-title" data-i18n="team.members.title">团队成员</h2>
+    <div class="team-grid">
+      <!-- 纳棂 -->
+      <div class="member-card" id="member-nl">
+        <div class="card-shine"></div>
+        <div class="member-avatar">
+          <img src="tpzy/nl.jpg" alt="纳棂" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="avatar-placeholder" style="display:none;">NL</div>
+        </div>
+        <div class="member-name">纳棂</div>
+        <div class="member-role" data-i18n="team.role.be">后端</div>
+        <p class="member-bio" data-i18n="team.bio.nl">处理接口、数据库、账号、订单、鉴权、业务计算；接收前端请求，读写数据，实现业务规则。</p>
+        <div class="member-actions">
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.donate">打赏</span>
+            <img class="action-icon donate-trigger" src="tpzy/bitcoin.svg" alt="Bitcoin" title="Bitcoin" data-mode="crypto" />
+            <img class="action-icon donate-trigger" src="tpzy/wechat-pay.svg" alt="WeChat Pay" title="微信赞赏码" data-mode="wechat" />
+          </div>
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.contact">联系</span>
+            <a href="mailto:**********@*******.***" class="action-icon contact-link" title="Outlook: **********@*******.***">
+              <img src="tpzy/microsoft-outlook-1.svg" alt="Outlook" />
+            </a>
+          </div>
+        </div>
+        <!-- QR 弹窗 -->
+        <div class="qr-overlay" id="qrOverlay">
+          <div class="qr-overlay-header">
+            <span data-i18n="team.donate">打赏</span>
+            <button class="qr-close" id="qrClose">&times;</button>
+          </div>
+          <div class="qr-tabs" id="qrTabs">
+            <button class="qr-tab active" data-chain="btc"><img src="tpzy/bitcoin.svg" alt="BTC" /> 比特币</button>
+            <button class="qr-tab" data-chain="eth"><img src="tpzy/ethereum-1.svg" alt="ETH" /> 以太坊</button>
+            <button class="qr-tab" data-chain="trx"><img src="tpzy/tron.svg" alt="TRX" /> 波场</button>
+            <button class="qr-tab" data-chain="wechat"><img src="tpzy/wechat-pay.svg" alt="微信" /> 微信赞赏</button>
+          </div>
+          <div class="qr-tab-content active" id="qr-btc">
+            <div class="qr-code-wrap"><div id="qrcode-btc"></div></div>
+            <div class="qr-address-label" data-i18n="team.donateBtcNote">仅支持Bitcoin资产（不支持Ordinals、BRC20等铭文资产）</div>
+            <div class="qr-address" data-addr="bc1plf7y7p66gfnu943hxk3jt3flqta935e7g3j428ec5lgsffeuexhs7y9z5y">bc1plf7y7p66gfnu943hxk3jt3flqta935e7g3j428ec5lgsffeuexhs7y9z5y</div>
+          </div>
+          <div class="qr-tab-content" id="qr-eth">
+            <div class="qr-code-wrap"><div id="qrcode-eth"></div></div>
+            <div class="qr-address-label" data-i18n="team.donateEthNote">仅支持Ethereum / USDT-ERC20资产</div>
+            <div class="qr-address" data-addr="0x7194257c112306D04Bea678052349Cbf23c35B31">0x7194257c112306D04Bea678052349Cbf23c35B31</div>
+          </div>
+          <div class="qr-tab-content" id="qr-trx">
+            <div class="qr-code-wrap"><div id="qrcode-trx"></div></div>
+            <div class="qr-address-label" data-i18n="team.donateTrxNote">仅支持Tron / USDT-TRC20资产</div>
+            <div class="qr-address" data-addr="TShjucLLa91ZSSCxTqgP1E2MQkUpVEKz93">TShjucLLa91ZSSCxTqgP1E2MQkUpVEKz93</div>
+          </div>
+          <div class="qr-tab-content" id="qr-wechat">
+            <div class="qr-code-wrap">
+              <img src="tpzy/nlzsm.jpg" alt="微信赞赏码" style="width:220px;height:220px;border-radius:12px;padding:6px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.06);" />
+            </div>
+            <div class="qr-address-label">微信赞赏码</div>
+            <div class="qr-notice">请使用微信扫一扫识别赞赏码<br/>普通解码器无法识别微信赞赏码</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 喏欣 -->
+      <div class="member-card">
+        <div class="card-shine"></div>
+        <div class="member-avatar">
+          <img src="tpzy/rx.jpg" alt="喏欣" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="avatar-placeholder" style="display:none;">NX</div>
+        </div>
+        <div class="member-name">喏欣</div>
+        <div class="member-role" data-i18n="team.role.ops">运维</div>
+        <p class="member-bio" data-i18n="team.bio.nx">部署项目、配置服务器、备份、监控告警、防火墙、排故障、扩容，保障服务不崩。</p>
+        <div class="member-actions">
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.donate">打赏</span>
+          </div>
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.contact">联系</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 明月 -->
+      <div class="member-card">
+        <div class="card-shine"></div>
+        <div class="member-avatar">
+          <img src="tpzy/my.jpg" alt="明月" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="avatar-placeholder" style="display:none;">MY</div>
+        </div>
+        <div class="member-name">明月</div>
+        <div class="member-role" data-i18n="team.role.fe">前端</div>
+        <p class="member-bio" data-i18n="team.bio.my">网站、APP页面、按钮、布局、动画，做界面交互，让用户点得动、看得舒服。</p>
+        <div class="member-actions">
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.donate">打赏</span>
+          </div>
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.contact">联系</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 陌晨 -->
+      <div class="member-card">
+        <div class="card-shine"></div>
+        <div class="member-avatar">
+          <img src="tpzy/mc.jpg" alt="陌晨" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="avatar-placeholder" style="display:none;">MC</div>
+        </div>
+        <div class="member-name">陌晨</div>
+        <div class="member-role" data-i18n="team.role.audit">审计</div>
+        <p class="member-bio" data-i18n="team.bio.mc">审查代码、接口、日志；发现越权、注入、泄露问题；做安全核查，规避被攻击、数据泄露。</p>
+        <div class="member-actions">
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.donate">打赏</span>
+          </div>
+          <div class="action-row">
+            <span class="action-label" data-i18n="team.contact">联系</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <!-- ===== P3：关于 ===== -->
+    <section class="page" id="page-about">
+    <div class="about-page">
+      <h2 data-i18n="team.info.title">HNBC</h2>
+      <p class="about-subtitle" data-i18n="team.info.name">海纳柏舛</p>
+      <p class="about-desc" data-i18n="team.info.desc">一群志同道合的小伙伴，各自负责不同方向，一起打造属于我们的世界。HNBC 是一个多元化的创作团体，涵盖音乐制作、视觉设计、数字艺术、策略运营等多个领域。我们相信协作的力量，每个人在各自擅长的方向上发光发热。</p>
+      <div class="docs-entry">
+        <a href="team-docs.html" class="docs-entry-link" data-i18n="team.docsEntry">团队文档库 <span class="arrow">&gt;&gt;&gt;</span></a>
+        <p class="docs-entry-hint" data-i18n="team.docsHint">团队公开文档、开发工作流、项目进度；成员头像筛选，快速定位各自负责的内容</p>
+      </div>
+    </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===== 导航栏滚动阴影 ===== */
+  var navbar = document.getElementById("navbar");
+  window.addEventListener("scroll", function(){
+    if(window.scrollY > 10) navbar.classList.add("scrolled");
+    else navbar.classList.remove("scrolled");
+  }, { passive:true });
+
+  /* ===== 移动端导航开关 ===== */
+  var navToggle = document.getElementById("navToggle");
+  var navLinks = document.getElementById("navLinks");
+  navToggle.addEventListener("click", function(){
+    navLinks.classList.toggle("open");
+    navToggle.classList.toggle("active");
+  });
+
+  /* ===== 多语言切换 ===== */
+  var I18N = {
+    "zh": {
+      "brand":"纳棂","page.title":"团队 - 纳棂 NALING",
+      "nav.home":"首页","nav.interact":"互动","nav.team":"团队","nav.updates":"文档",
+      "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+      "aria.brand":"纳棂 NALING","aria.menu":"菜单",
+      "team.tag":"海纳柏舛",
+      "team.title":"HNBC",
+      "team.desc":"一群志同道合的小伙伴，各自负责不同方向，一起打造属于我们的世界。",
+      "team.role.be":"后端","team.role.ops":"运维","team.role.fe":"前端","team.role.audit":"审计",
+      "team.bio.nl":"处理接口、数据库、账号、订单、鉴权、业务计算；接收前端请求，读写数据，实现业务规则。",
+      "team.bio.nx":"部署项目、配置服务器、备份、监控告警、防火墙、排故障、扩容，保障服务不崩。",
+      "team.bio.my":"网站、APP页面、按钮、布局、动画，做界面交互，让用户点得动、看得舒服。",
+      "team.bio.mc":"审查代码、接口、日志；发现越权、注入、泄露问题；做安全核查，规避被攻击、数据泄露。",
+      "team.members.title":"团队成员",
+      "team.info.title":"关于 HNBC",
+      "team.info.name":"海纳柏舛 HNBC",
+      "team.info.desc":"HNBC 是我们几个小伙伴一起搭建的小团队。每个人都有自己擅长的事，聚在一起就是想做一些有意思的东西。没有什么宏大的目标，就是想认真做点自己喜欢的事，顺便认识更多志同道合的朋友。",
+      "team.about.title":"关于",
+      "team.about.text":"海纳百川，有容乃大。我们相信开放与合作的力量，用心做好每一件小事。",
+      "team.donate":"打赏","team.contact":"联系","team.share":"分享","team.copy":"复制",
+      "team.donateBtcNote":"仅支持Bitcoin资产（不支持Ordinals、BRC20等铭文资产）",
+      "team.donateEthNote":"仅支持Ethereum / USDT-ERC20资产",
+      "team.donateTrxNote":"仅支持Tron / USDT-TRC20资产",
+      "team.docsEntry":"团队文档库",
+      "team.docsHint":"团队公开文档、开发工作流、项目进度；成员头像筛选，快速定位各自负责的内容",
+      "footer.text":"© 2025 HNBC · 海纳柏舛"
+    },
+    "zh-TW": {
+      "brand":"納棂","page.title":"團隊 - 納棂 NALING",
+      "nav.home":"首頁","nav.interact":"互動","nav.team":"團隊","nav.updates":"文檔",
+      "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+      "aria.brand":"納棂 NALING","aria.menu":"選單",
+      "team.tag":"海納柏舛",
+      "team.title":"HNBC",
+      "team.desc":"一群志同道合的小夥伴，各自負責不同方向，一起打造屬於我們的世界。",
+      "team.role.be":"後端","team.role.ops":"運維","team.role.fe":"前端","team.role.audit":"審計",
+      "team.bio.nl":"處理介面、資料庫、帳號、訂單、鑑權、業務計算；接收前端請求，讀寫數據，實現業務規則。",
+      "team.bio.nx":"部署專案、配置伺服器、備份、監控告警、防火牆、排故障、擴容，保障服務不崩。",
+      "team.bio.my":"網站、APP頁面、按鈕、佈局、動畫，做介面互動，讓使用者點得動、看得舒服。",
+      "team.bio.mc":"審查程式碼、介面、日誌；發現越權、注入、洩露問題；做安全核查，規避被攻擊、資料洩露。",
+      "team.members.title":"團隊成員",
+      "team.info.title":"關於 HNBC",
+      "team.info.name":"海納柏舛 HNBC",
+      "team.info.desc":"HNBC 是我們幾個小夥伴一起搭建的小團隊。每個人都有自己擅長的事，聚在一起就是想做一些有意思的東西。沒有什麼宏大的目標，就是想認真做點自己喜歡的事，順便認識更多志同道合的朋友。",
+      "team.about.title":"關於",
+      "team.about.text":"海納百川，有容乃大。我們相信開放與合作的力量，用心做好每一件小事。",
+      "team.donate":"打賞","team.contact":"聯絡","team.share":"分享","team.copy":"複製",
+      "team.donateBtcNote":"僅支援Bitcoin資產（不支援Ordinals、BRC20等銘文資產）",
+      "team.donateEthNote":"僅支援Ethereum / USDT-ERC20資產",
+      "team.donateTrxNote":"僅支援Tron / USDT-TRC20資產",
+      "team.docsEntry":"團隊文檔庫",
+      "team.docsHint":"團隊公開文檔、開發工作流、專案進度；成員頭像篩選，快速定位各自負責的內容",
+      "footer.text":"© 2025 HNBC · 海納柏舛"
+    },
+    "bo": {
+      "brand":"ན་ལིང་།","page.title":"ཚོགས་པ། - ན་ལིང་། NALING",
+      "nav.home":"མདུན་ངོས།","nav.interact":"ཕན་ཚུན།","nav.team":"ཚོགས་པ།","nav.updates":"ཡིག་ཆ།",
+      "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+      "aria.brand":"ན་ལིང་། NALING","aria.menu":"དཀར་ཆག",
+      "team.tag":"ཧན་ན་པོ་ཚོན།",
+      "team.title":"HNBC",
+      "team.desc":"སེམས་མཐུན་གྱི་གྲོགས་པོ་ཚོས་སོ་སོའི་ཁྱད་ཆོས་ལྡན་པའི་ལས་གཞི་བསྒྲུབ་བཞིན་ཡོད།",
+      "team.role.be":"རྒྱབ་ངོས།","team.role.ops":"གཞི་སྒྲིག","team.role.fe":"མདུན་ངོས།","team.role.audit":"ཞིབ་བཤེར།",
+      "team.bio.nl":"APIདང་གཞི་གྲངས་མཛོད། ཐོ་འགོད་དང་རེ་འབུལ། ངོས་འཛིན་དང་ལས་སྒོའི་རྩིས་རྒྱག་བཅས་སྒྲུབ་པ།",
+      "team.bio.nx":"ལས་གཞི་སྒྲིག་འཇུག་དང་མཉེན་ཆས་སྒྲིག་སྦྱོར། ཉེན་ཁ་སྲུང་སྐྱོབ།",
+      "team.bio.my":"དྲ་ཚིགས་དང་མཉེན་ཆས། ལྡེ་མིག་དང་བཀོད་སྒྲོམ། འགུལ་སྐྱོད་རིས་རྙན་བཟོ་སྐྲུན།",
+      "team.bio.mc":"ཨང་རིམ་དང་API། དྲན་འཛིན་ཞིབ་བཤེར། བདེ་འཇགས་ཉེན་ཁ་ཚོད་ལྟ།",
+      "team.members.title":"ཚོགས་མི།",
+      "team.info.title":"HNBC སྐོར།",
+      "team.info.name":"ཧན་ན་པོ་ཚོན། HNBC",
+      "team.info.desc":"HNBC ནི་ང་ཚོའི་གྲོགས་པོ་ཁག་གིས་མཉམ་དུ་བསྐྲུན་པའི་ཚོགས་པ་ཆུང་ངུ་ཞིག་ཡིན།",
+      "team.about.title":"སྐོར།",
+      "team.about.text":"རྒྱ་མཚོ་ཆེན་པོས་ཆུ་བོ་ཀུན་ལེན་ཐུབ། ང་ཚོས་སྒོ་ཕྱེ་བ་དང་མཉམ་ལས་ཀྱི་ནུས་པར་ཡིད་ཆེས་བྱེད།",
+      "team.donate":"རྔན་པ།","team.contact":"འབྲེལ་ལམ།","team.share":"བཤེར།","team.copy":"འདྲ་བཤུས།",
+      "team.donateBtcNote":"Bitcoin རྒྱུ་ནོར་ཁོ་ནར་རྒྱབ་སྐྱོར།",
+      "team.donateEthNote":"Ethereum / USDT-ERC20 རྒྱུ་ནོར་ཁོ་ནར་རྒྱབ་སྐྱོར།",
+      "team.donateTrxNote":"Tron / USDT-TRC20 རྒྱུ་ནོར་ཁོ་ནར་རྒྱབ་སྐྱོར།",
+      "team.docsEntry":"ཚོགས་པའི་ཡིག་ཆ་མཛོད།",
+      "team.docsHint":"ཚོགས་པའི་གསལ་བསྒྲགས་ཡིག་ཆ། འཕེལ་རྒྱས་ཀྱི་ལས་རིམ། ལས་འཆར་ཡར་རྒྱས། ཚོགས་མིའི་མགོ་རིས་འདེམས་སྒྲུག",
+      "footer.text":"© 2025 HNBC"
+    },
+    "en": {
+      "brand":"NALING","page.title":"Team - NALING",
+      "nav.home":"Home","nav.interact":"Interact","nav.team":"Team","nav.updates":"Docs",
+      "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+      "aria.brand":"NALING","aria.menu":"Menu",
+      "team.tag":"HaiNa BaiChuan",
+      "team.title":"HNBC",
+      "team.desc":"A group of like-minded friends, each in charge of different areas, building our world together.",
+      "team.role.be":"Backend","team.role.ops":"Operations","team.role.fe":"Frontend","team.role.audit":"Audit",
+      "team.bio.nl":"Handles APIs, databases, accounts, orders, authentication, and business logic; processes frontend requests, reads and writes data, implements business rules.",
+      "team.bio.nx":"Deploys projects, configures servers, performs backups, monitoring & alerts, firewalls, troubleshooting, and scaling — keeping services running without interruption.",
+      "team.bio.my":"Builds websites, app pages, buttons, layouts, and animations; crafts UI interactions that are clickable and visually pleasing.",
+      "team.bio.mc":"Reviews code, APIs, and logs; detects privilege escalation, injection, and data leak issues; conducts security audits to prevent attacks and data breaches.",
+      "team.members.title":"Team Members",
+      "team.info.title":"About HNBC",
+      "team.info.name":"HaiNa BaiChuan HNBC",
+      "team.info.desc":"HNBC is a small team we built together. Everyone has their own strengths, and we came together to create something interesting. No grand goals — just doing what we love seriously and meeting more like-minded friends along the way.",
+      "team.about.title":"About",
+      "team.about.text":"The sea embraces all rivers. We believe in the power of openness and collaboration, doing every little thing with heart.",
+      "team.donate":"Donate","team.contact":"Contact","team.share":"Share","team.copy":"Copy",
+      "team.donateBtcNote":"Bitcoin assets only (Ordinals, BRC20 etc. not supported)",
+      "team.donateEthNote":"Ethereum / USDT-ERC20 assets only",
+      "team.donateTrxNote":"Tron / USDT-TRC20 assets only",
+      "team.docsEntry":"Team Docs",
+      "team.docsHint":"Public docs, dev workflows, project progress; member avatar filtering to quickly find each person's content",
+      "footer.text":"© 2025 HNBC"
+    },
+    "ja": {
+      "brand":"ナリン","page.title":"チーム - ナリン NALING",
+      "nav.home":"ホーム","nav.interact":"交流","nav.team":"チーム","nav.updates":"文書",
+      "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+      "aria.brand":"ナリン NALING","aria.menu":"メニュー",
+      "team.tag":"海納柏舛",
+      "team.title":"HNBC",
+      "team.desc":"志を同じくする仲間たちが、それぞれの分野を担当し、一緒に世界を作っています。",
+      "team.role.be":"バックエンド","team.role.ops":"運用","team.role.fe":"フロントエンド","team.role.audit":"監査",
+      "team.bio.nl":"API、データベース、アカウント、注文、認証、ビジネスロジックを処理。フロントエンドのリクエストを受け、データを読み書きし、業務ルールを実装します。",
+      "team.bio.nx":"プロジェクトのデプロイ、サーバー設定、バックアップ、監視・アラート、ファイアウォール、トラブルシューティング、スケーリングを担当し、サービスを止めません。",
+      "team.bio.my":"Webサイト、アプリ画面、ボタン、レイアウト、アニメーションを作成。クリックしやすく見やすいUIを提供します。",
+      "team.bio.mc":"コード、API、ログを審査。権限昇格、インジェクション、情報漏洩を検出。攻撃やデータ漏洩を防ぐセキュリティ監査を実施します。",
+      "team.members.title":"チームメンバー",
+      "team.info.title":"HNBCについて",
+      "team.info.name":"海納柏舛 HNBC",
+      "team.info.desc":"HNBCは仲間たちと一緒に作った小さなチームです。みんな得意なことがあり、面白いものを作りたくて集まりました。大きな目標はなく、好きなことを真剣にやって、もっと多くの仲間に出会いたいだけです。",
+      "team.about.title":"について",
+      "team.about.text":"海はすべての川を受け入れる。私たちは開放と協力の力を信じ、一つひとつの小さなことを心を込めて行います。",
+      "team.donate":"投げ銭","team.contact":"連絡","team.share":"共有","team.copy":"コピー",
+      "team.donateBtcNote":"Bitcoin資産のみ対応（Ordinals、BRC20等は非対応）",
+      "team.donateEthNote":"Ethereum / USDT-ERC20資産のみ対応",
+      "team.donateTrxNote":"Tron / USDT-TRC20資産のみ対応",
+      "team.docsEntry":"チーム文書庫",
+      "team.docsHint":"公開文書、開発ワークフロー、プロジェクト進捗；メンバーアバターでフィルタリング",
+      "footer.text":"© 2025 HNBC"
+    },
+  };
+
+  var currentLang = localStorage.getItem("naling-locale") || "zh";
+  document.documentElement.lang = currentLang === "zh-TW" ? "zh-Hant" : currentLang;
+
+  function t(key){
+    var langData = I18N[currentLang];
+    if(!langData || !langData[key]){
+      var fallback = I18N["zh"];
+      return fallback && fallback[key] ? fallback[key] : key;
+    }
+    return langData[key];
+  }
+
+  function applyLang(lang){
+    currentLang = lang;
+    localStorage.setItem("naling-locale", lang);
+    document.documentElement.lang = lang === "zh-TW" ? "zh-Hant" : lang;
+
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var key = el.getAttribute("data-i18n");
+      var text = t(key);
+      if(text) el.textContent = text;
+    });
+    document.querySelectorAll("[data-i18n-title]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-title");
+      var text = t(key);
+      if(text) el.title = text;
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-aria");
+      var text = t(key);
+      if(text) el.setAttribute("aria-label", text);
+    });
+    document.title = t("page.title");
+
+    document.querySelectorAll(".lang-btn").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+    });
+  }
+
+  document.querySelectorAll(".lang-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var lang = this.getAttribute("data-lang");
+      applyLang(lang);
+    });
+  });
+
+  applyLang(currentLang);
+
+  /* ===== 导航栏 active 状态切换 ===== */
+  var currentPage = location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll(".nav-links a[data-i18n]").forEach(function(link){
+    var href = link.getAttribute("href");
+    if(href === currentPage) link.classList.add("active");
+    else link.classList.remove("active");
+  });
+
+  /* ===== QR 打赏弹窗逻辑 ===== */
+  var qrOverlay = document.getElementById("qrOverlay");
+  var qrClose = document.getElementById("qrClose");
+  var memberCard = document.getElementById("member-nl");
+  var qrGenerated = {};
+  var qrSizes = { btc:null, eth:null, trx:null };
+
+  // 地址映射
+  var addrs = {
+    btc: "bc1plf7y7p66gfnu943hxk3jt3flqta935e7g3j428ec5lgsffeuexhs7y9z5y",
+    eth: "0x7194257c112306D04Bea678052349Cbf23c35B31",
+    trx: "TShjucLLa91ZSSCxTqgP1E2MQkUpVEKz93"
+  };
+
+  function getQrSize(){
+    if(window.innerWidth < 480) return 140;
+    return 180;
+  }
+
+  function genQr(chain){
+    // 微信赞赏码使用静态图片，不需要生成QR
+    if(chain === "wechat") return;
+    if(qrGenerated[chain] && qrSizes[chain] === getQrSize()) return;
+    var container = document.getElementById("qrcode-" + chain);
+    if(!container) return;
+    container.innerHTML = "";
+    var size = getQrSize();
+    try{
+      new QRCode(container, {
+        text: addrs[chain],
+        width: size,
+        height: size,
+        colorDark: "#202124",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      qrGenerated[chain] = true;
+      qrSizes[chain] = size;
+    }catch(e){
+      container.innerHTML = '<div style="width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;">QR Error</div>';
+    }
+  }
+
+  function openQrOverlay(mode){
+    if(!qrOverlay) return;
+    qrOverlay.classList.add("show");
+    var header = qrOverlay.querySelector(".qr-overlay-header span");
+    var tabsRow = document.getElementById("qrTabs");
+    var contents = qrOverlay.querySelectorAll(".qr-tab-content");
+
+    // 隐藏所有 tab 内容
+    contents.forEach(function(c){ c.classList.remove("active"); });
+
+    if(mode === "wechat"){
+      // 微信模式：隐藏标签栏，只显示微信内容
+      if(header) header.textContent = "微信赞赏";
+      if(tabsRow) tabsRow.style.display = "none";
+      var wechatContent = document.getElementById("qr-wechat");
+      if(wechatContent) wechatContent.classList.add("active");
+    } else {
+      // 加密货币模式：显示三标签，默认 BTC
+      if(header) header.textContent = "打赏";
+      if(tabsRow) tabsRow.style.display = "";
+      // 隐藏微信标签页
+      var wechatTab = qrOverlay.querySelector('[data-chain="wechat"]');
+      if(wechatTab) wechatTab.style.display = "none";
+      // 高亮并显示 BTC
+      genQr("btc");
+      var tabs = qrOverlay.querySelectorAll(".qr-tab");
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      var btcTab = qrOverlay.querySelector('[data-chain="btc"]');
+      var btcContent = document.getElementById("qr-btc");
+      if(btcTab) btcTab.classList.add("active");
+      if(btcContent) btcContent.classList.add("active");
+    }
+  }
+
+  function closeQrOverlay(){
+    if(!qrOverlay) return;
+    qrOverlay.classList.remove("show");
+    // 重置状态
+    var tabsRow = document.getElementById("qrTabs");
+    var wechatTab = qrOverlay.querySelector('[data-chain="wechat"]');
+    if(tabsRow) tabsRow.style.display = "";
+    if(wechatTab) wechatTab.style.display = "";
+  }
+
+  // 打赏图标点击
+  var donateTriggers = document.querySelectorAll("#member-nl .donate-trigger");
+  donateTriggers.forEach(function(icon){
+    icon.addEventListener("click", function(e){
+      e.stopPropagation();
+      var mode = icon.getAttribute("data-mode") || "crypto";
+      openQrOverlay(mode);
+    });
+  });
+
+  // 关闭按钮
+  if(qrClose){
+    qrClose.addEventListener("click", function(e){
+      e.stopPropagation();
+      closeQrOverlay();
+    });
+  }
+
+  // Tab 切换 & 复制 & 分享（事件委托在 overlay 上）
+  if(qrOverlay){
+    qrOverlay.addEventListener("click", function(e){
+      // Tab 切换
+      var tab = e.target.closest(".qr-tab");
+      if(tab){
+        var chain = tab.getAttribute("data-chain");
+        if(!chain) return;
+        qrOverlay.querySelectorAll(".qr-tab").forEach(function(t){ t.classList.remove("active"); });
+        tab.classList.add("active");
+        qrOverlay.querySelectorAll(".qr-tab-content").forEach(function(c){ c.classList.remove("active"); });
+        var content = document.getElementById("qr-" + chain);
+        if(content) content.classList.add("active");
+        genQr(chain);
+        return;
+      }
+      e.stopPropagation();
+    });
+  }
+
+})();
+
+// 主题切换
+(function(){
+  var K='naling-theme';
+  var btn=document.getElementById('themeToggle');
+  function get(){
+    var s=localStorage.getItem(K);
+    if(s==='dark'||s==='light')return s;
+    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)return'dark';
+    return'light';
+  }
+  function apply(t){
+    if(t==='dark')document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
+    if(btn){
+      if(t==='dark'){btn.classList.add('dark');btn.textContent='明亮';}
+      else{btn.classList.remove('dark');btn.textContent='阴暗';}
+    }
+  }
+  function toggle(){
+    var n=get()==='dark'?'light':'dark';
+    localStorage.setItem(K,n);apply(n);
+  }
+  if(btn)btn.addEventListener('click',toggle);
+  apply(get());
+})();
+</script>
+
+</body>
+</html>

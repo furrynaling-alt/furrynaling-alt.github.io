@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS Dynamic Island 灵动岛开发简报</title>
+<style>
+  :root {
+    --bg: #fdfaf5;
+    --text: #2c2416;
+    --text-secondary: #6b5e4a;
+    --heading: #1a1207;
+    --border: #e5dccf;
+    --code-bg: #f5efe4;
+    --table-stripe: #f8f3e8;
+    --table-header: #ebe1d0;
+    --blockquote-bg: #f9f4ea;
+    --blockquote-border: #c9a96e;
+    --tag-bg: #f0e6d3;
+    --tag-text: #8b6914;
+    --accent: #b8860b;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --topbar-bg: rgba(253,250,245,0.85);
+    --table-bg: #fffdf8;
+  }
+  [data-theme="dark"] {
+    --bg: #1a1a2e;
+    --text: #f0ebe3;
+    --text-secondary: #c4b5a5;
+    --heading: #f0ebe3;
+    --border: #2a2a4a;
+    --code-bg: #1e1e36;
+    --table-stripe: #1e1e36;
+    --table-header: #252545;
+    --blockquote-bg: #1e1e36;
+    --blockquote-border: #ffa040;
+    --tag-bg: #252545;
+    --tag-text: #ffbe60;
+    --accent: #ffa040;
+    --shadow: 0 2px 16px rgba(0,0,0,0.3);
+    --topbar-bg: rgba(20,20,38,0.9);
+    --table-bg: #1a1a2e;
+  }
+  [data-theme="dark"] body {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+    background-attachment: fixed;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html::-webkit-scrollbar { width: 0; height: 0; }
+  html { scrollbar-width: none; }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "宋体", serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 2;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 顶部导航条 ── */
+  .doc-topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--topbar-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .doc-topbar .breadcrumb {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .doc-topbar .breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .doc-topbar .breadcrumb a:hover { opacity: 0.7; }
+  .doc-topbar .breadcrumb .sep {
+    color: var(--border);
+    user-select: none;
+  }
+  .doc-topbar .left-group { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+  .doc-topbar .theme-toggle-btn {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .doc-topbar .theme-toggle-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .doc-topbar .meta-badge {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .doc-topbar .back-btn {
+    flex-shrink: 0;
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .doc-topbar .back-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ── 正文容器 ── */
+  .doc-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+
+  /* ── 封面区 ── */
+  .doc-hero {
+    text-align: center;
+    padding: 40px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .doc-hero .icon-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8d5b0 0%, #c9a96e 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    box-shadow: 0 8px 24px rgba(184,134,11,0.2);
+  }
+  .doc-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .doc-hero .subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+  .doc-hero .hero-meta {
+    display: flex; gap: 20px; justify-content: center;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+  .doc-hero .hero-meta span {
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ── 内容排版 ── */
+  .doc-body h2 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin: 44px 0 16px;
+    padding-left: 14px;
+    border-left: 4px solid var(--accent);
+    line-height: 1.5;
+  }
+  .doc-body h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin: 32px 0 12px;
+    line-height: 1.5;
+  }
+  .doc-body p {
+    margin: 0 0 16px;
+    text-indent: 2em;
+    font-size: 1.05rem;
+  }
+  .doc-body p.no-indent { text-indent: 0; }
+
+  /* 列表 */
+  .doc-body ul, .doc-body ol {
+    margin: 8px 0 20px;
+    padding-left: 1.8em;
+  }
+  .doc-body li {
+    margin-bottom: 8px;
+    font-size: 1.03rem;
+    position: relative;
+  }
+  .doc-body ul li::marker { color: var(--accent); }
+
+  /* 行内代码 */
+  .doc-body code {
+    background: var(--code-bg);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.92em;
+    font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
+    color: #8b6914;
+    border: 1px solid var(--border);
+  }
+
+  /* 加粗 */
+  .doc-body strong {
+    color: var(--heading);
+    font-weight: 700;
+  }
+
+  /* ── 表格 ── */
+  .doc-body .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0 28px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .doc-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: var(--table-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .doc-body thead th {
+    background: var(--table-header);
+    font-weight: 700;
+    padding: 14px 18px;
+    text-align: left;
+    color: var(--heading);
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .doc-body tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .doc-body tbody tr:nth-child(even) td {
+    background: var(--table-stripe);
+  }
+  .doc-body tbody tr:last-child td { border-bottom: none; }
+
+  /* ── 引用块 ── */
+  .doc-body blockquote {
+    background: var(--blockquote-bg);
+    border-left: 4px solid var(--blockquote-border);
+    margin: 24px 0;
+    padding: 20px 24px;
+    border-radius: 0 10px 10px 0;
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  .doc-body blockquote p { text-indent: 0; margin: 0; }
+
+  /* ── 分割线 ── */
+  .doc-body hr {
+    border: none;
+    border-top: 2px dashed var(--border);
+    margin: 40px 0;
+    text-align: center;
+  }
+  .doc-body hr::after {
+    content: "✦ ✦ ✦";
+    display: inline-block;
+    position: relative;
+    top: -0.75em;
+    background: var(--bg);
+    padding: 0 16px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── 信息卡片 ── */
+  .doc-body .info-card {
+    background: var(--blockquote-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 28px 0;
+    border: 1px solid var(--border);
+  }
+  .doc-body .info-card .card-row {
+    display: flex; gap: 12px;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 2;
+  }
+  .doc-body .info-card .card-label {
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 4em;
+  }
+
+  /* ── 页脚 ── */
+  .doc-footer {
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── 响应式 ── */
+  @media (max-width: 640px) {
+    .doc-container { padding: 28px 18px 56px; }
+    .doc-hero h1 { font-size: 1.5rem; }
+    .doc-body p { text-indent: 1.5em; font-size: 1rem; }
+    .doc-body h2 { font-size: 1.25rem; }
+    .doc-topbar { padding: 10px 16px; }
+  }
+
+  /* ── 回到顶部按钮 ── */
+  .scroll-top-btn {
+    position: fixed; bottom: 32px; right: 32px; z-index: 200;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transform: translateY(12px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(184,134,11,0.35);
+  }
+  .scroll-top-btn.show {
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+  .scroll-top-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184,134,11,0.5);
+  }
+
+  /* ── 导航栏居中返回箭头 (PC) ── */
+  .nav-center-back {
+    display: none;
+    position: fixed; left: 50%; top: 23px;
+    z-index: 101;
+    transform: translate(-50%,0);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 1rem;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav-center-back:hover { background: var(--accent); color: #fff; }
+  @media (min-width: 769px) {
+    .nav-center-back { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="doc-topbar">
+  <div class="left-group">
+    <div class="breadcrumb">
+      <a href="../team-docs.html">HNBC（海纳柏舛）文档库</a>
+      <span class="sep">/</span>
+      <span>iOS Dynamic Island 灵动岛</span>
+    </div>
+    <span class="meta-badge">陌晨</span>
+  </div>
+  <button class="theme-toggle-btn" id="themeToggle" title="切换阴暗/明亮模式">阴暗</button>
+  <a href="../team-docs.html" class="nav-center-back" title="返回">←</a>
+  <a href="../team-docs.html" class="back-btn">← 返回</a>
+</nav>
+
+<div class="doc-container">
+
+  <!-- 封面区 -->
+  <div class="doc-hero">
+    <div class="icon-circle"><img src="../tpzy/mc.jpg" alt="陌晨" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.parentElement.innerHTML='陌'" /></div>
+    <h1>iOS Dynamic Island 灵动岛开发简报</h1>
+    <p class="subtitle">基于 ActivityKit + SwiftUI 的实时状态展示与交互方案</p>
+    <div class="hero-meta">
+      <span>👤 陌晨</span>
+      <span>📅 2025-08-04</span>
+      <span>📂 项目开发简报</span>
+    </div>
+  </div>
+
+  <!-- 正文内容 -->
+  <div class="doc-body">
+
+    <h2>项目概述</h2>
+    <p>基于 iOS Live Activities 架构，通过 ActivityKit 和 SwiftUI 实现实时状态展示与交互。支持 iOS18+、iPhone14 Pro 以上灵动岛机型。</p>
+
+    <h2>技术栈</h2>
+    <ul>
+      <li><strong>开发语言</strong>: Swift 6.0</li>
+      <li><strong>UI 框架</strong>: SwiftUI</li>
+      <li><strong>核心框架</strong>: ActivityKit, WidgetKit</li>
+      <li><strong>开发工具</strong>: Xcode 16.1</li>
+      <li><strong>最低系统</strong>: iOS 18.0</li>
+      <li><strong>支持设备</strong>: iPhone 14 Pro / Pro Max 及以上灵动岛机型</li>
+    </ul>
+
+    <h2>核心架构</h2>
+
+    <h3>Live Activities 生命周期</h3>
+    <ol>
+      <li><strong>请求授权</strong> — App 启动时检查并请求 Activity 权限</li>
+      <li><strong>创建 Activity</strong> — 通过 <code>Activity.request()</code> 创建实时活动</li>
+      <li><strong>更新状态</strong> — 使用 <code>Activity.update()</code> 推送最新数据</li>
+      <li><strong>结束 Activity</strong> — 任务完成后调用 <code>Activity.end()</code> 清理</li>
+    </ol>
+
+    <h3>数据流设计</h3>
+    <p class="no-indent">推送通知 → APNs → ActivityKit → SwiftUI Widget → 灵动岛 UI</p>
+
+    <h2>灵动岛布局模式</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>模式</th><th>展开方式</th><th>适用场景</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Compact</td><td>药丸状双元素显示</td><td>实时比分、外卖配送</td></tr>
+          <tr><td>Minimal</td><td>单行精简展示</td><td>计时器、倒计时</td></tr>
+          <tr><td>Expanded</td><td>全尺寸展开卡片</td><td>详细进度、地图导航</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>实现要点</h2>
+    <ul>
+      <li>使用 <code>ActivityAttributes</code> 定义灵动岛所需的内容状态</li>
+      <li>通过 <code>ActivityContentState</code> 管理不同阶段的内容切换</li>
+      <li>利用 <code>pushTokenUpdates</code> 保持服务端与客户端的 Token 同步</li>
+      <li>在 <code>Info.plist</code> 中配置 <code>NSSupportsLiveActivities: YES</code></li>
+    </ul>
+
+    <h2>测试与验证</h2>
+    <ul>
+      <li>灵动岛展开/收起动画流畅度测试</li>
+      <li>推送延迟与 Activity 更新同步验证</li>
+      <li>低电量模式下 Activity 存活测试</li>
+      <li>多 Activity 并发场景压力测试</li>
+    </ul>
+
+    <h2>已知问题</h2>
+    <ul>
+      <li>灵动岛展开区域不支持 ScrollView 滚动</li>
+      <li>内容更新频率受系统节流限制（约 1 次/秒）</li>
+      <li>锁屏状态下 Widget 刷新依赖网络状态</li>
+    </ul>
+
+    <hr>
+
+    <div class="info-card">
+      <div class="card-row"><span class="card-label">作者</span><span>陌晨</span></div>
+      <div class="card-row"><span class="card-label">日期</span><span>2025-08-04</span></div>
+      <div class="card-row"><span class="card-label">分类</span><span>项目开发简报</span></div>
+    </div>
+
+    <div class="doc-footer">
+      海纳柏舛（HNBC）· 团队文档库 · 陌晨 著
+    </div>
+
+  </div>
+</div>
+
+<!-- 回到顶部按钮 -->
+<button class="scroll-top-btn" id="scrollTopBtn" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  // 主题初始化
+  var html = document.documentElement;
+  var savedTheme = localStorage.getItem('naling-theme');
+  if(savedTheme === 'dark'){
+    html.setAttribute('data-theme','dark');
+  }
+  var toggleBtn = document.getElementById('themeToggle');
+  if(toggleBtn){
+    updateToggleText();
+    toggleBtn.addEventListener('click', function(){
+      var cur = html.getAttribute('data-theme');
+      var next = (cur === 'dark') ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('naling-theme', next);
+      updateToggleText();
+    });
+  }
+  function updateToggleText(){
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    toggleBtn.textContent = isDark ? '明亮' : '阴暗';
+  }
+
+  // 回到顶部
+  var btn = document.getElementById('scrollTopBtn');
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        if(window.scrollY > 400){ btn.classList.add('show'); }
+        else { btn.classList.remove('show'); }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

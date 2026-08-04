@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文档 · 纳棂 NALING</title>
+<link rel="icon" href="tpzy/n.png">
+<script src="json/token-check.js"></script>
+<style>
+/* ===== 变量 ===== */
+:root{
+  --maxw:1200px;
+  --primary:#FF8A00;
+  --primary-2:#FFB347;
+  --primary-soft:#FFE5BF;
+  --primary-glow:rgba(255,138,0,.18);
+  --bg:#FFFDF9;
+  --bg-soft:#FFF7EC;
+  --bg-card:#FFFFFFE6;
+  --text:#202124;
+  --text-sub:#666666;
+  --text-mute:#9aa0a6;
+  --card-bg:rgba(255,255,255,.72);
+  --card-border:rgba(0,0,0,.06);
+  --glass:rgba(255,255,255,.72);
+  --glass-border:rgba(0,0,0,.06);
+  --border:#FFE5BF;
+  --nav-bg:rgba(255,253,249,.88);
+  --shadow:0 10px 40px rgba(255,138,0,.10);
+  --shadow-hover:0 18px 60px rgba(255,138,0,.22);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --font-sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+  --radius:20px;
+}
+
+[data-theme="dark"] {
+  --bg:#0f0f1e;
+  --bg-soft:#1a1a2e;
+  --bg-card:#1a1a2ecc;
+  --text:#e0e0e0;
+  --text-sub:#9999bb;
+  --text-mute:#666688;
+  --primary:#ffa040;
+  --primary-2:#ffbe60;
+  --primary-soft:rgba(255,160,64,.1);
+  --primary-glow:rgba(255,160,64,.2);
+  --card-bg:rgba(26,26,46,.85);
+  --card-border:rgba(42,42,74,.6);
+  --glass:rgba(26,26,46,.85);
+  --glass-border:rgba(42,42,74,.6);
+  --border:#2a2a4a;
+  --nav-bg:rgba(15,15,30,.9);
+  --shadow:0 10px 40px rgba(0,0,0,.35);
+  --shadow-hover:0 18px 60px rgba(0,0,0,.55);
+}
+[data-theme="dark"] body::before {
+  opacity:.08;
+  background:radial-gradient(ellipse 70% 50% at 50% -5%, rgba(255,160,64,.12), transparent);
+}
+[data-theme="dark"] #navbar.scrolled {
+  background:rgba(20,20,38,.9);
+  border-color:var(--border);
+}
+[data-theme="dark"] .update-card {
+  border-color:rgba(42,42,74,.5);
+}
+[data-theme="dark"] .update-card:hover {
+  border-color:var(--primary);
+}
+/* ===== 全局 ===== */
+*,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:
+    radial-gradient(60% 50% at 80% 0%,  rgba(255,179,71,.18), transparent 60%),
+    radial-gradient(50% 40% at 0% 30%,  rgba(255,138,0,.10),  transparent 60%),
+    radial-gradient(60% 50% at 50% 100%, rgba(255,229,191,.20), transparent 60%),
+    var(--bg);
+}
+main{ flex:1; position:relative; z-index:1; }
+
+/* ===== 导航栏（统一） ===== */
+#navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:22px 0;
+  transition:all .4s var(--ease);
+}
+#navbar.scrolled{
+  padding:14px 0;
+  background:rgba(255,253,249,.72);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(255,229,191,.6);
+  box-shadow:0 6px 30px rgba(255,138,0,.06);
+}
+.container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+  font-weight:800;font-size:20px;
+  letter-spacing:.02em;
+  color:var(--text);
+}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  transition:transform .4s var(--ease);
+  box-shadow:0 6px 18px rgba(255,138,0,.35);
+}
+.nav-logo:hover .logo-mark{ transform:rotate(-8deg) scale(1.05); }
+.logo-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+.nav-links{
+  list-style:none;display:flex;align-items:center;gap:8px;
+}
+.nav-links a{
+  text-decoration:none;position:relative;
+  padding:8px 16px;font-size:15px;
+  color:var(--text-sub);border-radius:999px;
+  transition:all .3s var(--ease);
+}
+.nav-links a::after{
+  content:"";position:absolute;
+  left:50%;bottom:4px;
+  width:0;height:2px;
+  background:var(--primary);border-radius:2px;
+  transform:translateX(-50%);
+  transition:width .3s var(--ease);
+}
+.nav-links a:hover{color:var(--primary);}
+.nav-links a:hover::after{width:18px;}
+.nav-links a.active{color:var(--primary);font-weight:600;}
+.nav-links a.active::after{width:18px;background:var(--primary);}
+/* 语言切换按钮 */
+.lang-switcher{
+  display:inline-flex;align-items:center;gap:4px;
+  border-left:1px solid var(--border);
+  margin-left:6px;padding-left:10px;
+}
+.lang-switcher .lang-btn{
+  background:none;border:none;
+  padding:6px 10px;cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--text-mute);
+  border-radius:8px;
+  transition:all .3s var(--ease);
+  font-family:var(--font-sans);line-height:1;
+}
+.lang-switcher .lang-btn:hover{color:var(--primary);background:var(--primary-soft);}
+.lang-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  box-shadow:0 4px 12px rgba(255,138,0,.3);
+}
+.theme-toggle-btn{
+  padding:6px 10px;font-size:13px;font-weight:600;
+  color:var(--text-mute);border-radius:8px;
+  transition:all .3s var(--ease);cursor:pointer;
+  font-family:var(--font-sans);line-height:1;
+  background:transparent;border:none;white-space:nowrap;
+}
+.theme-toggle-btn:hover{color:var(--primary);background:var(--primary-soft);}
+.theme-toggle-btn.dark{color:var(--primary);}
+/* 汉堡按钮 */
+.nav-toggle{
+  display:none;width:44px;height:44px;
+  border-radius:12px;border:none;
+  background:transparent;cursor:pointer;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;
+  transition:all .3s var(--ease);
+}
+.nav-toggle span{
+  display:block;width:20px;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s var(--ease);
+}
+.nav-toggle:hover span{background:var(--primary);}
+.nav-toggle.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-toggle.active span:nth-child(2){opacity:0;}
+.nav-toggle.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+/* ===== 页面标题区 ===== */
+.page-hero{
+  padding:120px 32px 60px;
+  text-align:center;
+  max-width:800px; margin:0 auto;
+}
+.page-hero h1{
+  font-size:48px; font-weight:800; letter-spacing:-.02em;
+  background:linear-gradient(120deg, var(--primary), var(--primary-2));
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.page-hero .section-subtitle{
+  margin-top:16px; font-size:16px; color:var(--text-sub); line-height:1.8;
+}
+
+/* ===== 文档列表 ===== */
+.docs-section{
+  max-width:700px; margin:0 auto; padding:0 32px 80px;
+}
+.doc-card{
+  background:var(--card-bg); border:1px solid var(--card-border);
+  border-radius:14px; padding:28px;
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+  cursor:pointer;
+  transition:all .3s var(--ease);
+  display:flex; gap:20px; align-items:flex-start;
+}
+.doc-card:hover{ box-shadow:var(--shadow-hover); transform:translateY(-3px); border-color:var(--primary); }
+.doc-icon{
+  flex-shrink:0; width:56px; height:56px; border-radius:12px;
+  background:var(--primary-soft);
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px;
+}
+.doc-info{ flex:1; min-width:0; }
+.doc-info .doc-title{ font-size:18px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.doc-info .doc-desc{ font-size:14px; color:var(--text-sub); line-height:1.7; }
+.doc-info .doc-meta{
+  margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;
+  font-size:13px; color:var(--text-mute);
+}
+.doc-info .doc-meta span{
+  display:inline-flex; align-items:center; gap:4px;
+}
+.doc-arrow{
+  flex-shrink:0; color:var(--text-mute); font-size:20px;
+  transition:all .3s var(--ease);
+  margin-top:12px;
+}
+.doc-card:hover .doc-arrow{ color:var(--primary); transform:translateX(4px); }
+
+/* ===== 页脚 ===== */
+footer{
+  padding:32px; text-align:center;
+  background:var(--bg-soft); border-top:1px solid var(--border);
+  position:relative; z-index:1;
+}
+.footer-inner{ max-width:600px; margin:0 auto; }
+.footer-desc{ font-size:13px; color:var(--text-sub); line-height:1.8; }
+
+/* ===== 响应式 ===== */
+@media(max-width:1024px){
+  .container{ padding:0 24px; }
+}
+@media(max-width:900px){
+  .nav-links{display:none;}
+  .nav-links.open{
+    display:flex;
+    position:absolute;top:calc(100% + 14px);
+    left:50%;transform:translateX(-50%);
+    width:min(400px, calc(100vw - 48px));
+    flex-direction:column;
+    gap:20px;
+    padding:24px 16px;
+    background:rgba(255,253,249,.97);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border);
+    border-radius:28px;
+    box-shadow:0 32px 80px rgba(0,0,0,.16);
+    transform-origin:top center;
+    animation:navMenuIn .42s ease both;
+  }
+  @keyframes navMenuIn{
+    0%{opacity:0;transform:translateX(-50%) translateY(-16px) scale(.92);}
+    100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+  }
+  .nav-links.open a{
+    padding:10px 20px;border-radius:14px;text-align:center;
+    font-size:18px;
+  }
+  .nav-links.open a:hover{background:var(--primary-soft);color:var(--primary);}
+  .nav-links.open a::after{display:none;}
+  .nav-links.open .lang-switcher{
+    display:flex;justify-content:center;flex-wrap:wrap;
+    gap:4px;padding:16px 0 0;margin-top:8px;
+    border-top:none;border-left:none;padding-left:0;margin-left:0;
+    align-items:center;
+  }
+  .nav-links.open .lang-switcher .lang-btn{padding:8px 14px;font-size:16px;}
+  .nav-toggle{display:flex;}
+}
+@media(max-width:768px){
+  .container{ padding:0 20px; }
+  .page-hero h1{ font-size:36px; }
+  .timeline-line{ padding-left:32px; }
+  .timeline-dot{ left:-25px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 导航栏（统一） ===== -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="纳棂 NALING" data-i18n-aria="aria.brand">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span data-i18n="brand">纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" class="active" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh" data-i18n-title="lang.zh" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" data-i18n-title="lang.zhTW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" data-i18n-title="lang.bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" data-i18n-title="lang.en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" data-i18n-title="lang.ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单" data-i18n-aria="aria.menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main>
+  <!-- ===== 页面标题 ===== -->
+  <section class="page-hero">
+    <h1 data-i18n="updates.title">📄 文档</h1>
+    <p class="section-subtitle" data-i18n="updates.desc">浏览技术文档与项目报告。</p>
+  </section>
+
+  <!-- ===== 文档列表 ===== -->
+  <section class="docs-section" id="docsList">
+    <!-- 由 JS 动态渲染 -->
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <p class="footer-desc" data-i18n="footer.text">纳棂 NALING · 认真活着，认真喜欢</p>
+  </div>
+</footer>
+
+<script>
+/* ===== i18n ===== */
+var LOCALE = localStorage.getItem("naling-locale") || "zh";
+var i18nDict = {
+  "zh":{
+    "brand":"纳棂",
+    "nav.home":"首页","nav.interact":"互动","nav.team":"团队","nav.updates":"文档",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"纳棂 NALING","aria.menu":"菜单",
+    "updates.title":"文档","updates.desc":"浏览技术文档与项目报告。",
+    "footer.text":"纳棂 NALING · 认真活着，认真喜欢"
+  },
+  "zh-TW":{
+    "brand":"納棂",
+    "nav.home":"首頁","nav.interact":"互動","nav.team":"團隊","nav.updates":"文檔",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"納棂 NALING","aria.menu":"選單",
+    "updates.title":"文檔","updates.desc":"瀏覽技術文檔與項目報告。",
+    "footer.text":"納棂 NALING · 認真活著，認真喜歡"
+  },
+  "bo":{
+    "brand":"ན་ལིང་།",
+    "nav.home":"མདུན་ངོས།","nav.interact":"ཕན་ཚུན།","nav.team":"ཚོགས་པ།","nav.updates":"ཡིག་ཆ།",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"ན་ལིང་། NALING","aria.menu":"དཀར་ཆག",
+    "updates.title":"ཡིག་ཆ།","updates.desc":"ལག་རྩལ་ཡིག་ཆ་དང་ལས་གཞིའི་སྙན་ཞུ་ལ་བལྟ་བ།",
+    "footer.text":"ན་ལིང་། NALING · ཡིད་བརྟན་འཚོ་བ། ཡིད་བརྟན་དགའ་བ།"
+  },
+  "en":{
+    "brand":"NALING",
+    "nav.home":"Home","nav.interact":"Interact","nav.team":"Team","nav.updates":"Docs",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"NALING","aria.menu":"Menu",
+    "updates.title":"Documents","updates.desc":"Browse technical documents and project reports.",
+    "footer.text":"NALING · Live earnestly, love earnestly"
+  },
+  "ja":{
+    "brand":"ナリン",
+    "nav.home":"ホーム","nav.interact":"交流","nav.team":"チーム","nav.updates":"文書",
+    "lang.zh":"简体中文","lang.zhTW":"繁體中文","lang.bo":"བོད་སྐད།","lang.en":"English","lang.ja":"日本語",
+    "aria.brand":"ナリン NALING","aria.menu":"メニュー",
+    "updates.title":"文書","updates.desc":"技術文書とプロジェクトレポートを閲覧します。",
+    "footer.text":"ナリン NALING · 真面目に生き、真面目に好き"
+  },
+};
+
+function t(key){
+  var dict = i18nDict[LOCALE] || i18nDict["zh"];
+  return dict[key] || i18nDict["zh"][key] || key;
+}
+
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    var key = el.getAttribute("data-i18n");
+    var text = t(key);
+    if(text) el.textContent = text;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-title");
+    var text = t(key);
+    if(text) el.setAttribute("title", text);
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-aria");
+    var text = t(key);
+    if(text) el.setAttribute("aria-label", text);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){
+    var key = el.getAttribute("data-i18n-placeholder");
+    var text = t(key);
+    if(text) el.setAttribute("placeholder", text);
+  });
+  document.title = "文档 - " + t("brand");
+
+  document.querySelectorAll(".lang-btn").forEach(function(btn){
+    btn.classList.toggle("active", btn.getAttribute("data-lang") === LOCALE);
+  });
+}
+
+// 语言切换（使用按钮点击）
+(function(){
+  var btns = document.querySelectorAll("#navLinks .lang-btn");
+  btns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      LOCALE = this.dataset.lang;
+      localStorage.setItem("naling-locale", LOCALE);
+      applyI18n();
+    });
+  });
+  applyI18n();
+})();
+
+
+/* ===== 导航 ===== */
+var navbar = document.getElementById("navbar");
+var navToggle = document.getElementById("navToggle");
+var navLinks = document.getElementById("navLinks");
+
+navToggle.addEventListener("click", function(){
+  navToggle.classList.toggle("active");
+  navLinks.classList.toggle("open");
+});
+
+window.addEventListener("scroll", function(){
+  if(window.scrollY > 30) navbar.classList.add("scrolled");
+  else navbar.classList.remove("scrolled");
+}, { passive: true });
+if(window.scrollY > 30) navbar.classList.add("scrolled");
+
+// 移动端菜单：点击链接后关闭
+navLinks.querySelectorAll("a").forEach(function(a){
+  a.addEventListener("click", function(){
+    navToggle.classList.remove("active");
+    navLinks.classList.remove("open");
+  });
+});
+
+/* ===== 文档列表数据 ===== */
+var docsData = [
+  { id:"report-1", title:"电竞平台开发项目报告", desc:"电竞平台开发项目全栈技术报告，涵盖系统架构、功能模块、部署运维等完整内容。部分敏感信息已做脱敏处理。", date:"2026-08-03", file:"电竞平台开发项目报告" }
+];
+
+function renderDocs(){
+  var container = document.getElementById("docsList");
+  if(!container) return;
+
+  var html = "";
+  docsData.forEach(function(d){
+    html += '<div class="doc-card" onclick="openDoc(\'' + d.id + '\')">' +
+      '<div class="doc-info">' +
+        '<h3 class="doc-title">' + escapeHtml(d.title) + '</h3>' +
+        '<p class="doc-desc">' + escapeHtml(d.desc) + '</p>' +
+        '<div class="doc-meta">' +
+          '<span>' + d.date + '</span>' +
+          '<span>' + d.file + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="doc-arrow">&gt;</div>' +
+    '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function openDoc(id){
+  // 跳转到文档详情页
+  window.location.href = 'doc-viewer.html?id=' + encodeURIComponent(id);
+}
+
+function escapeHtml(s){
+  if(!s) return "";
+  var d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+renderDocs();
+
+// 主题切换
+(function(){
+  var K='naling-theme';
+  var btn=document.getElementById('themeToggle');
+  function get(){
+    var s=localStorage.getItem(K);
+    if(s==='dark'||s==='light')return s;
+    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)return'dark';
+    return'light';
+  }
+  function apply(t){
+    if(t==='dark')document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
+    if(btn){
+      if(t==='dark'){btn.classList.add('dark');btn.textContent='明亮';}
+      else{btn.classList.remove('dark');btn.textContent='阴暗';}
+    }
+  }
+  function toggle(){
+    var n=get()==='dark'?'light':'dark';
+    localStorage.setItem(K,n);apply(n);
+  }
+  if(btn)btn.addEventListener('click',toggle);
+  apply(get());
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="page.title">文档详情 · 纳棂 NALING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f8f6f2; --card-bg:#fffefb; --card-border:#e8e3d8;
+  --text:#2d2a24; --text-sub:#6b6560; --text-mute:#9b948a;
+  --primary:#b8860b; --primary-2:#d4a843; --primary-soft:rgba(184,134,11,.08);
+  --border:#e5dfd4; --shadow:0 2px 12px rgba(0,0,0,.04);
+  --shadow-hover:0 8px 30px rgba(0,0,0,.08);
+  --accent:#9933ff; --accent2:#d944ff; --accent3:#ff6b9d;
+  --green:#4caf50; --orange:#ff9800; --red:#f44336; --blue:#2196f3;
+  --ease:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
+  --font-sans:'Inter','Microsoft YaHei','PingFang SC',-apple-system,sans-serif;
+}
+[data-theme="dark"] {
+  --bg:#1a1a2e; --card-bg:#1a1a2e; --card-border:#2a2a4a;
+  --text:#f0ebe3; --text-sub:#c4b5a5; --text-mute:#8a7e72;
+  --primary:#ffa040; --primary-2:#ffbe60; --primary-soft:rgba(255,160,64,.1);
+  --border:#2a2a4a; --shadow:0 2px 12px rgba(0,0,0,.15);
+  --shadow-hover:0 8px 30px rgba(0,0,0,.3);
+}
+[data-theme="dark"] body{
+  background:linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+  background-attachment:fixed;
+}
+[data-theme="dark"] .nav-logo {
+  color:var(--text);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html::-webkit-scrollbar{ width:0; height:0; }
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter','Noto Serif SC','Microsoft YaHei','PingFang SC',-apple-system,sans-serif;
+  font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;
+  transition:background .3s var(--ease),color .3s var(--ease);
+  min-height:100vh;display:flex;flex-direction:column;
+  scrollbar-width:none;
+}
+
+/* ===== 导航栏 ===== */
+.container{ max-width:1200px;margin:0 auto;padding:0 32px; }
+#navbar{
+  position:sticky;top:0;z-index:1000;
+  padding:14px 0;
+  background:rgba(255,253,249,.72);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(255,229,191,.6);
+  box-shadow:0 6px 30px rgba(255,138,0,.06);
+  transition:all .4s var(--ease);
+}
+#navbar.scrolled{
+  padding:10px 0;
+  background:rgba(255,253,249,.88);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 6px 30px rgba(255,138,0,.08);
+}
+.nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.nav-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:800;
+  font-size:20px;
+  letter-spacing:.02em;
+  text-decoration:none;
+  color:#111;
+}
+.nav-logo .logo-mark{
+  width:34px;height:34px;
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(255,138,0,.35);
+  transition:transform .4s var(--ease);
+}
+.nav-logo .logo-mark img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+.nav-logo:hover .logo-mark{ transform:rotate(-8deg) scale(1.05); }
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  list-style:none;
+}
+.nav-links a{
+  position:relative;
+  text-decoration:none;
+  padding:8px 16px;
+  font-size:15px;
+  color:var(--text-sub);
+  border-radius:999px;
+  transition:all .3s var(--ease);
+}
+.nav-links a::after{
+  content:"";
+  position:absolute;
+  left:50%;bottom:4px;
+  width:0;height:2px;
+  background:var(--primary);
+  border-radius:2px;
+  transform:translateX(-50%);
+  transition:width .3s var(--ease);
+}
+.nav-links a:hover{ color:var(--primary); }
+.nav-links a:hover::after{ width:18px; }
+.nav-links a.active{
+  color:var(--primary);
+  font-weight:600;
+}
+.nav-links a.active::after{ width:18px;background:var(--primary); }
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--primary);font-size:14px;font-weight:600;
+  text-decoration:none;padding:8px 16px;border-radius:999px;
+  transition:all .25s var(--ease);
+  cursor:pointer;border:none;background:var(--primary-soft);
+}
+.back-btn:hover{ background:var(--primary);color:#fff; }
+
+/* 语言切换条 */
+.lang-switcher{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding-left:10px;
+  margin-left:6px;
+  border-left:1px solid var(--border);
+}
+.lang-switcher .sep{ display:none; }
+.lang-btn{
+  padding:6px 10px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-mute);
+  border-radius:8px;
+  transition:all .3s var(--ease);
+  cursor:pointer;
+  font-family:var(--font-sans);
+  line-height:1;
+  background:none;border:none;
+}
+.lang-btn:hover{ color:var(--primary);background:var(--primary-soft); }
+.lang-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  box-shadow:0 4px 12px rgba(255,138,0,.3);
+}
+
+/* 主题切换 */
+.theme-toggle-btn{
+  padding:6px 10px;font-size:13px;font-weight:600;
+  color:var(--text-mute);border-radius:8px;
+  transition:all .3s var(--ease);cursor:pointer;
+  font-family:var(--font-sans);line-height:1;
+  background:transparent;border:none;white-space:nowrap;
+}
+.theme-toggle-btn:hover{color:var(--primary);background:var(--primary-soft);}
+.theme-toggle-btn.dark{color:var(--primary);}
+
+/* 移动端汉堡按钮 */
+.nav-toggle{
+  display:none;
+  width:44px;height:44px;
+  border-radius:12px;
+  background:transparent;
+  border:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+}
+.nav-toggle span{
+  width:20px;height:2px;
+  background:var(--text);
+  border-radius:2px;
+  transition:all .3s var(--ease);
+}
+.nav-toggle.active span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.nav-toggle.active span:nth-child(2){ opacity:0; }
+.nav-toggle.active span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+/* 深色模式导航 */
+[data-theme="dark"] #navbar{ background:rgba(20,20,38,.88);border-color:var(--border);box-shadow:0 6px 30px rgba(0,0,0,.25); }
+[data-theme="dark"] #navbar.scrolled{ background:rgba(20,20,38,.95);border-color:var(--border); }
+[data-theme="dark"] .nav-logo{ color:var(--text); }
+[data-theme="dark"] .nav-links a{ color:var(--text-sub); }
+[data-theme="dark"] .nav-links a.active{ color:var(--primary); }
+
+/* 移动端响应式 */
+@media(max-width:1024px){
+  .container{ padding:0 24px; }
+}
+@media(max-width:768px){
+  .nav-links{ display:none; }
+  .nav-links.open{
+    display:flex;
+    position:absolute;
+    top:calc(100% + 14px);
+    left:50%;
+    transform:translateX(-50%);
+    width:min(400px,calc(100vw - 48px));
+    flex-direction:column;
+    background:rgba(255,253,249,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:24px 16px;
+    gap:20px;
+    box-shadow:0 32px 80px rgba(0,0,0,.16);
+    transform-origin:top center;
+    animation:navMenuIn .42s ease both;
+  }
+  @keyframes navMenuIn{
+    0%{ opacity:0; transform:translateX(-50%) translateY(-16px) scale(.92); }
+    100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  }
+  .nav-links.open a{
+    padding:10px 20px;
+    border-radius:14px;
+    text-align:center;
+    font-size:18px;
+  }
+  .nav-links.open a:hover{ background:var(--primary-soft);color:var(--primary); }
+  .nav-links.open a:hover::after{ display:none; }
+  .nav-links.open .lang-switcher{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:4px;
+    padding:16px 0 0;
+    margin-top:8px;
+    border-top:none;
+    border-left:none;
+    padding-left:0;
+    margin-left:0;
+  }
+  .nav-links.open .lang-switcher .lang-btn{ padding:8px 14px;font-size:16px; }
+  .nav-toggle{ display:flex; }
+  [data-theme="dark"] .nav-links.open{ background:rgba(20,20,38,.97);border-color:var(--border); }
+  [data-theme="dark"] .nav-toggle{ background:rgba(255,138,0,.12); }
+}
+@media(max-width:640px){
+  .container{ padding:0 20px; }
+}
+
+/* ===== 主要内容 ===== */
+main{ flex:1; }
+.doc-container{ max-width:900px;margin:0 auto;padding:40px 24px 80px; }
+
+/* ===== 文档头部 ===== */
+.doc-header{
+  text-align:center;padding:48px 0 32px;
+  border-bottom:1px solid var(--border);margin-bottom:40px;
+}
+.doc-header h1{
+  font-size:32px;font-weight:800;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:12px;
+}
+.doc-header .doc-subtitle{ font-size:16px;color:var(--text-sub); }
+.doc-header .doc-meta{
+  margin-top:20px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+}
+.doc-header .meta-item{ font-size:13px;color:var(--text-mute); }
+.doc-header .meta-item strong{ color:var(--primary); }
+
+/* ===== 脱敏提示 ===== */
+.mask-notice{
+  background:var(--primary-soft);border:1px solid var(--primary);
+  border-radius:12px;padding:16px 20px;margin-bottom:32px;
+  display:flex;align-items:center;gap:12px;
+  font-size:14px;color:var(--text-sub);
+}
+.mask-notice .notice-icon{ font-size:24px;flex-shrink:0; }
+[data-theme="dark"] .mask-notice{ color:var(--text-sub); }
+
+/* ===== 文档正文样式 ===== */
+.doc-body h2{
+  font-size:24px;font-weight:700;color:var(--primary);
+  margin:48px 0 24px;padding-bottom:8px;
+  border-bottom:2px solid var(--primary);
+  display:inline-block;
+}
+.doc-body h3{ font-size:18px;font-weight:600;color:var(--text);margin:32px 0 16px; }
+.doc-body h4{ font-size:16px;font-weight:600;color:var(--primary);margin:24px 0 12px; }
+.doc-body p{ margin-bottom:14px;color:var(--text); }
+.doc-body strong{ color:var(--primary);font-weight:600; }
+.doc-body code{
+  background:var(--primary-soft);padding:2px 8px;border-radius:6px;
+  font-size:13px;color:var(--accent);font-family:'JetBrains Mono','Consolas',monospace;
+}
+.doc-body ul,.doc-body ol{ padding-left:24px;margin-bottom:14px; }
+.doc-body li{ margin-bottom:6px;color:var(--text); }
+.doc-body pre{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:12px;padding:20px;overflow-x:auto;
+  font-size:13px;line-height:1.6;margin:16px 0;
+  font-family:'JetBrains Mono','Consolas',monospace;
+}
+.doc-body pre code{ background:none;padding:0;color:var(--text); }
+.doc-body blockquote{
+  border-left:3px solid var(--primary);padding:12px 20px;
+  margin:16px 0;background:var(--primary-soft);border-radius:0 12px 12px 0;
+  color:var(--text-sub);
+}
+
+/* Card */
+.card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:14px;padding:24px;margin:20px 0;
+}
+.card-title{ font-size:16px;font-weight:700;color:var(--primary);margin-bottom:12px; }
+
+/* Grid */
+.grid-2{ display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0; }
+.grid-3{ display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:16px 0; }
+@media(max-width:700px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
+
+/* Stat */
+.stat-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:14px;padding:24px;text-align:center;
+}
+.stat-num{ font-size:28px;font-weight:800;color:var(--primary);margin-bottom:4px; }
+.stat-label{ font-size:13px;color:var(--text-mute); }
+
+/* Table */
+.table-wrap{ overflow-x:auto;margin:16px 0; }
+.table-wrap table{
+  width:100%;border-collapse:collapse;
+  background:var(--card-bg);border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);
+}
+.table-wrap th{
+  background:var(--primary-soft);color:var(--primary);
+  font-weight:600;font-size:13px;padding:12px 16px;text-align:left;
+}
+.table-wrap td{ padding:10px 16px;font-size:14px;color:var(--text);border-top:1px solid var(--border); }
+
+/* Badge */
+.badge{ display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600; }
+.badge-green{ background:rgba(76,175,80,.15);color:var(--green); }
+.badge-red{ background:rgba(244,67,54,.15);color:var(--red); }
+.badge-orange{ background:rgba(255,152,0,.15);color:var(--orange); }
+.badge-blue{ background:rgba(33,150,243,.15);color:var(--blue); }
+
+/* Callout */
+.callout{
+  padding:16px 20px;border-radius:12px;margin:16px 0;font-size:14px;
+  border-left:4px solid var(--primary);
+  background:var(--primary-soft);
+}
+.callout-success{ border-color:var(--green);background:rgba(76,175,80,.08); }
+.callout-warn{ border-color:var(--orange);background:rgba(255,152,0,.08); }
+.callout-danger{ border-color:var(--red);background:rgba(244,67,54,.08); }
+
+/* Timeline */
+.timeline{ position:relative;padding-left:32px;margin:16px 0; }
+.timeline::before{
+  content:"";position:absolute;left:8px;top:4px;bottom:4px;
+  width:2px;background:var(--border);border-radius:1px;
+}
+.timeline-item{ position:relative;margin-bottom:20px; }
+.timeline-date{
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--primary);
+  margin-bottom:4px;font-weight:600;
+}
+.timeline-dot{
+  position:absolute;left:-28px;top:4px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--primary);
+}
+.timeline-content{ font-size:14px;color:var(--text-sub); }
+
+/* Figure */
+figure{ margin:20px 0;text-align:center; }
+figure pre{ text-align:left; }
+figcaption{ font-size:13px;color:var(--text-mute);margin-top:8px; }
+
+/* Chart container */
+.chart-box{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:12px;padding:28px 24px 20px;margin:20px 0;
+  box-shadow:var(--shadow);transition:box-shadow .3s var(--ease);
+}
+.chart-box:hover{ box-shadow:var(--shadow-hover); }
+.chart-title{
+  font-size:15px;font-weight:600;color:var(--text);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.chart-title::before{
+  content:'';display:inline-block;width:4px;height:18px;
+  border-radius:2px;background:var(--primary);
+}
+.chart-legend{
+  display:flex;gap:24px;flex-wrap:wrap;justify-content:center;
+  margin-top:14px;font-size:13px;color:var(--text-sub);
+}
+.chart-legend span{ display:flex;align-items:center;gap:6px; }
+.chart-legend span::before{
+  content:'';display:inline-block;width:12px;height:12px;
+  border-radius:3px;flex-shrink:0;
+}
+.chart-legend .leg-boss::before{ background:#daa520; }
+.chart-legend .leg-server::before{ background:#4a90d9; }
+.chart-legend .leg-mgr::before{ background:#9b59b6; }
+.chart-legend .leg-validator::before{ background:#27ae60; }
+.chart-box svg{ display:block;width:100%;height:auto; }
+.chart-box svg text{ font-family:var(--font-sans); }
+.bar-group{ cursor:pointer;transition:opacity .2s; }
+.bar-group:hover{ opacity:.85; }
+.bar-group:hover rect{ filter:brightness(.9); }
+
+/* 打码样式 */
+.masked{
+  color:var(--text-mute);
+}
+
+/* ===== 页脚 ===== */
+footer{
+  text-align:center;padding:32px 24px;
+  border-top:1px solid var(--border);
+  color:var(--text-mute);font-size:13px;
+}
+footer p{ margin-bottom:4px; }
+
+/* ===== 返回顶部 ===== */
+.back-top{
+  position:fixed;bottom:32px;right:32px;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--card-bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:20px;color:var(--text-sub);
+  transition:all .3s var(--ease);
+  box-shadow:var(--shadow);
+  opacity:0;visibility:hidden;
+}
+.back-top.visible{ opacity:1;visibility:visible; }
+.back-top:hover{ border-color:var(--primary);color:var(--primary);transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- ===== 导航栏 ===== -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="纳棂 NALING">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span>纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" class="active" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="back-btn" onclick="history.back()" title="返回文档列表" data-i18n="back">← 返回</button>
+      <button class="nav-toggle" id="navToggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<div class="doc-container">
+
+<!-- ===== 文档头部 ===== -->
+<div class="doc-header">
+  <h1 data-i18n="doc.title">电竞平台开发项目报告</h1>
+  <p class="doc-subtitle" data-i18n="doc.subtitle">全栈技术报告 · 涵盖系统架构、功能模块、部署运维等完整内容</p>
+  <div class="doc-meta">
+    <span class="meta-item" data-i18n="meta.date">生成日期: <strong>2026-08</strong></span>
+    <span class="meta-item" data-i18n="meta.version">版本: <strong>V**.7.**</strong></span>
+    <span class="meta-item" data-i18n="meta.pages">页数: <strong>10 章</strong></span>
+  </div>
+</div>
+
+<!-- ===== 脱敏提示 ===== -->
+<div class="mask-notice">
+  <span class="notice-icon">*</span>
+  <span data-i18n="mask.notice">本文档中的部分敏感信息（项目名称、端口号、数据库名、包名、版本号等）已做脱敏处理，以 **** 标记替代。完整信息仅限内部授权人员查阅。</span>
+</div>
+
+<!-- ===== 文档正文 ===== -->
+<div class="doc-body">
+
+<!-- 第一章 -->
+<h2 data-i18n="h2.overview">一、项目概述</h2>
+
+<h3 data-i18n="h3.positioning">1.1 项目定位</h3>
+<p data-i18n="h3.positioning.p">**科技是一个集<strong>下单、接单、管理、安全验证</strong>于一体的全栈服务平台系统。项目采用<mark>前后端分离 + 多服务独立部署</mark>的架构，前端为 H5 Web 应用并打包为 Android APK，后端基于 Node.js + Express/Koa 构建四端独立服务。</p>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title" data-i18n="card.techstack">技术栈</div>
+    <ul>
+      <li data-i18n="card.tech.1"><strong>后端框架</strong>: Node.js + Express ** / Koa **</li>
+      <li data-i18n="card.tech.2"><strong>数据库</strong>: MySQL + mysql2 驱动</li>
+      <li data-i18n="card.tech.3"><strong>前端</strong>: 原生 HTML/CSS/JS + DCloud ** Runtime</li>
+      <li data-i18n="card.tech.5"><strong>加密体系</strong>: Node.js crypto (RSA-**** + AES-***-***)</li>
+      <li data-i18n="card.tech.6"><strong>部署</strong>: Linux + systemd 进程守护</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title" data-i18n="card.scale">项目规模</div>
+    <ul>
+      <li data-i18n="card.scale.1">后端代码总量: <strong>~12,000 行</strong></li>
+      <li data-i18n="card.scale.2">API 端点总数: <strong>247+ 个</strong></li>
+      <li data-i18n="card.scale.3">HTML 页面数: <strong>35+ 个</strong></li>
+      <li data-i18n="card.scale.4">数据库表: <strong>16 张</strong></li>
+      <li data-i18n="card.scale.5">独立服务: <strong>5 个</strong></li>
+      <li data-i18n="card.scale.6">Android APK: <strong>2 个</strong></li>
+    </ul>
+  </div>
+</div>
+
+<h3 data-i18n="h3.arch">1.2 四端服务架构</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th data-i18n="table.svc_name">服务名称</th><th data-i18n="table.port">端口</th><th data-i18n="table.framework">框架</th><th data-i18n="table.loc">代码行数</th><th data-i18n="table.api_count">API 数</th><th data-i18n="table.duty">职责</th></tr></thead>
+<tbody>
+<tr><td>**老板端</td><td>1****</td><td>Express **</td><td>3,737</td><td>67</td><td data-i18n="table.duty.boss">用户、订单、财务、聊天</td></tr>
+<tr><td>**服务方端</td><td>1****</td><td>Koa **</td><td>3,173</td><td>65</td><td data-i18n="table.duty.server">接单、游戏流程、收益</td></tr>
+<tr><td>**管理器</td><td>1****</td><td>Express **</td><td>4,244</td><td>101</td><td data-i18n="table.duty.admin">**后台、版本控制</td></tr>
+<tr><td>**验证器</td><td>1****/1****</td><td>Express **</td><td>737</td><td>14</td><td data-i18n="table.duty.validator">扫码审批、安全验证</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<div class="card-title" data-i18n="card.arch_principle">架构设计原则</div>
+<ul>
+  <li data-i18n="card.arch.p1"><strong>服务隔离</strong>: 四端独立端口、独立进程，互不影响</li>
+  <li data-i18n="card.arch.p2"><strong>**</strong>: ** MySQL 数据库 <code>******</code>，所有服务共享访问</li>
+  <li data-i18n="card.arch.p3"><strong>Token 认证</strong>: 统一 JWT Token 机制，服务间 Token 互通</li>
+  <li data-i18n="card.arch.p4"><strong>全链路加密</strong>: RSA+AES 混合加密覆盖所有 POST/PUT 请求</li>
+</ul>
+</div>
+
+<!-- 第二章 -->
+<h2 data-i18n="h2.architecture">二、系统架构深度分析</h2>
+
+<h3 data-i18n="h3.deployment">2.1 部署架构</h3>
+<div class="diagram-placeholder">
+  <span data-i18n="diagram.deploy">[系统部署架构图 - 已脱敏]</span><br>
+  <small data-i18n="diagram.deploy.desc">Nginx 反向代理 → 四端独立 Node.js 服务 → 共享 MySQL 数据库</small>
+</div>
+
+<h3 data-i18n="h3.nginx">2.2 Nginx 反向代理</h3>
+<p data-i18n="p.nginx">前端通过 Nginx 反向代理将请求分发到对应的后端服务端口，基于请求路径进行路由匹配。前端统一请求 <code>/api/*</code> 路径，Nginx 根据路径前缀将请求转发到不同的后端端口。</p>
+
+<h3 data-i18n="h3.encryption">2.3 RSA+AES 混合加密体系</h3>
+<p data-i18n="p.encryption.intro">系统实现了<mark>零侵入的全链路加密方案</mark>：</p>
+
+<div class="diagram-placeholder">
+  <span data-i18n="diagram.encryption">[RSA+AES 混合加密流程时序图 - 已脱敏]</span>
+</div>
+
+<p data-i18n="p.encryption.detail">所有 POST/PUT 请求自动加密，包括登录、发送验证码、礼品卡兑换、余额操作等，<strong>业务代码零改动</strong>。服务端每次重启时自动生成新的 RSA-**** 密钥对，确保密钥不固定。</p>
+
+<h3 data-i18n="h3.security">2.4 安全防护层</h3>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title" data-i18n="card.http_headers">HTTP 安全头</div>
+    <ul>
+      <li data-i18n="card.http.1">HSTS (HTTP Strict Transport Security)</li>
+      <li data-i18n="card.http.2">Content-Security-Policy (CSP)</li>
+      <li data-i18n="card.http.3">X-Frame-Options: DENY</li>
+      <li data-i18n="card.http.4">X-Content-Type-Options: nosniff</li>
+      <li data-i18n="card.http.5">XSS-Protection</li>
+      <li data-i18n="card.http.6">Referrer-Policy</li>
+      <li data-i18n="card.http.7">Permissions-Policy</li>
+      <li data-i18n="card.http.8">Alt-Svc (HTTP/3 提示)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title" data-i18n="card.biz_security">业务安全</div>
+    <ul>
+      <li data-i18n="card.biz.1">FLAG_SECURE 防截屏（验证码/礼品卡界面）</li>
+      <li data-i18n="card.biz.2">安全键盘（银行式乱序数字按键）</li>
+      <li data-i18n="card.biz.3">截屏防护（窗口失焦黑屏 + 水印溯源）</li>
+      <li data-i18n="card.biz.4">频率限制（验证码 / 礼品卡兑换）</li>
+      <li data-i18n="card.biz.5">数据库事务 + FOR UPDATE 行锁</li>
+      <li data-i18n="card.biz.6">礼品卡 SHA256+盐 防撞库</li>
+      <li data-i18n="card.biz.7">版本检查 *** 签名防篡改</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 第三章 -->
+<h2 data-i18n="h2.modules">三、核心模块详解</h2>
+  
+<h3 data-i18n="h3.boss">3.1 **老板端</h3>
+<p data-i18n="p.boss.intro">老板端是面向下单客户的后端服务，<code>server.js</code> 约 <strong>3,737 行</strong>，提供 <strong>67 个 API 端点</strong>，是 API 数量最多的服务之一。</p>
+
+<h4 data-i18n="h4.core_func">核心功能</h4>
+<ul>
+  <li data-i18n="boss.func.1"><strong>用户系统</strong>：邮箱验证码注册/登录、余额管理、充值记录、头像上传、昵称/游戏ID修改</li>
+  <li data-i18n="boss.func.2"><strong>订单系统</strong>：创建订单（支持多人接单）、取消订单、确认订单完成、订单状态流转</li>
+  <li data-i18n="boss.func.3"><strong>财务系统</strong>：余额充值、消费记录、礼品卡兑换（含 FLAG_SECURE 防截屏）</li>
+  <li data-i18n="boss.func.4"><strong>聊天系统</strong>：订单内老板与服务方实时聊天、联系人列表、消息分页</li>
+  <li data-i18n="boss.func.5"><strong>服务管理</strong>：服务列表浏览、分类筛选、服务详情</li>
+  <li data-i18n="boss.func.6"><strong>版本控制</strong>：APP 版本检查、强制更新、永久最低版本、崩溃报告收集</li>
+</ul>
+
+<h4 data-i18n="h4.db_tables">数据库表（16张）</h4>
+<div class="table-wrap">
+<table>
+<thead><tr><th data-i18n="table.col_name">表名</th><th data-i18n="table.col_purpose">用途</th><th data-i18n="table.col_fields">关键字段</th></tr></thead>
+<tbody>
+<tr><td>*****</td><td data-i18n="db.boss_users">老板用户</td><td>****</td></tr>
+<tr><td>****_users</td><td data-i18n="db.server_users">服务方用户</td><td>****</td></tr>
+<tr><td>******</td><td data-i18n="db.orders">订单</td><td>****</td></tr>
+<tr><td>order_****</td><td data-i18n="db.order_server">订单-服务方关联</td><td>****</td></tr>
+<tr><td>********</td><td data-i18n="db.services">服务目录</td><td>****</td></tr>
+<tr><td>*************</td><td data-i18n="db.recharge">充值记录</td><td>****</td></tr>
+<tr><td>************</td><td data-i18n="db.consume">消费记录</td><td>****</td></tr>
+<tr><td>****_income_logs</td><td data-i18n="db.server_income">服务方收入</td><td>****</td></tr>
+<tr><td>************</td><td data-i18n="db.penalty">罚金记录</td><td>****</td></tr>
+<tr><td>**********</td><td data-i18n="db.gift_cards">礼品卡</td><td>****</td></tr>
+<tr><td>************</td><td data-i18n="db.chat">聊天消息</td><td>****</td></tr>
+<tr><td>**********</td><td data-i18n="db.admin_logs">**日志</td><td>****</td></tr>
+<tr><td>*************</td><td data-i18n="db.sys_config">系统配置</td><td>****</td></tr>
+<tr><td>************</td><td data-i18n="db.super_admin">超级**</td><td>****</td></tr>
+<tr><td>************</td><td data-i18n="db.app_versions">APP版本</td><td>****</td></tr>
+<tr><td>*************</td><td data-i18n="db.crash_reports">崩溃报告</td><td>****</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 data-i18n="h3.server">3.2 **服务方端</h3>
+<p data-i18n="p.server.intro">服务端服务 <code>server.js</code> 约 <strong>3,173 行</strong>，提供 <strong>65 个 API 端点</strong>，是服务方接单和工作管理的核心服务。</p>
+
+<h4 data-i18n="h4.core_func">核心功能</h4>
+<ul>
+  <li data-i18n="server.func.1"><strong>接单系统</strong>：浏览可接订单、接单（支持队长/队员角色）、1分钟内免费取消</li>
+  <li data-i18n="server.func.2"><strong>游戏流程</strong>：开始游戏（3人直开 / 1-2人需老板确认或2小时自动解锁）、完成订单、申诉</li>
+  <li data-i18n="server.func.3"><strong>收益系统</strong>：订单收入（金额x30%）、提现、72小时审核期、罚金扣除</li>
+  <li data-i18n="server.func.4"><strong>聊天系统</strong>：订单聊天（支持群组模式、2小时后只读、头像栏显示+复制暗区ID）</li>
+  <li data-i18n="server.func.5"><strong>个人管理</strong>：头像上传、昵称修改、游戏ID修改、密码修改</li>
+  <li data-i18n="server.func.6"><strong>封禁系统</strong>：禁登封号 / 禁单封号、定时自动解封、封禁原因记录</li>
+</ul>
+
+<div class="callout callout-success">
+<strong data-i18n="callout.multi">多人接单机制：</strong><span data-i18n="callout.multi.p">每个订单最多支持 3 名服务方同时接单，第一个接单者为队长（is_leader=1）。3人订单可直开直完，1-2人订单需老板确认或等待 2 小时自动解锁。所有服务方完成后自动结算。</span>
+</div>
+
+<h3 data-i18n="h3.manager">3.3 **管理器</h3>
+<p data-i18n="p.manager.intro">管理器是系统的中央后台，<code>server.js</code> 约 <strong>4,244 行</strong>（最大的单文件），提供 <strong>101 个 API 端点</strong>，是 API 最密集的服务。</p>
+
+<h4 data-i18n="h4.admin_pages">**管理**</h4>
+<div class="table-wrap">
+<table>
+<thead><tr><th data-i18n="table.col_page">**</th><th data-i18n="table.col_func">**</th></tr></thead>
+<tbody>
+<tr><td>****_*****.html</td><td>管理员登录（扫码 + 验证码双重认证）</td></tr>
+<tr><td>****_*********.html</td><td>主控台仪表盘（统计概览）</td></tr>
+<tr><td>****_****.html</td><td>老板管理（余额调整 / 身份管理 / 删除）</td></tr>
+<tr><td>****_****.html</td><td>服务方管理（封禁 / 余额 / 添加 / 删除）</td></tr>
+<tr><td>****_******.html</td><td>订单管理（状态修改 / 取消 / 删除）</td></tr>
+<tr><td>****_********.html</td><td>服务管理（增删改 / 上下架 / 图片上传）</td></tr>
+<tr><td>****_*********.html</td><td>礼品卡管理（创建 / 批量删除）</td></tr>
+<tr><td>****_****.html</td><td>操作日志查看</td></tr>
+<tr><td>****_****.html</td><td>**安全管控配置（双端独立）</td></tr>
+<tr><td>****_******.html</td><td>系统配置</td></tr>
+<tr><td>****_********.html</td><td>用户反馈查看</td></tr>
+<tr><td>***********.html</td><td>维护模式页面</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 data-i18n="h4.sec_sys">**安全管控系统</h4>
+<p data-i18n="p.sec_sys.intro">**安全管控是平台的<mark>安全防护与版本控制中枢</mark>，包含以下子系统：</p>
+<ul>
+  <li data-i18n="sec.func.1"><strong>版本检查</strong>：三重拦截机制（永久最低版本 > 强制更新 > 维护模式），*** 签名防篡改</li>
+  <li data-i18n="sec.func.2"><strong>双端维护模式</strong>：老板端和服务端可分别开启维护，各有独立提示语</li>
+  <li data-i18n="sec.func.3"><strong>崩溃报告</strong>：前端自动上报错误堆栈 + 用户反馈，管理端可查看统计</li>
+  <li data-i18n="sec.func.4"><strong>强制更新</strong>：按平台/用户类型配置最低版本，低于最低版本强制跳转更新</li>
+</ul>
+
+<h4 data-i18n="h4.dual_approval">双因素审批系统</h4>
+<p data-i18n="p.dual_approval">管理端实现了 <code>dual-approval</code> 机制，敏感操作（如余额大额调整）需二次确认。审批流程：创建审批请求 - 验证器扫码确认 - 执行操作，全程记录审计日志。</p>
+
+<h3 data-i18n="h3.validator">3.4 **验证器</h3>
+<p data-i18n="p.validator.intro">验证器服务 <code>server.js</code> 约 <strong>737 行</strong>，提供 <strong>14 个 API 端点</strong>，是管理端的扫码审批前端。</p>
+
+<h4 data-i18n="h4.core_func">核心功能</h4>
+<ul>
+  <li data-i18n="validator.func.1"><strong>扫码登录审批</strong>：管理端扫码登录时，验证器端人工批准/拒绝</li>
+  <li data-i18n="validator.func.2"><strong>操作验证审批</strong>：敏感操作的二次验证</li>
+  <li data-i18n="validator.func.3"><strong>礼品卡管理</strong>：创建带金额和过期时间的礼品卡，SHA256+盐生成 card_hash</li>
+  <li data-i18n="validator.func.4"><strong>数据看板</strong>：转发管理端统计数据</li>
+</ul>
+
+<div class="callout">
+<strong data-i18n="callout.https">HTTPS 支持：</strong><span data-i18n="callout.https.p">验证器提供独立的 HTTPS 服务，使用自签名证书，确保手机浏览器可以调用摄像头进行扫码。首次访问需点击"继续前往"接受证书。</span>
+</div>
+
+<h4 data-i18n="h4.screenshot">截屏防护（五层防护）</h4>
+<div class="card">
+<ul>
+  <li data-i18n="screen.l1">窗口失焦时黑屏遮挡</li>
+  <li data-i18n="screen.l2">页面可见性 API 检测（document.hidden）</li>
+  <li data-i18n="screen.l3">PrintScreen 按键拦截 + 清空剪贴板</li>
+  <li data-i18n="screen.l4">动态水印（用户邮箱 + 时间戳溯源）</li>
+  <li data-i18n="screen.l5">CSS 禁选/禁长按</li>
+</ul>
+</div>
+
+<!-- 第四章 -->
+<h2 data-i18n="h2.database">四、数据库设计</h2>
+
+<p data-i18n="p.database.intro">系统使用 ** MySQL 数据库 <code>******</code>，共 <strong>16 张核心表</strong>，所有服务共享访问。数据库设计遵循<mark>高内聚低耦合</mark>原则，通过外键关联实现数据一致性。</p>
+
+<div class="diagram-placeholder">
+  <span data-i18n="diagram.er">[数据库 ER 关系图 - 已脱敏]</span>
+</div>
+
+<h3 data-i18n="h3.orderstate">4.1 订单流转状态机</h3>
+<div class="diagram-placeholder">
+  <span data-i18n="diagram.orderstate">[订单状态流转图 - 已脱敏]</span><br>
+  <small data-i18n="diagram.orderstate.desc">waiting → processing → completed / cancelled / appealing</small>
+</div>
+
+<h3 data-i18n="h3.settle">4.2 财务结算机制</h3>
+<div class="card">
+<div class="card-title" data-i18n="card.settle_flow">结算流程</div>
+<ol>
+  <li data-i18n="settle.1">老板下单时，金额从余额扣除（FOR UPDATE 行锁）</li>
+  <li data-i18n="settle.2">服务方完成订单后，收入 = 订单金额 x 30%（计入收入日志）</li>
+  <li data-i18n="settle.3">72 小时审核期（从第一个服务方完成开始计时，三人同步）</li>
+  <li data-i18n="settle.4">审核期过后，服务方可申请提现（余额转入）</li>
+  <li data-i18n="settle.5">服务方拒绝订单（1分钟后），扣除罚金（计入罚金记录）</li>
+  <li data-i18n="settle.6">老板取消订单（无人接单时），金额全额退还</li>
+</ol>
+</div>
+
+<!-- 第五章 -->
+<h2 data-i18n="h2.android">五、Android 应用打包</h2>
+
+<p data-i18n="p.android.intro">系统通过 <mark>DCloud ** Runtime</mark> 将 H5 Web 应用打包为 Android 原生 APK，共两个应用：</p>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title" data-i18n="card.app_a">**应用A（客户端 APP）</div>
+    <ul>
+      <li>包名: <code>****.**.**</code></li>
+      <li>App ID: <code>H********3</code></li>
+      <li>版本: **.*.**</li>
+      <li data-i18n="app.a.arch">架构: arm64-v8a</li>
+      <li data-i18n="app.a.pages">核心页面: 首页、分类、订单、充值、聊天大厅</li>
+      <li data-i18n="app.a.features">特色: 下单流程、余额管理、礼品卡兑换</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title" data-i18n="card.app_b">**应用B（服务端 APP）</div>
+    <ul>
+      <li>包名: <code>****.**.**</code></li>
+      <li>App ID: <code>H********3</code></li>
+      <li>版本: **.*.**</li>
+      <li data-i18n="app.b.arch">架构: arm64-v8a</li>
+      <li data-i18n="app.b.pages">核心页面: 接单大厅、我的订单、个人资料</li>
+      <li data-i18n="app.b.features">特色: 二维码扫描（html5-qrcode + zxing）、FLAG_SECURE</li>
+    </ul>
+  </div>
+</div>
+
+<h3 data-i18n="h3.offline">5.1 离线资源策略</h3>
+<p data-i18n="p.offline">所有 HTML/CSS/JS/图片资源均打包在 APK 本地，仅 API 请求发往远程服务器。API 请求路径统一为 <code>/api/*</code> 和 <code>/uploads/*</code>，前端资源引用使用相对路径。</p>
+
+<h3 data-i18n="h3.flag_secure">5.2 FLAG_SECURE 防截屏</h3>
+<p data-i18n="p.flag_secure">系统在验证码界面和礼品卡兑换弹窗启用 FLAG_SECURE 防截屏保护，<strong>直接使用原生整数值 0x00002000（8192）</strong>，而非 Java 反射获取常量，确保在所有 Android 机型生效。</p>
+
+<div class="callout callout-warn">
+<strong data-i18n="callout.lesson">经验教训：</strong><span data-i18n="callout.lesson.p">使用 Java 反射获取 FLAG_SECURE 常量在部分 Android 机型/DCloud 版本上返回 undefined，导致截屏拦截失效。解决方案是直接使用数值 0x00002000，绕过反射机制。</span>
+</div>
+
+<h3 data-i18n="h3.keyboard">5.3 安全键盘</h3>
+<p data-i18n="p.keyboard">密码/验证码/金额输入框的数字按键位置每次随机打乱，实现银行式乱序功能，与 FLAG_SECURE 配合使用，防止截屏+按键记录组合攻击。</p>
+
+<!-- 第六章 -->
+<h2 data-i18n="h2.devlog">六、开发日记与更新记录</h2>
+
+<p data-i18n="p.devlog.intro">以下是项目开发过程中的关键节点记录，按时间线整理：</p>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date1">2026年7月21日</div>
+    <div class="timeline-content" data-i18n="tl.c1">**Capital 模块创建，项目初始架构搭建</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date2">2026年7月28日</div>
+    <div class="timeline-content" data-i18n="tl.c2">**验证器模块完成，扫码审批系统上线，支持 HTTPS 自签名证书</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date3">2026年7月30日</div>
+    <div class="timeline-content" data-i18n="tl.c3">**老板端和**备份模块完善，老板端 67 个 API 端点全部就绪</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date4">2026年7月31日</div>
+    <div class="timeline-content" data-i18n="tl.c4">**管理器 4,244 行代码完成，101 个 API 端点，**安全管控系统上线</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date5">2026年8月1日</div>
+    <div class="timeline-content">
+      <strong data-i18n="tl.ui.title">UI 大规模更新：</strong><br>
+      <span data-i18n="tl.ui.1">- 移除特定游戏选项</span><br>
+      <span data-i18n="tl.ui.2">- 统一底部导航栏标准（高度62px、图标24x24px、文字11px、active色#9933ff）</span><br>
+      <span data-i18n="tl.ui.3">- 28个HTML文件修正配置文件路径</span><br>
+      <span data-i18n="tl.ui.4">- 18个硬编码API地址改为相对路径</span><br>
+      <span data-i18n="tl.ui.5">- 服务端 API 重定向修复</span><br>
+      <span data-i18n="tl.ui.6">- 管理端图片上传功能上线</span><br>
+      <span data-i18n="tl.ui.7">- 9个文件统一底部导航样式</span>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date6">2026年8月1日</div>
+    <div class="timeline-content">
+      <strong data-i18n="tl.chat.title">聊天系统修复：</strong><br>
+      <span data-i18n="tl.chat.1">- 订单号显示为6位数字格式</span><br>
+      <span data-i18n="tl.chat.2">- 多人接单自动转群组模式（显示"群组(N人)"标签）</span><br>
+      <span data-i18n="tl.chat.3">- 订单完成2小时后聊天转只读</span><br>
+      <span data-i18n="tl.chat.4">- 每条消息显示发送者昵称</span>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date7">2026年8月1日</div>
+    <div class="timeline-content">
+      <strong data-i18n="tl.avatar.title">头像与复制ID功能修复：</strong><br>
+      <span data-i18n="tl.avatar.1">- 后端SQL查询增加avatar字段（含回退机制）</span><br>
+      <span data-i18n="tl.avatar.2">- 前端头像组件支持自定义头像+首字母回退</span><br>
+      <span data-i18n="tl.avatar.3">- 聊天面板修复：自动找第一个进行中订单</span><br>
+      <span data-i18n="tl.avatar.4">- 合并两个冲突的复制ID函数</span><br>
+      <span data-i18n="tl.avatar.5">- API错误不再静默吞掉，增加console日志</span>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-date" data-i18n="tl.date8">2026年8月1日</div>
+    <div class="timeline-content">
+      <strong data-i18n="tl.confirm.title">确认开始按钮修复：</strong><br>
+      <span data-i18n="tl.confirm.1">- confirmStart 函数中变量未定义修复</span><br>
+      <span data-i18n="tl.confirm.2">- 同步修复**应用BAPK版</span><br>
+      <span data-i18n="tl.confirm.3">- 重启所有后端服务加载最新代码</span><br>
+      <span data-i18n="tl.confirm.4">- 启动验证器服务（之前未运行）</span>
+    </div>
+  </div>
+</div>
+
+<!-- 第七章 -->
+<h2 data-i18n="h2.optimization">七、代码优化与架构分析</h2>
+
+<h3 data-i18n="h3.arch_advantages">7.1 当前架构优势</h3>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title" data-i18n="card.advantages">优势</div>
+    <ul>
+      <li data-i18n="adv.1"><strong>服务隔离</strong>：四端独立部署，互不影响</li>
+      <li data-i18n="adv.2"><strong>共享数据库</strong>：减少跨服务数据同步复杂度</li>
+      <li data-i18n="adv.3"><strong>内存Token</strong>：无需Redis，减少依赖</li>
+      <li data-i18n="adv.4"><strong>加密体系</strong>：RSA+AES 全链路加密</li>
+      <li data-i18n="adv.5"><strong>事务安全</strong>：FOR UPDATE 保证并发</li>
+      <li data-i18n="adv.6"><strong>离线APK</strong>：资源本地化，仅API远程</li>
+    </ul>
+  </div>
+</div>
+
+<h3 data-i18n="h3.loc_stats">7.2 代码量统计</h3>
+<!-- 代码行数图表 -->
+<div class="chart-box">
+  <div class="chart-title" data-i18n="chart.loc_title">各服务代码行数对比（行数）</div>
+  <svg viewBox="0 0 760 280" role="img" aria-label="各服务代码行数对比柱状图">
+    <!-- 网格线 -->
+    <defs>
+      <pattern id="gridLines" width="0" height="44" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="12" x2="760" y2="12" stroke="var(--border)" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <!-- Y轴刻度线 -->
+    <g stroke="var(--border)" stroke-width="0.5">
+      <line x1="80" y1="24"  x2="740" y2="24"/>
+      <line x1="80" y1="68"  x2="740" y2="68"/>
+      <line x1="80" y1="112" x2="740" y2="112"/>
+      <line x1="80" y1="156" x2="740" y2="156"/>
+      <line x1="80" y1="200" x2="740" y2="200"/>
+      <line x1="80" y1="244" x2="740" y2="244"/>
+    </g>
+    <!-- Y轴标签 -->
+    <g fill="var(--text-mute)" font-size="11" text-anchor="end">
+      <text x="72" y="28">5,000</text>
+      <text x="72" y="72">4,000</text>
+      <text x="72" y="116">3,000</text>
+      <text x="72" y="160">2,000</text>
+      <text x="72" y="204">1,000</text>
+      <text x="72" y="248">0</text>
+    </g>
+    <!-- 柱状图 -->
+    <!-- 验证器: 737行 → 高度 32px, y=212 -->
+    <g class="bar-group">
+      <rect x="115" y="212" width="100" height="32" rx="4" fill="#27ae60" opacity="0.88"/>
+      <text x="165" y="206" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">737</text>
+      <text x="165" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.validator">验证器</text>
+    </g>
+    <!-- 服务端: 3,173行 → 高度 140px, y=104 -->
+    <g class="bar-group">
+      <rect x="265" y="104" width="100" height="140" rx="4" fill="#4a90d9" opacity="0.88"/>
+      <text x="315" y="98" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">3,173</text>
+      <text x="315" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.server">服务端</text>
+    </g>
+    <!-- 老板端: 3,737行 → 高度 164px, y=80 -->
+    <g class="bar-group">
+      <rect x="415" y="80" width="100" height="164" rx="4" fill="#daa520" opacity="0.88"/>
+      <text x="465" y="74" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">3,737</text>
+      <text x="465" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.boss">老板端</text>
+    </g>
+    <!-- 管理器: 4,244行 → 高度 186px, y=58 -->
+    <g class="bar-group">
+      <rect x="565" y="58" width="100" height="186" rx="4" fill="#9b59b6" opacity="0.88"/>
+      <text x="615" y="52" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">4,244</text>
+      <text x="615" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.manager">管理器</text>
+    </g>
+    <!-- 基线 -->
+    <line x1="80" y1="244" x2="740" y2="244" stroke="var(--border)" stroke-width="1.5"/>
+    <!-- 平均值虚线 -->
+    <line x1="80" y1="98" x2="740" y2="98" stroke="var(--red)" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+    <text x="744" y="101" fill="var(--red)" font-size="10" opacity="0.65" data-i18n="chart.avg">均值 2,973</text>
+  </svg>
+  <div class="chart-legend">
+    <span class="leg-boss">老板端 3,737行</span>
+    <span class="leg-server">服务端 3,173行</span>
+    <span class="leg-mgr">管理器 4,244行</span>
+    <span class="leg-validator">验证器 737行</span>
+  </div>
+</div>
+
+<!-- API端点图表 -->
+<div class="chart-box">
+  <div class="chart-title">各服务 API 端点数量对比（个）</div>
+  <svg viewBox="0 0 760 280" role="img" aria-label="各服务 API 端点数量对比柱状图">
+    <!-- Y轴刻度线 -->
+    <g stroke="var(--border)" stroke-width="0.5">
+      <line x1="80" y1="24"  x2="740" y2="24"/>
+      <line x1="80" y1="64"  x2="740" y2="64"/>
+      <line x1="80" y1="104" x2="740" y2="104"/>
+      <line x1="80" y1="144" x2="740" y2="144"/>
+      <line x1="80" y1="184" x2="740" y2="184"/>
+      <line x1="80" y1="224" x2="740" y2="224"/>
+    </g>
+    <!-- Y轴标签 -->
+    <g fill="var(--text-mute)" font-size="11" text-anchor="end">
+      <text x="72" y="28">120</text>
+      <text x="72" y="68">96</text>
+      <text x="72" y="108">72</text>
+      <text x="72" y="148">48</text>
+      <text x="72" y="188">24</text>
+      <text x="72" y="228">0</text>
+    </g>
+    <!-- 柱状图 -->
+    <!-- 验证器: 14个 → 高度 23px, y=221 -->
+    <g class="bar-group">
+      <rect x="115" y="221" width="100" height="23" rx="4" fill="#27ae60" opacity="0.88"/>
+      <text x="165" y="215" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">14</text>
+      <text x="165" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.validator">验证器</text>
+    </g>
+    <!-- 服务端: 65个 → 高度 108px, y=136 -->
+    <g class="bar-group">
+      <rect x="265" y="136" width="100" height="108" rx="4" fill="#4a90d9" opacity="0.88"/>
+      <text x="315" y="130" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">65</text>
+      <text x="315" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.server">服务端</text>
+    </g>
+    <!-- 老板端: 67个 → 高度 112px, y=132 -->
+    <g class="bar-group">
+      <rect x="415" y="132" width="100" height="112" rx="4" fill="#daa520" opacity="0.88"/>
+      <text x="465" y="126" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">67</text>
+      <text x="465" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.boss">老板端</text>
+    </g>
+    <!-- 管理器: 101个 → 高度 168px, y=76 -->
+    <g class="bar-group">
+      <rect x="565" y="76" width="100" height="168" rx="4" fill="#9b59b6" opacity="0.88"/>
+      <text x="615" y="70" fill="var(--text-sub)" font-size="12" font-weight="600" text-anchor="middle">101</text>
+      <text x="615" y="268" fill="var(--text-mute)" font-size="11" text-anchor="middle" data-i18n="chart.label.manager">管理器</text>
+    </g>
+    <!-- 基线 -->
+    <line x1="80" y1="244" x2="740" y2="244" stroke="var(--border)" stroke-width="1.5"/>
+    <!-- 平均值虚线 -->
+    <line x1="80" y1="100" x2="740" y2="100" stroke="var(--red)" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+    <text x="744" y="103" fill="var(--red)" font-size="10" opacity="0.65" data-i18n="chart.avg2">均值 61.8</text>
+  </svg>
+  <div class="chart-legend">
+    <span class="leg-boss" data-i18n="chart.legend.boss">老板端 67个端点</span>
+    <span class="leg-server" data-i18n="chart.legend.server">服务端 65个端点</span>
+    <span class="leg-mgr" data-i18n="chart.legend.manager">管理器 101个端点</span>
+    <span class="leg-validator" data-i18n="chart.legend.validator">验证器 14个端点</span>
+  </div>
+</div>
+
+<!-- 第八章 -->
+<h2 data-i18n="h2.checklist">八、完整功能清单</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th data-i18n="table.col_module">模块</th><th data-i18n="table.col_feature">功能</th><th data-i18n="table.col_status">状态</th><th data-i18n="table.col_service">所属服务</th></tr></thead>
+<tbody>
+<tr><td>用户认证</td><td>邮箱验证码登录（统一）</td><td><span class="badge badge-green">已完成</span></td><td>全部</td></tr>
+<tr><td>用户认证</td><td>密码登录（已禁用）</td><td><span class="badge badge-red">已废弃</span></td><td>-</td></tr>
+<tr><td>用户认证</td><td>Token 365天持久登录</td><td><span class="badge badge-green">已完成</span></td><td>全部</td></tr>
+<tr><td>用户认证</td><td>扫码登录审批</td><td><span class="badge badge-green">已完成</span></td><td>验证器</td></tr>
+<tr><td>用户认证</td><td>双因素审批（dual-approval）</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>订单系统</td><td>创建订单（含多人接单）</td><td><span class="badge badge-green">已完成</span></td><td>老板端</td></tr>
+<tr><td>订单系统</td><td>接单（队长/队员角色）</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>订单系统</td><td>1分钟内免费取消</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>订单系统</td><td>开始游戏（3人直开/1-2人确认）</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>订单系统</td><td>完成订单 + 申诉</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>订单系统</td><td>老板确认/2小时自动解锁</td><td><span class="badge badge-green">已完成</span></td><td>老板端</td></tr>
+<tr><td>财务系统</td><td>余额充值</td><td><span class="badge badge-green">已完成</span></td><td>老板端</td></tr>
+<tr><td>财务系统</td><td>消费/充值记录查询</td><td><span class="badge badge-green">已完成</span></td><td>老板端</td></tr>
+<tr><td>财务系统</td><td>服务方提现（72h审核期）</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>财务系统</td><td>礼品卡兑换（FLAG_SECURE）</td><td><span class="badge badge-green">已完成</span></td><td>老板端</td></tr>
+<tr><td>财务系统</td><td>罚金扣除（拒绝订单）</td><td><span class="badge badge-green">已完成</span></td><td>服务端</td></tr>
+<tr><td>聊天系统</td><td>订单内实时聊天</td><td><span class="badge badge-green">已完成</span></td><td>双端</td></tr>
+<tr><td>聊天系统</td><td>多人接单群组模式</td><td><span class="badge badge-green">已完成</span></td><td>双端</td></tr>
+<tr><td>聊天系统</td><td>头像栏+复制暗区ID</td><td><span class="badge badge-green">已完成</span></td><td>双端</td></tr>
+<tr><td>聊天系统</td><td>2小时后只读</td><td><span class="badge badge-green">已完成</span></td><td>双端</td></tr>
+<tr><td>安全防护</td><td>RSA+AES 混合加密</td><td><span class="badge badge-green">已完成</span></td><td>全部</td></tr>
+<tr><td>安全防护</td><td>FLAG_SECURE 防截屏</td><td><span class="badge badge-green">已完成</span></td><td>安卓端</td></tr>
+<tr><td>安全防护</td><td>安全键盘（乱序）</td><td><span class="badge badge-green">已完成</span></td><td>安卓端</td></tr>
+<tr><td>安全防护</td><td>截屏防护（五层）</td><td><span class="badge badge-green">已完成</span></td><td>验证器</td></tr>
+<tr><td>安全防护</td><td>验证码频率限制</td><td><span class="badge badge-green">已完成</span></td><td>全部</td></tr>
+<tr><td>管理后台</td><td>用户/服务方/订单管理</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>管理后台</td><td>服务目录管理（含图片）</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>管理后台</td><td>服务方封禁（禁登/禁单）</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>管理后台</td><td>操作日志审计</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>管理后台</td><td>双端独立维护模式</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>版本控制</td><td>**安全管控三重拦截</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>版本控制</td><td>强制更新 + 永久最低版本</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>版本控制</td><td>崩溃报告收集</td><td><span class="badge badge-green">已完成</span></td><td>管理器</td></tr>
+<tr><td>扫码</td><td>原生ZXing扫码</td><td><span class="badge badge-green">已完成</span></td><td>安卓端</td></tr>
+<tr><td>扫码</td><td>Web库回退（html5-qrcode/zxing）</td><td><span class="badge badge-green">已完成</span></td><td>安卓端</td></tr>
+<tr><td>扫码</td><td>验证器扫码审批</td><td><span class="badge badge-green">已完成</span></td><td>验证器</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- 第九章 -->
+<h2 data-i18n="h2.fixes">九、关键问题修复记录</h2>
+
+<h3 data-i18n="h3.flag_fix">9.1 FLAG_SECURE 失效问题</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.flag.p">使用 Java 反射获取 FLAG_SECURE 常量在部分 Android 机型/DCloud 版本上返回 undefined，导致截屏拦截完全失效。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.flag.f">直接使用原生整数值 0x00002000（8192），绕过反射机制，确保所有机型生效。</span>
+</div>
+
+<h3 data-i18n="h3.cdn_fix">9.2 CDN 加载失败问题</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.cdn.p">JS 库从 CDN 加载在 APK 离线环境下导致功能完全失效。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.cdn.f">html5-qrcode、@zxing/library、qrcodejs 全部下载到本地 www 目录，禁止从 CDN 加载。</span>
+</div>
+
+<h3 data-i18n="h3.screen_fix">9.3 全局防截屏问题</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.screen.p">H5+ 应用所有 HTML 页面共享同一 Android Activity Window，依赖 pagehide/unload 事件清除 FLAG_SECURE 不可靠，导致全局防截屏。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.screen.f">在每个页面加载时通过公共配置文件显式设置 FLAG_SECURE 状态，不依赖页面跳转事件。</span>
+</div>
+
+<h3 data-i18n="h3.avatar_fix">9.4 聊天头像不显示问题</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.avatar.p">聊天头像栏不显示，点击头像复制ID无反应。</span><br>
+<strong data-i18n="callout.rootcause">根因：</strong>
+<ul>
+  <li data-i18n="fix.avatar.r1">聊天面板传参错误，找不到匹配联系人</li>
+  <li data-i18n="fix.avatar.r2">两个复制ID函数冲突，后者覆盖前者</li>
+  <li data-i18n="fix.avatar.r3">API 错误被 catch(e){} 静默吞掉</li>
+  <li data-i18n="fix.avatar.r4">服务器未重启，运行旧代码不含头像字段查询</li>
+</ul>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.avatar.f">自动找第一个进行中订单、合并冲突函数、增加错误日志、重启服务器。</span>
+</div>
+
+<h3 data-i18n="h3.confirm_fix">9.5 确认开始按钮无反应</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.confirm.p">老板端"确认开始"按钮点击后无任何反应。</span><br>
+<strong data-i18n="callout.rootcause">根因：</strong><span data-i18n="fix.confirm.r">confirmStart 函数使用了未定义的变量（值为 undefined），后端校验字段失败。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.confirm.f">将未定义变量改为全局已定义的登录用户对象。</span>
+</div>
+
+<h3 data-i18n="h3.path_fix">9.6 相对路径引用问题</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.path.p">子目录 HTML 文件引用根目录资源时使用文件名（如 config.js），导致资源加载失败。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.path.f">统一改为相对路径（如 ../config.js），28个HTML文件全部修正。</span>
+</div>
+
+<h3 data-i18n="h3.koa_fix">9.7 koa-connect 内存泄漏</h3>
+<div class="callout callout-danger">
+<strong data-i18n="callout.problem">问题：</strong><span data-i18n="fix.koa.p">koa-connect wrapper 导致 ctx 泄漏。</span><br>
+<strong data-i18n="callout.fix">修复：</strong><span data-i18n="fix.koa.f">原生重写中间件，不再使用 koa-connect。</span>
+</div>
+
+<!-- 第十章 -->
+<h2 data-i18n="h2.summary">十、项目总结</h2>
+
+<h3>10.1 量化指标</h3>
+<div class="grid-3">
+  <div class="stat-card">
+    <div class="stat-num">~12,000</div>
+    <div class="stat-label">后端代码总行数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">247+</div>
+    <div class="stat-label">API 端点总数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">35+</div>
+    <div class="stat-label">HTML 页面总数</div>
+  </div>
+</div>
+<div class="grid-3">
+  <div class="stat-card">
+    <div class="stat-num">16</div>
+    <div class="stat-label">数据库表</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Android APK</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">5</div>
+    <div class="stat-label">独立服务</div>
+  </div>
+</div>
+
+<h3>10.2 工程亮点</h3>
+<ul>
+  <li><strong>全链路加密</strong>：RSA+AES 混合加密覆盖所有 POST/PUT 请求，业务代码零改动</li>
+  <li><strong>双端维护模式</strong>：老板端和服务端可独立控制维护状态，互不影响</li>
+  <li><strong>**安全管控</strong>：三重拦截机制（永久最低版本 > 强制更新 > 维护模式），*** 签名防篡改</li>
+  <li><strong>多人接单</strong>：支持 3 人同时接单，队长/队员角色，群组聊天自动切换</li>
+  <li><strong>安全防护</strong>：FLAG_SECURE + 安全键盘 + 截屏防护 + 频率限制 + 行锁事务</li>
+  <li><strong>离线APK</strong>：所有资源本地化，仅 API 远程调用，弱网可用</li>
+</ul>
+
+
+
+</div><!-- /doc-body -->
+</div><!-- /doc-container -->
+</main>
+
+<footer>
+  <p>电竞平台开发项目报告 | 生成日期: 2026-08-03 | 版本: V**.7.**</p>
+  <p>本报告由 AI 自动生成，基于项目源码分析与开发记录整理。部分敏感信息已脱敏处理。</p>
+</footer>
+
+<!-- 返回顶部 -->
+<div class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+/* ========== 多语言翻译字典 ========== */
+var I18N = {
+  /* ---- 简体中文 ---- */
+  "zh": {
+    "brand": "纳棂",
+    "page.title": "纳棂 NALING · 文档",
+    "nav.home": "首页",
+    "nav.interact": "互动",
+    "nav.team": "团队",
+    "nav.updates": "文档",
+    "doc.title": "电竞平台开发项目报告",
+    "doc.subtitle": "全栈技术报告 · 涵盖系统架构、功能模块、部署运维等完整内容",
+    "h2.overview": "一、项目概述",
+    "h3.positioning": "1.1 项目定位",
+    "h3.positioning.p": "**科技是一个集<strong>下单、接单、管理、安全验证</strong>于一体的全栈服务平台系统。项目采用<mark>前后端分离 + 多服务独立部署</mark>的架构，前端为 H5 Web 应用并打包为 Android APK，后端基于 Node.js + Express/Koa 构建四端独立服务。",
+    "h2.architecture": "二、系统架构",
+    "h3.deployment": "2.1 部署架构",
+    "h3.nginx": "2.2 Nginx 反向代理",
+    "h3.encryption": "2.3 RSA+AES 混合加密体系",
+    "h3.security": "2.4 安全防护层",
+    "h2.modules": "三、核心模块详解",
+    "h3.boss": "3.1 **老板端",
+    "h3.server": "3.2 **服务方端",
+    "h3.manager": "3.3 **管理器",
+    "h3.validator": "3.4 **验证器",
+    "h2.database": "四、数据库设计",
+    "h3.orderstate": "4.1 订单流转状态机",
+    "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語",
+    "aria.brand": "纳棂 NALING", "aria.menu": "菜单"
+  },
+
+  /* ---- 繁體中文 ---- */
+  "zh-TW": {
+    "brand": "納櫺",
+    "page.title": "納櫺 NALING · 文檔",
+    "nav.home": "首頁",
+    "nav.interact": "互動",
+    "nav.team": "團隊",
+    "nav.updates": "文檔",
+    "doc.title": "**科技專案綜合報告",
+    "doc.subtitle": "全端技術報告 · 涵蓋系統架構、功能模組、部署維運等完整內容",
+    "h2.overview": "一、專案概述",
+    "h3.positioning": "1.1 專案定位",
+    "h3.positioning.p": "**科技是一個集<strong>下單、接單、管理、安全驗證</strong>於一體的全端服務平台系統。專案採用<mark>前後端分離 + 多服務獨立部署</mark>的架構，前端為 H5 Web 應用並打包為 Android APK，後端基於 Node.js + Express/Koa 構建四端獨立服務。",
+    "h2.architecture": "二、系統架構",
+    "h3.deployment": "2.1 部署架構",
+    "h3.nginx": "2.2 Nginx 反向代理",
+    "h3.encryption": "2.3 RSA+AES 混合加密體系",
+    "h3.security": "2.4 安全防護層",
+    "h2.modules": "三、核心模組詳解",
+    "h3.boss": "3.1 **老闆端",
+    "h3.server": "3.2 **服務方端",
+    "h3.manager": "3.3 **管理器",
+    "h3.validator": "3.4 **驗證器",
+    "h2.database": "四、資料庫設計",
+    "h3.orderstate": "4.1 訂單流轉狀態機",
+    "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語",
+    "aria.brand": "納櫺 NALING", "aria.menu": "選單"
+  },
+
+  /* ---- བོད་སྐད། 藏语 ---- */
+  "bo": {
+    "brand": "ནཱ་ལིང་།",
+    "page.title": "ནཱ་ལིང་ NALING · ཡིག་ཆ།",
+    "nav.home": "མདུན་ངོས།",
+    "nav.interact": "འབྲེལ་འདྲིས།",
+    "nav.team": "རུ་ཁག",
+    "nav.updates": "ཡིག་ཆ།",
+    "doc.title": "**ལག་རྩལ་ལས་གཞི་ཕྱོགས་བསྡུས་སྙན་ཞུ།",
+    "doc.subtitle": "ཆ་ཚང་ལག་རྩལ་སྙན་ཞུ། · མ་ལག་བཀོད་སྒྲིག་དང་། བྱེད་ནུས་ཚན་པ། བཀོལ་སྤྱོད་སྒྲིག་བཀོད་སོགས་ཆ་ཚང་ནང་དོན།",
+    "h2.overview": "༡. ལས་གཞིའི་མདོར་བསྡུས།",
+    "h3.positioning": "༡.༡ ལས་གཞིའི་གནས་ས།",
+    "h3.positioning.p": "**ལག་རྩལ་ནི་<strong>ཐོ་འགོད། ཐོ་ལེན། དོ་དམ། བདེ་འཇགས་ངོས་འཛིན།</strong>བཅས་ཕྱོགས་གཅིག་ཏུ་བསྡུས་པའི་ཆ་ཚང་ཞབས་ཞུའི་སྟེགས་བུའི་མ་ལག་ཅིག་རེད། ལས་གཞི་འདིས་<mark>མདུན་ངོས་དང་རྒྱབ་ངོས་ཁ་ཕྱེ་བ་དང་། ཞབས་ཞུ་མང་པོ་མི་གཅིག་གིས་རང་བཙན་གྱིས་བཀོལ་སྤྱོད་བྱེད་པ།</mark>ཞེས་པའི་བཀོད་སྒྲིག་བེད་སྤྱོད་བྱས་ཡོད།",
+    "h2.architecture": "༢. མ་ལག་བཀོད་སྒྲིག",
+    "h3.deployment": "༢.༡ བཀོལ་སྤྱོད་བཀོད་སྒྲིག",
+    "h3.nginx": "༢.༢ Nginx ལོག་ཕྱོགས་མཐུད་མི།",
+    "h3.encryption": "༢.༣ RSA+AES འདྲེས་སྦྱོར་གསང་ཨང་མ་ལག",
+    "h3.security": "༢.༤ བདེ་འཇགས་སྲུང་སྐྱོབ་རིམ་པ།",
+    "h2.modules": "༣. སྙིང་པོའི་ཚན་པའི་ཞིབ་བརྗོད།",
+    "h3.boss": "༣.༡ **ཚོང་དཔོན་ཤོག་ངོས།",
+    "h3.server": "༣.༢ **ཞབས་ཞུ་མཁན་ཤོག་ངོས།",
+    "h3.manager": "༣.༣ **དོ་དམ་ཆས།",
+    "h3.validator": "༣.༤ **བདེན་དཔང་ཆས།",
+    "h2.database": "༤. གཞི་གྲངས་མཛོད་འཆར་སྒྲིག",
+    "h3.orderstate": "༤.༡ ཐོ་འགོད་ཀྱི་གནས་བབས་འགྱུར་འགྲོས་འཕྲུལ་ཆས།",
+    "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語",
+    "aria.brand": "ནཱ་ལིང་ NALING", "aria.menu": "དཀར་ཆག"
+  },
+
+  /* ---- English ---- */
+  "en": {
+    "brand": "NALING",
+    "page.title": "NALING · Document",
+    "nav.home": "Home",
+    "nav.interact": "Interact",
+    "nav.team": "Team",
+    "nav.updates": "Docs",
+    "doc.title": "** Technology Project Comprehensive Report",
+    "doc.subtitle": "Full-stack Technical Report · Covering system architecture, function modules, deployment and operations",
+    "h2.overview": "I. Project Overview",
+    "h3.positioning": "1.1 Project Positioning",
+    "h3.positioning.p": "** Technology is a full-stack service platform system integrating <strong>ordering, order-taking, management, and security verification</strong>. The project adopts a <mark>front-end/back-end separation + multi-service independent deployment</mark> architecture, with the front-end as an H5 web application packaged into Android APK, and the back-end built on Node.js + Express/Koa with four independent services.",
+    "h2.architecture": "II. System Architecture",
+    "h3.deployment": "2.1 Deployment Architecture",
+    "h3.nginx": "2.2 Nginx Reverse Proxy",
+    "h3.encryption": "2.3 RSA+AES Hybrid Encryption System",
+    "h3.security": "2.4 Security Protection Layer",
+    "h2.modules": "III. Core Module Details",
+    "h3.boss": "3.1 ** Boss Client",
+    "h3.server": "3.2 ** Service Provider Client",
+    "h3.manager": "3.3 ** Manager",
+    "h3.validator": "3.4 ** Validator",
+    "h2.database": "IV. Database Design",
+    "h3.orderstate": "4.1 Order State Machine",
+    "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語",
+    "aria.brand": "NALING", "aria.menu": "Menu"
+  },
+
+  /* ---- 日本語 ---- */
+  "ja": {
+    "brand": "ナリン",
+    "page.title": "ナリン NALING · ドキュメント",
+    "nav.home": "ホーム",
+    "nav.interact": "交流",
+    "nav.team": "チーム",
+    "nav.updates": "文書",
+    "doc.title": "**テクノロジープロジェクト総合報告書",
+    "doc.subtitle": "フルスタック技術報告書 · システムアーキテクチャ、機能モジュール、デプロイ運用などを網羅",
+    "h2.overview": "一、プロジェクト概要",
+    "h3.positioning": "1.1 プロジェクトの位置付け",
+    "h3.positioning.p": "**テクノロジーは<strong>注文、受注、管理、セキュリティ検証</strong>を統合したフルスタックサービスプラットフォームシステムです。プロジェクトは<mark>フロントエンド・バックエンド分離 + マルチサービス独立デプロイ</mark>のアーキテクチャを採用し、フロントエンドはH5 WebアプリケーションをAndroid APKとしてパッケージ化し、バックエンドはNode.js + Express/Koaに基づいて4つの独立サービスを構築しています。",
+    "h2.architecture": "二、システムアーキテクチャ",
+    "h3.deployment": "2.1 デプロイアーキテクチャ",
+    "h3.nginx": "2.2 Nginx リバースプロキシ",
+    "h3.encryption": "2.3 RSA+AES ハイブリッド暗号化システム",
+    "h3.security": "2.4 セキュリティ防護層",
+    "h2.modules": "三、コアモジュール詳細",
+    "h3.boss": "3.1 ** 発注者クライアント",
+    "h3.server": "3.2 ** サービス提供者クライアント",
+    "h3.manager": "3.3 ** マネージャー",
+    "h3.validator": "3.4 ** バリデーター",
+    "h2.database": "四、データベース設計",
+    "h3.orderstate": "4.1 注文状態遷移マシン",
+    "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語",
+    "aria.brand": "ナリン NALING", "aria.menu": "メニュー"
+  }
+};
+
+/* ========== 扩展翻译（运行时合并，避免重复跨语言块编辑） ========== */
+(function(){
+  var E = {
+    "zh": {
+      "h3.arch": "1.2 四端服务架构",
+      "card.techstack": "技术栈",
+      "card.scale": "项目规模",
+      "card.arch_principle": "架构设计原则",
+      "card.app_a": "**应用A（客户端 APP）",
+      "card.app_b": "**应用B（服务端 APP）",
+      "h4.api": "核心接口",
+      "h4.sv_features": "服务方核心功能",
+      "h4.order_flow": "订单流程",
+      "h4.admin_pages": "**管理**",
+      "h4.core_func": "核心功能",
+      "h4.screenshot": "截屏防护（五层防护）",
+      "h3.settle": "4.2 财务结算机制",
+      "h2.android": "五、Android 应用打包",
+      "h3.offline": "5.1 离线资源策略",
+      "h3.flag_secure": "5.2 FLAG_SECURE 防截屏",
+      "h3.keyboard": "5.3 安全键盘",
+      "h2.devlog": "六、开发日记与更新记录",
+      "h2.optimization": "七、代码优化与架构分析",
+      "h2.checklist": "八、完整功能清单",
+      "h2.fixes": "九、关键问题修复记录",
+      "h2.summary": "十、项目总结",
+      "back": "← 返回",
+      "nav.back": "返回文档列表"
+    },
+    "zh-TW": {
+      "h3.arch": "1.2 四端服務架構",
+      "card.techstack": "技術棧",
+      "card.scale": "專案規模",
+      "card.arch_principle": "架構設計原則",
+      "card.app_a": "**應用A（客戶端 APP）",
+      "card.app_b": "**應用B（服務端 APP）",
+      "h4.api": "核心介面",
+      "h4.sv_features": "服務方核心功能",
+      "h4.order_flow": "訂單流程",
+      "h4.admin_pages": "**管理**",
+      "h4.core_func": "核心功能",
+      "h4.screenshot": "截圖防護（五層防護）",
+      "h3.settle": "4.2 財務結算機制",
+      "h2.android": "五、Android 應用打包",
+      "h3.offline": "5.1 離線資源策略",
+      "h3.flag_secure": "5.2 FLAG_SECURE 防截圖",
+      "h3.keyboard": "5.3 安全鍵盤",
+      "h2.devlog": "六、開發日記與更新記錄",
+      "h2.optimization": "七、程式碼優化與架構分析",
+      "h2.checklist": "八、完整功能清單",
+      "h2.fixes": "九、關鍵問題修復記錄",
+      "h2.summary": "十、專案總結",
+      "back": "← 返回",
+      "nav.back": "返回文件列表"
+    },
+    "bo": {
+      "h3.arch": "༡.༢ ཕྱོགས་བཞིའི་ཞབས་ཞུའི་བཀོད་སྒྲིག",
+      "card.techstack": "ལག་རྩལ་སྤྱི་སྟེགས།",
+      "card.scale": "ལས་གཞིའི་འབོར་ཚད།",
+      "card.arch_principle": "བཀོད་སྒྲིག་འཆར་གཞིའི་རྩ་དོན།",
+      "card.app_a": "**མཉེན་ཆས་A (ཚོང་མགྲོན་ APP)",
+      "card.app_b": "**མཉེན་ཆས་B (ཞབས་ཞུ་ APP)",
+      "h4.api": "སྙིང་པོའི་མཐུད་སྣེ།",
+      "h4.sv_features": "ཞབས་ཞུ་མཁན་གྱི་སྙིང་པོའི་བྱེད་ནུས།",
+      "h4.order_flow": "ཐོ་འགོད་ཀྱི་རྒྱུན་འགྲོས།",
+      "h4.admin_pages": "**管理**",
+      "h4.core_func": "སྙིང་པོའི་བྱེད་ནུས།",
+      "h4.screenshot": "བརྙན་འཛིན་སྲུང་སྐྱོབ། (རིམ་པ་ལྔ།)",
+      "h3.settle": "༤.༢ དངུལ་རྩའི་ཁ་གསབ་ཀྱི་ལམ་ལུགས།",
+      "h2.android": "༥. Android མཉེན་ཆས་ཐུམ་སྒྲིལ།",
+      "h3.offline": "༥.༡ དྲ་རྒྱ་བྲལ་བའི་ཐོན་ཁུངས་ཐབས་ཇུས།",
+      "h3.flag_secure": "༥.༢ FLAG_SECURE བརྙན་འཛིན་སྲུང་སྐྱོབ།",
+      "h3.keyboard": "༥.༣ བདེ་འཇགས་མཐེབ་གཞོང་།",
+      "h2.devlog": "༦. འཕེལ་རྒྱས་ཟིན་ཐོ་དང་གསར་བསྒྱུར་ཟིན་ཐོ།",
+      "h2.optimization": "༧. ཀོད་བཅོས་དང་རིམ་པའི་དབྱེ་ཞིབ།",
+      "h2.checklist": "༨. བྱེད་ནུས་ཐོ་ཡིག་ཆ་ཚང་།",
+      "h2.fixes": "༩. གནད་དོན་གཙོ་བོ་ཞིག་གསོའི་ཟིན་ཐོ།",
+      "h2.summary": "༡༠. ལས་གཞིའི་འབྲས་བསྡུས།",
+      "back": "← ཕྱིར་ལོག",
+      "nav.back": "ཡིག་ཆའི་ཐོ་ཡིག་ལ་ཕྱིར་ལོག"
+    },
+    "en": {
+      "h3.arch": "1.2 Four-End Service Architecture",
+      "card.techstack": "Tech Stack",
+      "card.scale": "Project Scale",
+      "card.arch_principle": "Architecture Principles",
+      "card.app_a": "** App A (Client APK)",
+      "card.app_b": "** App B (Service APK)",
+      "h4.api": "Core APIs",
+      "h4.sv_features": "Service Provider Core Features",
+      "h4.order_flow": "Order Flow",
+      "h4.admin_pages": "**管理**",
+      "h4.core_func": "Core Functionality",
+      "h4.screenshot": "Screenshot Protection (5 Layers)",
+      "h3.settle": "4.2 Financial Settlement Mechanism",
+      "h2.android": "V. Android App Packaging",
+      "h3.offline": "5.1 Offline Resource Strategy",
+      "h3.flag_secure": "5.2 FLAG_SECURE Anti-Screenshot",
+      "h3.keyboard": "5.3 Secure Keyboard",
+      "h2.devlog": "VI. Development Diary & Update Log",
+      "h2.optimization": "VII. Code Optimization & Architecture Analysis",
+      "h2.checklist": "VIII. Complete Feature Checklist",
+      "h2.fixes": "IX. Critical Issue Fix Log",
+      "h2.summary": "X. Project Summary",
+      "back": "← Back",
+      "nav.back": "Back to Document List"
+    },
+    "ja": {
+      "h3.arch": "1.2 四端サービスアーキテクチャ",
+      "card.techstack": "技術スタック",
+      "card.scale": "プロジェクト規模",
+      "card.arch_principle": "アーキテクチャ設計原則",
+      "card.app_a": "**アプリA（クライアント APP）",
+      "card.app_b": "**アプリB（サービス APP）",
+      "h4.api": "コアAPI",
+      "h4.sv_features": "サービス提供者の中核機能",
+      "h4.order_flow": "注文フロー",
+      "h4.admin_pages": "**管理**",
+      "h4.core_func": "コア機能",
+      "h4.screenshot": "スクリーンショット防止（5層防護）",
+      "h3.settle": "4.2 財務決済メカニズム",
+      "h2.android": "五、Androidアプリ パッケージング",
+      "h3.offline": "5.1 オフラインリソース戦略",
+      "h3.flag_secure": "5.2 FLAG_SECURE スクリーンショット防止",
+      "h3.keyboard": "5.3 セキュアキーボード",
+      "h2.devlog": "六、開発日記と更新記録",
+      "h2.optimization": "七、コード最適化とアーキテクチャ分析",
+      "h2.checklist": "八、完全な機能リスト",
+      "h2.fixes": "九、重要課題の修正記録",
+      "h2.summary": "十、プロジェクト総括",
+      "back": "← 戻る",
+      "nav.back": "文書一覧に戻る"
+    }
+  };
+  for(var lang in E){
+    if(I18N[lang]){
+      for(var k in E[lang]){ I18N[lang][k] = E[lang][k]; }
+    }
+  }
+})();
+
+/* ========== 语言切换逻辑 ========== */
+var LANG_KEY = "naling-locale";
+var supportedLangs = ["zh", "zh-TW", "bo", "en", "ja"];
+
+function getLang(){
+  var saved = localStorage.getItem(LANG_KEY);
+  if(saved && supportedLangs.indexOf(saved) !== -1) return saved;
+  return "zh";
+}
+
+function setLang(lang){
+  if(supportedLangs.indexOf(lang) === -1) lang = "zh";
+  localStorage.setItem(LANG_KEY, lang);
+  applyLang(lang);
+}
+
+function applyLang(lang){
+  var dict = I18N[lang] || I18N["zh"];
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    var key = el.getAttribute("data-i18n");
+    if(dict[key] !== undefined){
+      el.innerHTML = dict[key].replace(/\n/g, "<br>");
+    }
+  });
+  // 更新 title
+  document.title = dict["page.title"] || (dict["brand"] + " · NALING");
+  // 更新 html lang 属性
+  var htmlLangMap = {"zh":"zh-CN","zh-TW":"zh-TW","bo":"bo","en":"en","ja":"ja"};
+  document.documentElement.lang = htmlLangMap[lang] || "zh-CN";
+  // 更新语言按钮高亮
+  document.querySelectorAll(".lang-btn").forEach(function(btn){
+    if(btn.getAttribute("data-lang") === lang){
+      btn.classList.add("active");
+    }else{
+      btn.classList.remove("active");
+    }
+  });
+}
+
+// 绑定语言切换按钮
+document.querySelectorAll(".lang-btn").forEach(function(btn){
+  btn.addEventListener("click", function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var lang = btn.getAttribute("data-lang");
+    setLang(lang);
+  });
+});
+
+// 初始化语言
+applyLang(getLang());
+
+/* ========== 主题切换 ========== */
+(function(){
+  var K='naling-theme';
+  var btn=document.getElementById('themeToggle');
+  function get(){
+    var s=localStorage.getItem(K);
+    if(s==='dark'||s==='light')return s;
+    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)return'dark';
+    return'light';
+  }
+  function apply(t){
+    if(t==='dark')document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
+    if(btn){
+      if(t==='dark'){btn.classList.add('dark');btn.textContent='明亮';}
+      else{btn.classList.remove('dark');btn.textContent='阴暗';}
+    }
+  }
+  function toggle(){
+    var n=get()==='dark'?'light':'dark';
+    localStorage.setItem(K,n);apply(n);
+  }
+  if(btn)btn.addEventListener('click',toggle);
+  apply(get());
+})();
+
+  // 移动端菜单
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if(navToggle && navLinks){
+    navToggle.addEventListener('click',function(){
+      navLinks.classList.toggle('open');
+      navToggle.classList.toggle('active');
+    });
+  }
+
+  // 导航栏滚动效果
+  var navbar = document.getElementById('navbar');
+  window.addEventListener('scroll',function(){
+    if(window.scrollY > 10){
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+
+  // 返回顶部
+  var backTop = document.getElementById('backTop');
+  window.addEventListener('scroll',function(){
+    if(window.scrollY > 400){
+      backTop.classList.add('visible');
+    } else {
+      backTop.classList.remove('visible');
+    }
+  });
+
+  // URL 参数处理：支持 ?file= 加载团队文章 markdown，?id= 跳转定位
+  (function(){
+    var params = new URLSearchParams(window.location.search);
+    var file = params.get('file');
+    var author = params.get('author');
+    var id = params.get('id');
+
+    // 更新左上角 logo 文字：海纳柏舛-成员名
+    if(author){
+      var logoText = document.querySelector('.nav-logo span:last-child');
+      if(logoText){
+        logoText.textContent = '海纳柏舛-' + decodeURIComponent(author);
+      }
+    }
+
+    if(file){
+      // 加载团队文章：立即清除旧内容（静态电竞平台报告等）
+      loadTeamDoc(file);
+      return; // 不再执行原有滚动监听
+    }
+
+    if(id){
+      window.location.hash = id;
+      document.title = decodeURIComponent(id) + ' · 纳棂';
+    }
+
+    // 滚动时更新 section hash
+    var sections = document.querySelectorAll('[id]');
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && e.target.id){
+          history.replaceState(null,null,'#'+e.target.id);
+        }
+      });
+    },{threshold:.3});
+    sections.forEach(function(s){ observer.observe(s); });
+  })();
+
+  // 加载团队 markdown 文档
+  function loadTeamDoc(filename){
+    var container = document.querySelector('.doc-container');
+    var footer = document.querySelector('footer');
+    if(!container) return;
+
+    // 文档标题（用于页面刷新）
+    var titleDecoded = decodeURIComponent(filename);
+    // 提取纯文件名（去掉目录前缀）
+    var displayName = titleDecoded;
+    var slash = displayName.lastIndexOf('/');
+    if(slash > -1) displayName = displayName.substring(slash + 1);
+
+    document.title = displayName + ' · 纳棂';
+
+    // 立即清除旧版静态内容
+    container.innerHTML = '<div class="doc-body" style="text-align:center;padding:80px 0;color:var(--text-sub);"><p>正在加载文档…</p></div>';
+
+    // 更新页脚
+    if(footer){
+      footer.innerHTML = '<p>' + esc(displayName) + ' · 海纳柏舛 （HNBC）团队文档库</p>';
+    }
+
+    // 构建路径
+    var mdPath = filename;
+    if(mdPath.indexOf('/') === -1){
+      mdPath = 'tdwz/' + filename + '.md';
+    } else {
+      mdPath = filename + '.md';
+    }
+
+    // 检测 file:// 协议（浏览器会阻止 fetch 本地文件）
+    var isFileProtocol = window.location.protocol === 'file:';
+
+    fetch(mdPath).then(function(res){
+      if(!res.ok) throw new Error('文档不存在（404）');
+      return res.text();
+    }).then(function(md){
+      // 使用 marked 解析 markdown
+      var html = typeof marked !== 'undefined' ? marked.parse(md) : mdToHtml(md);
+      container.innerHTML = '<div class="doc-body md-content">' + html + '</div>';
+
+      // 插入文档头部
+      var header = document.createElement('div');
+      header.className = 'doc-header';
+      header.innerHTML = '<h1>' + esc(displayName) + '</h1><p class="doc-subtitle">团队文档 · 纳棂</p><div class="doc-meta"><span class="meta-item">团队文档库</span></div>';
+      container.insertBefore(header, container.firstChild);
+
+      window.scrollTo(0,0);
+
+      // 为标题生成 id
+      var h2s = container.querySelectorAll('.md-content h2, .md-content h3');
+      h2s.forEach(function(h, i){
+        if(!h.id) h.id = 'md-heading-' + i;
+      });
+    }).catch(function(err){
+      var msg = esc(err.message);
+      if(isFileProtocol){
+        msg = '当前使用 file:// 协议打开，浏览器禁止加载本地文件。<br><br>请双击运行项目目录下的 <b>server.bat</b> 启动本地服务器，<br>然后通过 http://localhost:8080 访问。';
+      }
+      container.innerHTML = '<div class="doc-body" style="text-align:center;padding:80px 0;color:var(--text-sub);"><p style="line-height:2;">' + msg + '</p></div>';
+    });
+  }
+
+  // 简易 markdown → HTML 转换（fallback，当 marked.js 不可用时）
+  function mdToHtml(md){
+    var html = md;
+    html = html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    html = html.replace(/^#### (.+)$/gm,'<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g,'<em>$1</em>');
+    html = html.replace(/`([^`]+)`/g,'<code>$1</code>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+    html = html.replace(/^---$/gm,'<hr>');
+    html = html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+    html = html.replace(/^- (.+)$/gm,'<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>\n?)+/g,'<ul>$&</ul>');
+    html = html.replace(/\n\n/g,'</p><p>');
+    html = '<p>'+html+'</p>';
+    html = html.replace(/<p><\/p>/g,'');
+    html = html.replace(/<p>(<[hudlo])/g,'$1');
+    html = html.replace(/(<\/[hudlo]>|\n)<\/p>/g,'');
+    return html;
+  }
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+</html>

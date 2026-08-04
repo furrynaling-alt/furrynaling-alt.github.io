@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HNBC（海纳柏舛）文档库 · 纳棂 NALING</title>
+<link rel="icon" href="tpzy/n.png">
+<script src="json/token-check.js"></script>
+<style>
+/* ===== 变量 ===== */
+:root{
+  --maxw:1200px;
+  --primary:#FF8A00;
+  --primary-2:#FFB347;
+  --primary-soft:#FFE5BF;
+  --primary-glow:rgba(255,138,0,.18);
+  --bg:#FFFDF9;
+  --bg-soft:#FFF7EC;
+  --bg-card:#FFFFFFE6;
+  --text:#202124;
+  --text-sub:#666666;
+  --text-mute:#9aa0a6;
+  --card-bg:rgba(255,255,255,.72);
+  --card-border:rgba(0,0,0,.06);
+  --glass:rgba(255,255,255,.72);
+  --glass-border:rgba(0,0,0,.06);
+  --border:#FFE5BF;
+  --nav-bg:rgba(255,253,249,.88);
+  --shadow:0 10px 40px rgba(255,138,0,.10);
+  --shadow-hover:0 18px 60px rgba(255,138,0,.22);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16, 1.2, .3, 1);
+  --font-sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+  --radius:20px;
+}
+
+[data-theme="dark"] {
+  --bg:#0f0f1e;
+  --bg-soft:#1a1a2e;
+  --bg-card:#1a1a2ecc;
+  --text:#e0e0e0;
+  --text-sub:#9999bb;
+  --text-mute:#666688;
+  --primary:#ffa040;
+  --primary-2:#ffbe60;
+  --primary-soft:rgba(255,160,64,.1);
+  --primary-glow:rgba(255,160,64,.2);
+  --card-bg:rgba(26,26,46,.85);
+  --card-border:rgba(42,42,74,.6);
+  --glass:rgba(26,26,46,.85);
+  --glass-border:rgba(42,42,74,.6);
+  --border:#2a2a4a;
+  --nav-bg:rgba(15,15,30,.9);
+  --shadow:0 10px 40px rgba(0,0,0,.35);
+  --shadow-hover:0 18px 60px rgba(0,0,0,.55);
+}
+[data-theme="dark"] body::before { opacity:.08; background:radial-gradient(ellipse 70% 50% at 50% -5%, rgba(255,160,64,.12), transparent); }
+[data-theme="dark"] #navbar.scrolled { background:rgba(20,20,38,.9); border-color:var(--border); }
+
+/* ===== 全局 ===== */
+*,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:
+    radial-gradient(60% 50% at 80% 0%,  rgba(255,179,71,.18), transparent 60%),
+    radial-gradient(50% 40% at 0% 30%,  rgba(255,138,0,.10),  transparent 60%),
+    radial-gradient(60% 50% at 50% 100%, rgba(255,229,191,.20), transparent 60%),
+    var(--bg);
+}
+main{ flex:1; position:relative; z-index:1; }
+
+/* ===== 导航栏（完全对齐 doc-viewer） ===== */
+#navbar{
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  padding:18px 0;
+  transition:all .4s var(--ease);
+  background:var(--nav-bg);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--border);
+}
+#navbar.scrolled{
+  padding:12px 0;
+  background:var(--nav-bg);
+  box-shadow:0 6px 30px rgba(255,138,0,.06);
+}
+.container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:24px;
+}
+.nav-logo{
+  display:flex; align-items:center; gap:10px;
+  font-size:22px; font-weight:700; color:var(--text);
+  text-decoration:none; transition:opacity .3s var(--ease); white-space:nowrap;
+}
+.nav-logo:hover{ opacity:.8; }
+.nav-logo .logo-mark{
+  width:42px; height:42px; border-radius:12px;
+  overflow:hidden; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 18px var(--primary-glow); flex-shrink:0;
+}
+.nav-logo .logo-mark img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.nav-links{ display:flex; align-items:center; gap:4px; list-style:none; }
+.nav-links a{
+  display:block; padding:8px 18px;
+  color:var(--text-sub); text-decoration:none;
+  font-size:15px; font-weight:500; border-radius:10px;
+  transition:all .3s var(--ease);
+}
+.nav-links a:hover{ color:var(--primary); background:var(--primary-soft); }
+.nav-links a.active{ color:var(--primary); background:var(--primary-soft); font-weight:600; }
+
+/* 返回按钮（右侧） */
+.back-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 16px; border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--card-bg);
+  color:var(--text-sub);
+  font-size:14px; font-weight:500; cursor:pointer;
+  transition:all .3s var(--ease);
+  font-family:var(--font-sans); text-decoration:none;
+  white-space:nowrap;
+}
+.back-btn:hover{ color:var(--primary); border-color:var(--primary); background:var(--primary-soft); }
+
+/* 语言切换（内嵌于 nav-links） */
+.lang-switcher{ display:flex; align-items:center; gap:2px; margin-left:8px; }
+.lang-switcher .lang-btn{
+  background:none; border:none;
+  padding:6px 10px; cursor:pointer;
+  font-size:13px; font-weight:600; color:var(--text-mute);
+  border-radius:8px;
+  transition:all .3s var(--ease);
+  font-family:var(--font-sans); line-height:1;
+}
+.lang-switcher .lang-btn:hover{ color:var(--primary); background:var(--primary-soft); }
+.lang-switcher .lang-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  box-shadow:0 4px 12px var(--primary-glow);
+}
+
+/* 主题切换 */
+.theme-toggle-btn{
+  padding:6px 10px;font-size:13px;font-weight:600;
+  color:var(--text-mute);border-radius:8px;
+  transition:all .3s var(--ease);cursor:pointer;
+  font-family:var(--font-sans);line-height:1;
+  background:transparent;border:none;white-space:nowrap;
+}
+.theme-toggle-btn:hover{ color:var(--primary); background:var(--primary-soft); }
+.theme-toggle-btn.dark{ color:var(--primary); }
+
+/* 汉堡菜单 */
+.nav-toggle{
+  display:none; width:44px; height:44px;
+  border-radius:12px; border:none;
+  background:transparent; cursor:pointer;
+  align-items:center; justify-content:center;
+  flex-direction:column; gap:5px;
+  transition:all .3s var(--ease);
+}
+.nav-toggle span{ display:block; width:20px; height:2px; background:var(--text); border-radius:2px; transition:all .3s var(--ease); }
+.nav-toggle:hover span{ background:var(--primary); }
+.nav-toggle.active span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.nav-toggle.active span:nth-child(2){ opacity:0; }
+.nav-toggle.active span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+/* ===== 暗黑模式导航 ===== */
+[data-theme="dark"] #navbar .nav-links a{ color:rgba(255,255,255,.7); }
+[data-theme="dark"] #navbar .nav-links a.active{ color:var(--primary); background:var(--primary-soft); }
+[data-theme="dark"] #navbar .nav-links a:hover{ color:var(--primary); }
+[data-theme="dark"] .lang-btn{ color:rgba(255,255,255,.45); }
+[data-theme="dark"] .lang-btn.active{ color:#fff; background:linear-gradient(135deg,var(--primary),var(--primary-2)); box-shadow:0 4px 12px rgba(255,138,0,.3); }
+[data-theme="dark"] .lang-btn:hover{ color:#fff; background:rgba(255,255,255,.1); }
+[data-theme="dark"] .theme-toggle-btn:hover{ color:#fff; background:rgba(255,255,255,.1); }
+[data-theme="dark"] .nav-logo,
+[data-theme="dark"] .nav-logo span{ color:#fff; }
+[data-theme="dark"] .nav-logo .logo-mark{ box-shadow:0 6px 18px var(--primary-glow); }
+[data-theme="dark"] .back-btn{ border-color:var(--border); background:var(--card-bg); color:var(--text-sub); }
+[data-theme="dark"] .back-btn:hover{ color:var(--primary); border-color:var(--primary); background:var(--primary-soft); }
+
+/* ===== 页面头部 ===== */
+.page-header{
+  padding:140px 0 48px;
+  text-align:center;
+}
+.page-header h1{
+  font-size:36px; font-weight:800;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.page-header .subtitle{
+  margin-top:10px; color:var(--text-sub); font-size:15px;
+}
+
+/* ===== 成员筛选栏 ===== */
+.member-filter{
+  max-width:var(--maxw); margin:0 auto 48px;
+  padding:0 32px;
+  text-align:center;
+}
+.member-filter .filter-label{
+  font-size:13px; color:var(--text-mute); margin-bottom:14px;
+  text-transform:uppercase; letter-spacing:.06em;
+}
+.member-avatars{
+  display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center;
+}
+.member-avatar-btn{
+  position:relative;
+  width:48px; height:48px; border-radius:50%;
+  border:3px solid transparent;
+  cursor:pointer; padding:0;
+  transition:all .3s var(--ease);
+  background:var(--primary-soft);
+  overflow:hidden;
+}
+.member-avatar-btn img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.member-avatar-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 20px var(--primary-glow);
+}
+.member-avatar-btn.active{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px var(--primary-soft);
+  transform:scale(1.1);
+}
+.member-avatar-btn .initial{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:100%;
+  font-size:18px; font-weight:700; color:var(--primary);
+}
+.member-avatar-btn.all-btn{
+  border:2px dashed var(--text-mute);
+  background:transparent;
+  width:48px; height:48px;
+}
+.member-avatar-btn.all-btn .all-icon{
+  font-size:16px; color:var(--text-mute);
+}
+.member-avatar-btn.all-btn:hover{ border-color:var(--primary); }
+.member-avatar-btn.all-btn.active{ border-color:var(--primary); border-style:solid; }
+.member-name-tip{
+  font-size:11px; color:var(--text-mute); margin-top:6px;
+  text-align:center; max-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* ===== 文档区域 ===== */
+.docs-section{
+  max-width:var(--maxw); margin:0 auto 80px;
+  padding:0 32px;
+}
+.docs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+  gap:20px;
+}
+
+/* 文档卡片 */
+.doc-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:16px; padding:24px;
+  cursor:pointer;
+  transition:all .35s var(--ease);
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.doc-card::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--primary),var(--primary-2));
+  opacity:0; transition:opacity .35s var(--ease);
+}
+.doc-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-hover);
+  border-color:var(--primary-soft);
+}
+.doc-card:hover::before{ opacity:1; }
+
+.doc-card-header{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:12px; gap:12px;
+}
+.doc-card-title{
+  font-size:17px; font-weight:700; color:var(--text);
+  line-height:1.4;
+}
+.doc-card-category{
+  display:inline-block;
+  padding:3px 10px; border-radius:20px;
+  font-size:11px; font-weight:600;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.doc-card-category.workflow{ background:#e8f5e9; color:#2e7d32; }
+.doc-card-category.doc{ background:#e3f2fd; color:#1565c0; }
+.doc-card-category.project{ background:#fff3e0; color:#e65100; }
+.doc-card-category.note{ background:#fce4ec; color:#c62828; }
+[data-theme="dark"] .doc-card-category.workflow{ background:rgba(46,125,50,.2); color:#81c784; }
+[data-theme="dark"] .doc-card-category.doc{ background:rgba(21,101,192,.2); color:#64b5f6; }
+[data-theme="dark"] .doc-card-category.project{ background:rgba(230,81,0,.2); color:#ffab40; }
+[data-theme="dark"] .doc-card-category.note{ background:rgba(198,40,40,.2); color:#ef9a9a; }
+
+.doc-card-desc{
+  font-size:14px; color:var(--text-sub); line-height:1.6;
+  margin-bottom:14px; flex:1;
+}
+.doc-card-footer{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px;
+}
+.doc-card-author{
+  display:flex; align-items:center; gap:8px;
+}
+.doc-card-author .author-avatar{
+  width:26px; height:26px; border-radius:50%;
+  overflow:hidden; flex-shrink:0;
+  border:2px solid var(--card-border);
+  transition:border-color .3s var(--ease);
+}
+.doc-card-author .author-avatar img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.doc-card:hover .author-avatar{ border-color:var(--primary); }
+.doc-card-author .author-name{
+  font-size:13px; color:var(--text-sub); font-weight:500;
+}
+.doc-card-date{
+  font-size:12px; color:var(--text-mute);
+}
+
+/* 空状态 */
+.empty-state{
+  text-align:center; padding:60px 20px;
+  color:var(--text-mute);
+}
+.empty-state .empty-icon{
+  font-size:48px; margin-bottom:12px; opacity:.4;
+}
+.empty-state p{ font-size:15px; }
+
+/* ===== 分页器 ===== */
+.pagination{
+  display:flex; align-items:center; justify-content:center;
+  gap:4px; margin-top:40px; padding:0 32px;
+  flex-wrap:wrap;
+}
+.pg-btn{
+  min-width:38px; height:38px; padding:0 10px;
+  border:1px solid var(--card-border);
+  border-radius:10px;
+  background:var(--card-bg);
+  color:var(--text-sub);
+  font-size:14px; font-weight:600; cursor:pointer;
+  transition:all .25s var(--ease);
+  font-family:var(--font-sans);
+  display:flex; align-items:center; justify-content:center;
+}
+.pg-btn:hover:not(:disabled):not(.active){
+  border-color:var(--primary);
+  color:var(--primary);
+  background:var(--primary-soft);
+}
+.pg-btn.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:#fff; border-color:transparent;
+  box-shadow:0 4px 14px var(--primary-glow);
+}
+.pg-btn:disabled{
+  opacity:.35; cursor:not-allowed;
+}
+.pg-dots{
+  display:flex; align-items:center; justify-content:center;
+  width:38px; height:38px;
+  color:var(--text-mute); font-size:14px;
+}
+.pg-prev, .pg-next{
+  font-size:18px;
+}
+
+/* ===== 页脚 ===== */
+.site-footer{
+  border-top:1px solid var(--border);
+  padding:40px 0;
+  text-align:center;
+  color:var(--text-mute);
+  font-size:13px;
+  margin-top:40px;
+}
+
+/* ===== 响应式 ===== */
+@media(max-width:900px){
+  .nav-links{ display:none; }
+  .nav-links.open{
+    display:flex;
+    position:absolute; top:calc(100% + 14px);
+    left:50%; transform:translateX(-50%);
+    width:min(400px, calc(100vw - 48px));
+    flex-direction:column;
+    gap:20px;
+    padding:24px 16px;
+    background:rgba(255,253,249,.97);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border);
+    border-radius:28px;
+    box-shadow:0 32px 80px rgba(0,0,0,.16);
+    transform-origin:top center;
+    animation:navMenuIn .42s ease both;
+  }
+  @keyframes navMenuIn{
+    0%{ opacity:0; transform:translateX(-50%) translateY(-16px) scale(.92); }
+    100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  }
+  .nav-links.open a{
+    padding:10px 20px; border-radius:14px; text-align:center;
+    font-size:18px;
+  }
+  .nav-links.open a:hover{ background:var(--primary-soft); color:var(--primary); }
+  .nav-links.open a::after{ display:none; }
+  .nav-links.open .lang-switcher{
+    display:flex; justify-content:center; flex-wrap:wrap;
+    gap:4px; padding:16px 0 0; margin-top:8px;
+    border-top:none; border-left:none; padding-left:0; margin-left:0;
+    align-items:center;
+  }
+  .nav-links.open .lang-switcher .lang-btn{ padding:8px 14px; font-size:16px; }
+  [data-theme="dark"] .nav-links.open{ background:rgba(20,20,38,.97); border-color:var(--border); }
+  [data-theme="dark"] .nav-toggle{ background:rgba(255,138,0,.12); }
+  .nav-toggle{ display:flex; }
+}
+@media(max-width:768px){
+  .container{ padding:0 20px; }
+  .docs-section{ padding:0 20px; }
+  .member-filter{ padding:0 20px; }
+  .docs-grid{ grid-template-columns:1fr; }
+  .page-header h1{ font-size:28px; }
+  .back-btn{ font-size:13px; padding:6px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 导航栏（对齐 doc-viewer） -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="纳棂 NALING">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span>纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" class="active" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh-CN" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="team.html" class="back-btn" data-i18n="back">← 返回团队</a>
+      <button class="nav-toggle" id="navToggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- 页面头部 -->
+  <section class="page-header">
+    <h1 data-i18n="docs.title">HNBC（海纳柏舛）文档库</h1>
+    <p class="subtitle" data-i18n="docs.subtitle">团队成员共享的技术文档与工作成果</p>
+  </section>
+
+  <!-- 成员头像筛选 -->
+  <section class="member-filter">
+    <p class="filter-label" data-i18n="docs.filterBy">点击头像筛选成员</p>
+    <div class="member-avatars" id="memberAvatars"></div>
+  </section>
+
+  <!-- 文档列表 -->
+  <section class="docs-section">
+    <div class="docs-grid" id="docsGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <p data-i18n="docs.empty">该成员暂无文档</p>
+    </div>
+    <div class="pagination" id="pagination" style="display:none;"></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>HNBC（海纳柏舛）文档库</p>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== 成员数据（4人：纳棂、喏欣、明月、陌晨） ===== */
+var MEMBERS = [
+  { id:"all",      name:"全部", nameEN:"All",        avatar:"",    color:"#FF8A00" },
+  { id:"nailing",  name:"纳棂", nameEN:"Nailing",   avatar:"tpzy/nl.jpg", color:"#FF8A00" },
+  { id:"nuoxin",   name:"喏欣", nameEN:"Nuoxin",    avatar:"tpzy/rx.jpg", color:"#FF5733" },
+  { id:"mingyue",  name:"明月", nameEN:"Mingyue",   avatar:"tpzy/my.jpg", color:"#3498DB" },
+  { id:"mochen",   name:"陌晨", nameEN:"Mochen",    avatar:"tpzy/mc.jpg", color:"#8B5CF6" }
+];
+
+/* ===== 分页配置 ===== */
+var PAGE_SIZE = 10;  // 每页 10 篇
+var currentPage = 1;
+var allDocs = [];    // 从 tdwz 扫描到的全部文档
+var filteredDocs = [];
+
+/* ===== 自动扫描 tdwz/xmwd 目录下的 .md 文件 ===== */
+var TDWZ_FILES = [];
+// 默认内置文档（source 对应子目录，file 不含路径前缀）
+var KNOWN_FILES = [
+  { file:"iOS Dynamic Island灵动岛", htmlFile:"tdwz/iOS-Dynamic-Island灵动岛.html", source:"tdwz", author:"mochen", date:"2025-08-04", category:"project", desc:"基于 iOS Live Activities 架构，通过 ActivityKit 和 SwiftUI 实现实时状态展示与交互。支持 iOS18+、iPhone14 Pro 以上灵动岛机型。" }
+];
+
+// 扫描两个目录，并加入超时兜底确保已知文档总是能显示
+function scanTdwz(){
+  var docs = [];
+
+  // 先加入已知文件（路径：source/file）
+  KNOWN_FILES.forEach(function(item, i){
+    docs.push({
+      id: i+1,
+      title: item.file,
+      author: item.author,
+      category: item.category,
+      date: item.date,
+      desc: item.desc,
+      file: (item.source || 'tdwz') + '/' + item.file,
+      htmlFile: item.htmlFile || null
+    });
+  });
+
+  var pending = 2;
+  var resolved = false;
+  function checkDone(){
+    pending--;
+    if(pending <= 0 && !resolved){
+      resolved = true;
+      allDocs = docs;
+      filteredDocs = allDocs;
+      currentPage = 1;
+      renderDocs();
+    }
+  }
+
+  // 扫描 tdwz 目录
+  fetch('tdwz/').then(function(res){
+    if(!res.ok) return;
+    return res.text();
+  }).then(function(html){
+    if(html) parseDirHtml(html, docs, 'tdwz');
+  }).catch(function(){}).finally(checkDone);
+
+  // 扫描 xmwd 目录
+  fetch('xmwd/').then(function(res){
+    if(!res.ok) return;
+    return res.text();
+  }).then(function(html){
+    if(html) parseDirHtml(html, docs, 'xmwd');
+  }).catch(function(){}).finally(checkDone);
+
+  // 超时兜底：3 秒后无论如何都要渲染已知文件
+  setTimeout(function(){
+    if(!resolved){
+      resolved = true;
+      allDocs = docs;
+      filteredDocs = allDocs;
+      currentPage = 1;
+      renderDocs();
+    }
+  }, 3000);
+
+  return docs;
+}
+
+// 解析目录列表 HTML
+function parseDirHtml(html, docs, source){
+  var existingFiles = {};
+  docs.forEach(function(d){ existingFiles[d.file+'.md'] = true; });
+
+  var links = html.match(/href="([^"]+\.md)"/gi) || [];
+  links.forEach(function(link){
+    var file = link.replace(/href="|"$/gi,'').replace(/"/g,'');
+    file = decodeURIComponent(file);
+    var baseName = file.replace(/\.md$/,'');
+    if(existingFiles[file]) return;
+
+    existingFiles[file] = true;
+    var guessedAuthor = guessAuthor(baseName);
+    docs.push({
+      id: docs.length + 1,
+      title: baseName,
+      author: guessedAuthor,
+      category: source === 'xmwd' ? 'project' : 'note',
+      date: '',
+      desc: '',
+      file: source + '/' + baseName  // 带上子目录路径
+    });
+  });
+}
+
+// 根据文件名/内容推测作者
+function guessAuthor(name){
+  var n = name.toLowerCase();
+  if(n.indexOf('ios')>=0||n.indexOf('灵动岛')>=0||n.indexOf('dynamic')>=0) return 'mochen';
+  if(n.indexOf('纳棂')>=0||n.indexOf('架构')>=0) return 'nailing';
+  if(n.indexOf('喏欣')>=0||n.indexOf('音乐')>=0) return 'nuoxin';
+  if(n.indexOf('明月')>=0||n.indexOf('设计')>=0||n.indexOf('视觉')>=0) return 'mingyue';
+  if(n.indexOf('陌晨')>=0||n.indexOf('前端')>=0||n.indexOf('开发')>=0) return 'mochen';
+  return 'nailing';
+}
+
+/* ===== 初始化 ===== */
+var LOCALE = localStorage.getItem("naling-locale") || "zh-CN";
+var activeMember = "all";
+
+/* ===== 渲染成员头像 ===== */
+function renderMembers(){
+  var container = document.getElementById("memberAvatars");
+  container.innerHTML = "";
+  MEMBERS.forEach(function(m){
+    var wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.flexDirection = "column";
+    wrap.style.alignItems = "center";
+
+    var btn = document.createElement("button");
+    btn.className = "member-avatar-btn";
+    btn.setAttribute("data-member", m.id);
+    btn.title = m.name;
+    
+    if(m.id === "all"){
+      btn.classList.add("all-btn");
+      btn.innerHTML = '<span class="all-icon">☰</span>';
+    } else if(m.avatar){
+      btn.innerHTML = '<img src="'+m.avatar+'" alt="'+m.name+'" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<span class=initial>'+m.name.charAt(0)+'</span>\'">';
+    } else {
+      btn.innerHTML = '<span class="initial">'+m.name.charAt(0)+'</span>';
+    }
+
+    if(m.id === activeMember) btn.classList.add("active");
+
+    btn.addEventListener("click", function(){
+      activeMember = m.id;
+      renderMembers();
+      renderDocs();
+    });
+
+    var nameTip = document.createElement("div");
+    nameTip.className = "member-name-tip";
+    nameTip.textContent = m.name;
+
+    wrap.appendChild(btn);
+    wrap.appendChild(nameTip);
+    container.appendChild(wrap);
+  });
+}
+
+/* ===== 渲染文档卡片（每文档带成员头像）+ 分页 ===== */
+function renderDocs(){
+  var grid = document.getElementById("docsGrid");
+  var empty = document.getElementById("emptyState");
+
+  filteredDocs = allDocs.filter(function(d){
+    return activeMember === "all" || d.author === activeMember;
+  });
+
+  if(filteredDocs.length === 0){
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    document.getElementById("pagination").style.display = "none";
+    return;
+  }
+  empty.style.display = "none";
+
+  // 计算分页
+  var totalPages = Math.ceil(filteredDocs.length / PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = totalPages;
+  if(currentPage < 1) currentPage = 1;
+  var start = (currentPage - 1) * PAGE_SIZE;
+  var pageDocs = filteredDocs.slice(start, start + PAGE_SIZE);
+
+  grid.innerHTML = pageDocs.map(function(doc){
+    var author = MEMBERS.find(function(m){ return m.id === doc.author; }) || {};
+    var catText = {workflow:"工作流", doc:"文档", project:"项目", note:"笔记"}[doc.category] || doc.category;
+    
+    // 作者头像HTML
+    var avatarHTML;
+    if(author.avatar){
+      avatarHTML = '<div class="author-avatar"><img src="'+author.avatar+'" alt="'+esc(author.name)+'" onerror="this.parentElement.style.background=\''+(author.color||'var(--primary)')+'20\';this.parentElement.style.color=\''+(author.color||'var(--primary)')+'\';this.parentElement.style.display=\'flex\';this.parentElement.style.alignItems=\'center\';this.parentElement.style.justifyContent=\'center\';this.parentElement.style.fontSize=\'11px\';this.parentElement.style.fontWeight=\'700\';this.style.display=\'none\';this.parentElement.textContent=\''+esc(author.name.charAt(0))+'\';"></div>';
+    } else {
+      avatarHTML = '<div class="author-avatar" style="background:'+(author.color||'var(--primary)')+'20;color:'+(author.color||'var(--primary)')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">'+esc(author.name?author.name.charAt(0):'?')+'</div>';
+    }
+
+    // 构建文档查看链接：直接跳转到精装修 HTML 文件
+    var docUrl = '#';
+    if(doc.htmlFile){
+      docUrl = doc.htmlFile;
+    } else if(doc.file){
+      // 兜底：如果没有 html 版本，尝试跳转到原 md 对应 html
+      docUrl = 'tdwz/' + doc.file.replace(/\.md$/i,'') + '.html';
+    }
+    
+    return '<div class="doc-card" onclick="location.href=\''+esc(docUrl)+'\'" style="cursor:pointer;">'+
+      '<div class="doc-card-header">'+
+        '<div class="doc-card-title">'+esc(doc.title)+'</div>'+
+        '<span class="doc-card-category '+doc.category+'">'+catText+'</span>'+
+      '</div>'+
+      (doc.desc ? '<div class="doc-card-desc">'+esc(doc.desc)+'</div>' : '')+
+      '<div class="doc-card-footer">'+
+        '<div class="doc-card-author">'+
+          avatarHTML+
+          '<span class="author-name">'+esc(author.name||'')+'</span>'+
+        '</div>'+
+        '<span class="doc-card-date">'+(doc.date||'')+'</span>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  renderPagination();
+}
+
+/* ===== 渲染分页器 ===== */
+function renderPagination(){
+  var pg = document.getElementById("pagination");
+  if(!pg) return;
+
+  var totalPages = Math.ceil(filteredDocs.length / PAGE_SIZE);
+
+  if(totalPages <= 1){
+    pg.style.display = "none";
+    return;
+  }
+
+  pg.style.display = "flex";
+
+  var html = '';
+
+  // 上一页按钮
+  html += '<button class="pg-btn pg-prev" '+(currentPage<=1?'disabled':'')+' onclick="goPage('+(currentPage-1)+')">◂</button>';
+
+  // 页码按钮
+  var pages = [];
+  if(totalPages <= 7){
+    for(var i=1; i<=totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if(currentPage > 3) pages.push("...");
+    var s = Math.max(2, currentPage-1);
+    var e = Math.min(totalPages-1, currentPage+1);
+    for(var i2=s; i2<=e; i2++) pages.push(i2);
+    if(currentPage < totalPages-2) pages.push("...");
+    pages.push(totalPages);
+  }
+
+  pages.forEach(function(p){
+    if(p === "..."){
+      html += '<span class="pg-dots">…</span>';
+    } else {
+      html += '<button class="pg-btn pg-num '+(p===currentPage?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
+    }
+  });
+
+  // 下一页按钮
+  html += '<button class="pg-btn pg-next" '+(currentPage>=totalPages?'disabled':'')+' onclick="goPage('+(currentPage+1)+')">▸</button>';
+
+  pg.innerHTML = html;
+}
+
+function goPage(n){
+  currentPage = n;
+  renderDocs();
+  document.querySelector(".docs-section").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ===== i18n（5语言） ===== */
+var I18N = {
+"zh-CN":{
+  "brand":"纳棂",
+  "nav.home":"首页","nav.interact":"互动","nav.team":"团队","nav.updates":"文档",
+  "back":"← 返回团队",
+  "docs.title":"HNBC（海纳柏舛）文档库",
+  "docs.subtitle":"团队成员共享的技术文档与工作成果",
+  "docs.filterBy":"点击头像筛选成员",
+  "docs.empty":"该成员暂无文档"
+},
+"zh-TW":{
+  "brand":"納棂",
+  "nav.home":"首頁","nav.interact":"互動","nav.team":"團隊","nav.updates":"文檔",
+  "back":"← 返回團隊",
+  "docs.title":"HNBC（海納柏舛）文檔庫",
+  "docs.subtitle":"團隊成員共享的技術文檔與工作成果",
+  "docs.filterBy":"點擊頭像篩選成員",
+  "docs.empty":"該成員暫無文檔"
+},
+"bo":{
+  "brand":"ན་ལིང་།",
+  "nav.home":"གཙོ་ངོས།","nav.interact":"འབྲེལ་འདྲིས།","nav.team":"ཚོགས་པ།","nav.updates":"ཡིག་ཆ།",
+  "back":"← ཚོགས་པར་ལོག",
+  "docs.title":"HNBC（海纳柏舛）ཡིག་ཆ་མཛོད།",
+  "docs.subtitle":"ཚོགས་པའི་ཡིག་ཆ་དང་ལས་འགན་འབྲས་བུ།",
+  "docs.filterBy":"ཚོགས་མིའི་མགོ་རིས་འདེམས་སྒྲུག",
+  "docs.empty":"ཚོགས་མི་འདིར་ཡིག་ཆ་མིན་འདུག"
+},
+"en":{
+  "brand":"NALING",
+  "nav.home":"Home","nav.interact":"Interact","nav.team":"Team","nav.updates":"Docs",
+  "back":"← Back to Team",
+  "docs.title":"HNBC (HaiNa BaiChuan) Document Library",
+  "docs.subtitle":"Technical documents and work shared by team members",
+  "docs.filterBy":"Tap avatar to filter by member",
+  "docs.empty":"No documents from this member yet"
+},
+"ja":{
+  "brand":"納棂",
+  "nav.home":"ホーム","nav.interact":"交流","nav.team":"チーム","nav.updates":"文書",
+  "back":"← チームに戻る",
+  "docs.title":"HNBC（海納柏舛）文書庫",
+  "docs.subtitle":"チームメンバー共有の技術文書と成果",
+  "docs.filterBy":"アバターでメンバー絞り込み",
+  "docs.empty":"このメンバーの文書はまだありません"
+}
+};
+
+function t(key){
+  var map = I18N[LOCALE] || I18N["zh-CN"];
+  return map[key] || key;
+}
+
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    var k = el.getAttribute("data-i18n");
+    el.textContent = t(k);
+  });
+  document.title = t("docs.title") + " · " + t("brand");
+  document.querySelectorAll(".lang-btn").forEach(function(btn){
+    btn.classList.toggle("active", btn.getAttribute("data-lang") === LOCALE);
+  });
+}
+
+document.querySelectorAll(".lang-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    LOCALE = this.getAttribute("data-lang");
+    localStorage.setItem("naling-locale", LOCALE);
+    applyI18n();
+  });
+});
+
+/* ===== 主题 ===== */
+(function(){
+  var saved = localStorage.getItem("naling-theme") || "light";
+  document.documentElement.setAttribute("data-theme", saved);
+  var toggle = document.getElementById("themeToggle");
+  toggle.textContent = saved === "dark" ? "明亮" : "阴暗";
+  toggle.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    var next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("naling-theme", next);
+    toggle.textContent = next === "dark" ? "明亮" : "阴暗";
+  });
+})();
+
+/* ===== 汉堡菜单 ===== */
+var navToggle = document.getElementById("navToggle");
+var navLinks = document.getElementById("navLinks");
+navToggle.addEventListener("click", function(){
+  navToggle.classList.toggle("active");
+  navLinks.classList.toggle("open");
+});
+navLinks.querySelectorAll("a").forEach(function(a){
+  a.addEventListener("click", function(){
+    navToggle.classList.remove("active");
+    navLinks.classList.remove("open");
+  });
+});
+
+/* ===== 导航滚动效果 ===== */
+var lastScrollY = 0;
+window.addEventListener("scroll", function(){
+  var nav = document.getElementById("navbar");
+  var y = window.scrollY;
+  if(y > 20){
+    nav.classList.add("scrolled");
+  } else {
+    nav.classList.remove("scrolled");
+  }
+  lastScrollY = y;
+}, {passive:true});
+
+/* ===== 初始化 ===== */
+applyI18n();
+renderMembers();
+allDocs = scanTdwz();
+filteredDocs = allDocs;
+renderDocs();
+})();
+</script>
+</body>
+</html>

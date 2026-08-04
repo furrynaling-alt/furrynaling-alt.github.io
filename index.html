@@ -1,0 +1,2906 @@
+<!DOCTYPE html>
+<!--
+ * ============================================================
+ *  纳棂 (NALING) · Personal Developer Portfolio
+ *  Author : 纳棂
+ *  Stack  : Pure HTML5 + CSS3 + Vanilla JS (no dependencies)
+ *  Deploy : GitHub Pages  (只需把 index.html / 1.jpg / 2.jpg 放入仓库根目录)
+ * ============================================================
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ============ SEO Meta ============ -->
+<title>纳棂 NALING · 个人主页</title>
+<meta name="description" content="纳棂(NALING)——一个普通又有点特别的纳棂。喜欢记录生活，也喜欢交朋友。欢迎来扩列。" />
+<meta name="keywords" content="纳棂,NALING,个人主页,扩列,交友,Furry,生活记录" />
+<meta name="author" content="纳棂 NALING" />
+<meta name="theme-color" content="#FF8A00" />
+<meta name="robots" content="index, follow" />
+
+<!-- ============ OpenGraph ============ -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="纳棂 NALING · 个人主页" />
+<meta property="og:description" content="一个普通又有点特别的纳棂，欢迎来扩列。" />
+<meta property="og:image" content="tpzy/1.jpg" />
+<meta property="og:url" content="https://naling.dev/" />
+<meta property="og:site_name" content="纳棂 NALING" />
+<meta property="og:locale" content="zh_CN" />
+
+<!-- ============ Twitter Card ============ -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="纳棂 NALING · 个人主页" />
+<meta name="twitter:description" content="一个普通又有点特别的纳棂，欢迎来扩列。" />
+<meta name="twitter:image" content="tpzy/1.jpg" />
+
+<!-- ============ Favicon (n.png) ============ -->
+<link rel="icon" type="image/png" href="tpzy/n.png" />
+<link rel="shortcut icon" type="image/png" href="tpzy/n.png" />
+<link rel="apple-touch-icon" href="tpzy/n.png" />
+<script src="json/token-check.js"></script>
+
+<!-- ============ Fonts (系统优先，无外部加载) ============ -->
+<style>
+  /* ============================================================
+   *  CSS 变量定义 —— 全站设计 Token
+   * ============================================================ */
+  :root{
+    /* 主题色 */
+    --bg:          #FFFDF9;   /* 主背景：暖白 */
+    --bg-soft:     #FFF7EC;   /* 次背景：浅橙白 */
+    --bg-card:    #FFFFFFE6;  /* 卡片背景（带透明，配合玻璃效果）*/
+    --primary:     #FF8A00;   /* 主色：橙 */
+    --primary-2:   #FFB347;   /* 辅助橙：浅橙 */
+    --primary-soft:#FFE5BF;   /* 描边橙 */
+    --text:        #202124;   /* 主文字 */
+    --text-sub:    #666666;   /* 次要文字 */
+    --text-mute:   #9aa0a6;   /* 弱化文字 */
+    --border:      #FFE5BF;   /* 描边 */
+    --shadow:      0 10px 40px rgba(255,138,0,.10);
+    --shadow-hover:0 18px 60px rgba(255,138,0,.22);
+    --radius:      20px;
+    --radius-lg:   28px;
+    --maxw:        1200px;
+    --ease:        cubic-bezier(.22,.61,.36,1);
+    --ease-out:    cubic-bezier(.16,1,.3,1);
+
+    /* 字体 */
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "PingFang SC", "Microsoft YaHei", "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Fira Code",
+                 Consolas, "Courier New", monospace;
+  }
+
+  /* ============================================================
+   *  基础重置
+   * ============================================================ */
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  /* 隐藏浏览器自带滚动条，保留滚动功能 */
+  html::-webkit-scrollbar{ width:0; height:0; }
+  html{ scrollbar-width:none; -ms-overflow-style:none; }
+  body{
+    font-family:var(--font-sans);
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    /* 背景渐变光斑（固定层） */
+  }
+  /* 渐变光斑背景层 —— 营造温暖高级氛围 */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(60% 50% at 80% 0%,  rgba(255,179,71,.18), transparent 60%),
+      radial-gradient(50% 40% at 0% 30%,  rgba(255,138,0,.10),  transparent 60%),
+      radial-gradient(60% 50% at 50% 100%, rgba(255,229,191,.20), transparent 60%),
+      var(--bg);
+  }
+  /* 噪点纹理层（细微颗粒感） */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+  ul{ list-style:none; }
+
+  /* ============================================================
+   *  通用容器与排版
+   * ============================================================ */
+  .container{
+    width:100%;
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 32px;
+  }
+  .section{
+    position:relative;
+    padding:140px 0;
+  }
+  .section-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--primary);
+    background:var(--primary-soft);
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:20px;
+  }
+  .section-tag::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--primary);
+    box-shadow:0 0 0 4px rgba(255,138,0,.18);
+  }
+  .section-title{
+    font-size:clamp(32px, 5vw, 56px);
+    font-weight:800;
+    letter-spacing:-.02em;
+    line-height:1.15;
+    margin-bottom:18px;
+    color:var(--primary);
+  }
+  .section-subtitle{
+    font-size:18px;
+    color:var(--text-sub);
+    max-width:620px;
+    margin-bottom:64px;
+  }
+  .text-gradient{
+    background:linear-gradient(120deg, var(--primary), var(--primary-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  /* ============================================================
+   *  鼠标光晕（跟随光标的橙色辉光）
+   * ============================================================ */
+  #cursor-glow{
+    position:fixed;
+    width:380px; height:380px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,138,0,.10), transparent 70%);
+    pointer-events:none;
+    z-index:9998;
+    transform:translate(-50%,-50%);
+    transition:opacity .3s var(--ease);
+    opacity:0;
+    mix-blend-mode:multiply;
+  }
+
+  /* ============================================================
+   *  页面加载动画（Loader）
+   * ============================================================ */
+  #loader{
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    background:var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:24px;
+    transition:opacity .3s var(--ease), visibility .3s;
+  }
+  #loader.hidden{ opacity:0; visibility:hidden; }
+  .loader-logo{
+    font-size:42px;
+    font-weight:800;
+    letter-spacing:.05em;
+    background:linear-gradient(120deg, var(--primary), var(--primary-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:loaderPulse .8s var(--ease) infinite;
+  }
+  .loader-bar{
+    width:160px; height:3px;
+    background:var(--primary-soft);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .loader-bar span{
+    display:block;
+    height:100%;
+    width:40%;
+    background:linear-gradient(90deg, var(--primary), var(--primary-2));
+    border-radius:999px;
+    animation:loaderSlide .6s var(--ease) infinite;
+  }
+  @keyframes loaderPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.6; transform:scale(.96);} }
+  @keyframes loaderSlide{ 0%{transform:translateX(-100%);} 100%{transform:translateX(350%);} }
+
+  /* ============================================================
+   *  导航栏 —— 毛玻璃 + 滚动变色
+   * ============================================================ */
+  #navbar{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:1000;
+    padding:22px 0;
+    transition:all .4s var(--ease);
+  }
+  #navbar.scrolled{
+    padding:14px 0;
+    background:rgba(255,253,249,.72);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(255,229,191,.6);
+    box-shadow:0 6px 30px rgba(255,138,0,.06);
+  }
+  .nav-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .nav-logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:.02em;
+  }
+  .nav-logo .logo-mark{
+    width:34px; height:34px;
+    border-radius:10px;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(255,138,0,.35);
+    transition:transform .4s var(--ease);
+  }
+  .nav-logo .logo-mark img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .nav-logo:hover .logo-mark{ transform:rotate(-8deg) scale(1.05); }
+  .nav-links{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .nav-links a{
+    position:relative;
+    padding:8px 16px;
+    font-size:15px;
+    color:var(--text-sub);
+    border-radius:999px;
+    transition:all .3s var(--ease);
+  }
+  .nav-links a::after{
+    content:"";
+    position:absolute;
+    left:50%; bottom:4px;
+    width:0; height:2px;
+    background:var(--primary);
+    border-radius:2px;
+    transform:translateX(-50%);
+    transition:width .3s var(--ease);
+  }
+  .nav-links a:hover{ color:var(--primary); }
+  .nav-links a:hover::after{ width:18px; }
+  .nav-links a.active{
+    color:var(--primary);
+    font-weight:600;
+  }
+  .nav-links a.active::after{ width:18px; background:var(--primary); }
+  .nav-cta{
+    border-radius:999px;
+    transition:all .3s var(--ease);
+  }
+  .nav-cta:hover{ color:var(--primary); }
+
+  /* 语言切换条 */
+  .lang-switcher{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding-left:10px;
+    margin-left:6px;
+    border-left:1px solid var(--border);
+  }
+  .lang-switcher .sep{ display:none; }
+  .lang-btn{
+    padding:6px 10px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-mute);
+    border-radius:8px;
+    transition:all .3s var(--ease);
+    cursor:pointer;
+    font-family:var(--font-sans);
+    line-height:1;
+  }
+  .lang-btn:hover{ color:var(--primary); background:var(--primary-soft); }
+  .lang-btn.active{
+    color:#fff;
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow:0 4px 12px rgba(255,138,0,.3);
+  }
+  .theme-toggle-btn{
+    padding:6px 10px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-mute);
+    border-radius:8px;
+    transition:all .3s var(--ease);
+    cursor:pointer;
+    font-family:var(--font-sans);
+    line-height:1;
+    background:transparent;
+    border:none;
+    white-space:nowrap;
+  }
+  .theme-toggle-btn:hover{ color:var(--primary); background:var(--primary-soft); }
+  .theme-toggle-btn.dark{ color:var(--primary); }
+
+  /* 移动端汉堡按钮 */
+  .nav-toggle{
+    display:none;
+    width:44px; height:44px;
+    border-radius:12px;
+    background:transparent;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:5px;
+  }
+  .nav-toggle span{
+    width:20px; height:2px;
+    background:var(--text);
+    border-radius:2px;
+    transition:all .3s var(--ease);
+  }
+  .nav-toggle.active span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.active span:nth-child(2){ opacity:0; }
+  .nav-toggle.active span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+  /* ============================================================
+   *  Hero 区域 —— 100vh
+   * ============================================================ */
+  #hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding:120px 0 80px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:60px;
+    align-items:center;
+    width:100%;
+  }
+  .hero-left{ position:relative; z-index:2; }
+  .hero-hello{
+    font-family:var(--font-mono);
+    font-size:14px;
+    letter-spacing:.25em;
+    color:var(--primary);
+    text-transform:uppercase;
+    margin-bottom:24px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .hero-hello::before{
+    content:""; width:42px; height:1px; background:var(--primary);
+  }
+  .hero-title{
+    font-size:clamp(48px, 8vw, 96px);
+    font-weight:800;
+    line-height:1.02;
+    letter-spacing:-.03em;
+    margin-bottom:8px;
+  }
+  .hero-name{
+    display:inline-block;
+    background:linear-gradient(120deg, var(--primary) 0%, var(--primary-2) 60%, var(--primary) 100%);
+    background-size:200% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:gradientShift 6s var(--ease) infinite;
+  }
+  @keyframes gradientShift{ 0%{background-position:0% center;} 50%{background-position:100% center;} 100%{background-position:0% center;} }
+  .hero-role{
+    font-size:clamp(18px, 2.2vw, 24px);
+    color:var(--text-sub);
+    font-weight:500;
+    margin-top:18px;
+    margin-bottom:14px;
+  }
+  .hero-role .sep{ color:var(--primary-soft); margin:0 12px; }
+  .hero-desc{
+    font-size:16px;
+    color:var(--text-sub);
+    max-width:480px;
+    margin-bottom:40px;
+  }
+  .hero-actions{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  /* 按钮 —— Ripple 涟漪动画 */
+  .btn{
+    position:relative;
+    overflow:hidden;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 28px;
+    border-radius:999px;
+    font-size:15px;
+    font-weight:600;
+    transition:all .3s var(--ease);
+    isolation:isolate;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    color:#fff;
+    box-shadow:0 12px 30px rgba(255,138,0,.32);
+  }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 18px 40px rgba(255,138,0,.42); }
+  .btn-ghost{
+    background:rgba(255,255,255,.6);
+    color:var(--text);
+    border:1.5px solid var(--border);
+    backdrop-filter:blur(10px);
+  }
+  .btn-ghost:hover{ border-color:var(--primary); color:var(--primary); transform:translateY(-3px); }
+  /* 涟漪 */
+  .ripple{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,.5);
+    transform:scale(0);
+    animation:rippleAnim .6s var(--ease-out);
+    pointer-events:none;
+    z-index:-1;
+  }
+  .btn-ghost .ripple{ background:rgba(255,138,0,.18); }
+  @keyframes rippleAnim{ to{ transform:scale(2.6); opacity:0; } }
+
+  /* Hero 右侧图片 —— 浮动 + 玻璃效果 */
+  .hero-right{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  .hero-img-wrap{
+    position:relative;
+    width:min(440px, 90%);
+    aspect-ratio:4/5;
+    animation:floatY 6s var(--ease) infinite;
+  }
+  @keyframes floatY{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-22px); }
+  }
+  /* 玻璃装饰卡（图片背后） */
+  .hero-img-wrap::before{
+    content:"";
+    position:absolute;
+    inset:-30px -30px auto -30px;
+    height:60%;
+    background:linear-gradient(135deg, rgba(255,138,0,.25), rgba(255,179,71,.08));
+    border-radius:32px;
+    filter:blur(40px);
+    z-index:0;
+  }
+  .hero-img-card{
+    position:relative;
+    z-index:1;
+    width:100%; height:100%;
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    background:linear-gradient(135deg, var(--primary-soft), #fff);
+    border:1px solid rgba(255,229,191,.8);
+    box-shadow:0 30px 80px rgba(255,138,0,.18);
+  }
+  .hero-img-card img{
+    width:100%; height:100%;
+    object-fit:cover;
+  }
+  /* 图片占位（无图时显示） */
+  .img-placeholder{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,138,0,.35), transparent 50%),
+      linear-gradient(135deg, var(--primary-soft), #fff);
+  }
+  .img-placeholder svg{ width:46%; opacity:.55; }
+
+  /* Hero 浮动徽章 */
+  .hero-badge{
+    position:absolute;
+    z-index:3;
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,229,191,.7);
+    border-radius:16px;
+    padding:12px 16px;
+    box-shadow:0 12px 30px rgba(0,0,0,.06);
+    display:flex; align-items:center; gap:10px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .hero-badge.b1{ top:8%; left:-6%; animation:floatY 5s var(--ease) infinite .4s; }
+  .hero-badge.b2{ bottom:10%; right:-8%; animation:floatY 5.5s var(--ease) infinite .8s; }
+  .hero-badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--primary); box-shadow:0 0 0 4px rgba(255,138,0,.2); }
+  .hero-badge .num{ font-family:var(--font-mono); font-size:18px; font-weight:800; color:var(--primary); }
+
+  /* Hero 底部滚动提示 */
+  .scroll-hint{
+    position:absolute;
+    left:50%; bottom:32px;
+    transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    color:var(--text-mute);
+    text-transform:uppercase;
+  }
+  .scroll-hint .mouse{
+    width:22px; height:36px;
+    border:2px solid var(--primary-soft);
+    border-radius:12px;
+    position:relative;
+  }
+  .scroll-hint .mouse::before{
+    content:"";
+    position:absolute;
+    top:7px; left:50%;
+    width:3px; height:7px;
+    background:var(--primary);
+    border-radius:3px;
+    transform:translateX(-50%);
+    animation:scrollWheel 1.6s var(--ease) infinite;
+  }
+  @keyframes scrollWheel{ 0%{opacity:1; top:7px;} 70%{opacity:0; top:18px;} 100%{opacity:0;} }
+
+  /* ============================================================
+   *  深色模式
+   * ============================================================ */
+  [data-theme="dark"]{
+    --bg:#1a1a2e;
+    --bg-soft:#16162a;
+    --text:#f0ebe3;
+    --text-sub:#c4b5a5;
+    --text-mute:#8a7e72;
+    --primary-soft:rgba(255,138,0,.12);
+    --card-bg:rgba(30,30,55,.72);
+    --card-border:rgba(255,229,191,.14);
+    --glass:rgba(26,26,46,.72);
+    --glass-border:rgba(255,229,191,.16);
+    --border:rgba(255,229,191,.1);
+    --primary-glow:rgba(255,138,0,.18);
+    --nav-bg:rgba(20,20,38,.88);
+    --shadow:0 8px 40px rgba(0,0,0,.35);
+    --shadow-hover:0 18px 60px rgba(0,0,0,.45);
+  }
+  [data-theme="dark"] body{
+    background:linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+    background-attachment:fixed;
+  }
+  [data-theme="dark"] .nav-logo{ color:var(--text); }
+  [data-theme="dark"] .nav-links a{ color:var(--text-sub); }
+  [data-theme="dark"] .nav-links a.active{ color:var(--primary); }
+  [data-theme="dark"] .btn-ghost{ border-color:var(--border); color:var(--text); }
+  [data-theme="dark"] .btn-ghost:hover{ border-color:var(--primary); }
+  [data-theme="dark"] .progress-bar-wrap{ background:rgba(255,255,255,.08); }
+  [data-theme="dark"] .section-tag{ color:var(--primary); }
+  [data-theme="dark"] .contact-item{ border-color:var(--border); }
+  [data-theme="dark"] .contact-item:hover{ border-color:var(--primary-soft); }
+  [data-theme="dark"] .loader-logo{ color:var(--text); }
+  [data-theme="dark"] body::before{
+    opacity:.4;
+    background:radial-gradient(ellipse at 30% 20%, rgba(255,138,0,.06) 0%, transparent 60%),
+               radial-gradient(ellipse at 70% 80%, rgba(200,100,255,.05) 0%, transparent 60%);
+  }
+  /* 组件深色覆盖 */
+  [data-theme="dark"] footer{ background:var(--bg-soft); }
+  [data-theme="dark"] .nav-links.open{ background:rgba(20,20,38,.97); border-color:var(--border); }
+  [data-theme="dark"] #navbar.scrolled{ background:rgba(20,20,38,.88); border-color:var(--border); }
+  [data-theme="dark"] .hero-img-card{ background:linear-gradient(135deg, rgba(30,30,55,.8), #1a1a2e); border-color:var(--border); }
+  [data-theme="dark"] .hero-badge{ background:rgba(30,30,55,.78); border-color:var(--border); }
+  [data-theme="dark"] .hero-img-wrap::before{ background:linear-gradient(135deg, rgba(255,138,0,.1), rgba(200,100,255,.04)); }
+  [data-theme="dark"] .img-placeholder{ background:radial-gradient(circle at 30% 30%, rgba(255,138,0,.15), transparent 50%),linear-gradient(135deg, rgba(255,138,0,.06), #1a1a2e); }
+  [data-theme="dark"] .tech-card{ background:rgba(30,30,55,.7); border-color:var(--border); }
+  [data-theme="dark"] .dir-card{ background:rgba(30,30,55,.75); border-color:var(--border); }
+  [data-theme="dark"] .blog-card{ background:rgba(30,30,55,.75); border-color:var(--border); }
+  [data-theme="dark"] .blog-cover{ background:linear-gradient(135deg, rgba(30,30,55,.8), #16162a); }
+  [data-theme="dark"] .blog-cover .tag{ background:rgba(30,30,55,.85); }
+  [data-theme="dark"] .blog-tag{ background:var(--primary-soft); }
+  [data-theme="dark"] .contact-card{ background:rgba(30,30,55,.75); border-color:var(--border); }
+  [data-theme="dark"] .gallery-item{ background:linear-gradient(135deg, rgba(30,30,55,.8), #1a1a2e); border-color:var(--border); }
+  [data-theme="dark"] .about-img-wrap{ background:linear-gradient(135deg, rgba(30,30,55,.8), #1a1a2e); border-color:var(--border); }
+  [data-theme="dark"] .nav-toggle{ background:rgba(255,138,0,.12); }
+  [data-theme="dark"] .scroll-hint .mouse{ border-color:rgba(255,229,191,.25); }
+  [data-theme="dark"] .about-stats{ border-color:var(--border); }
+  [data-theme="dark"] .lang-switcher{ border-color:var(--border); }
+
+  [data-theme="dark"] .dir-num{ color:var(--text-mute); }
+  [data-theme="dark"] .dir-icon{ background:linear-gradient(135deg, rgba(255,138,0,.18), rgba(255,179,71,.08)); }
+  [data-theme="dark"] #lightbox{ background:rgba(8,8,18,.95); }
+  [data-theme="dark"] #loader{ background:#1a1a2e; }
+  [data-theme="dark"] #cursor-glow{ mix-blend-mode:screen; opacity:.15; }
+  [data-theme="dark"] .hero-desc{ color:var(--text-sub); }
+  [data-theme="dark"] .about-text p{ color:var(--text-sub); }
+  [data-theme="dark"] .blog-card p{ color:var(--text-sub); }
+  [data-theme="dark"] .dir-card p{ color:var(--text-sub); }
+  [data-theme="dark"] .footer-desc{ color:var(--text-sub); }
+  [data-theme="dark"] .contact-card .c-icon{ color:var(--text-sub); }
+  [data-theme="dark"] .section-subtitle{ color:var(--text-sub); }
+  [data-theme="dark"] .about-img-wrap::after{ background:linear-gradient(180deg, transparent 60%, rgba(255,138,0,.06)); }
+  [data-theme="dark"] .blog-card h3{ color:var(--text); }
+  [data-theme="dark"] .dir-card h3{ color:var(--text); }
+  [data-theme="dark"] .tech-card .tech-name{ color:var(--text); }
+
+  /* ============================================================
+   *  粒子画布
+   * ============================================================ */
+  #particleCanvas{
+    position:fixed; inset:0; z-index:-1;
+    pointer-events:none;
+    opacity:.55;
+  }
+
+
+
+  /* ============================================================
+   *  关于我
+   * ============================================================ */
+  #about .about-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    gap:80px;
+    align-items:center;
+  }
+  .about-img-wrap{
+    position:relative;
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    aspect-ratio:4/3;
+    box-shadow:var(--shadow);
+    background:linear-gradient(135deg, var(--primary-soft), #fff);
+    border:1px solid var(--border);
+  }
+  .about-img-wrap img{ width:100%; height:100%; object-fit:cover; }
+  .about-img-wrap::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, transparent 60%, rgba(255,138,0,.12));
+    pointer-events:none;
+  }
+  .about-text p{
+    font-size:17px;
+    color:var(--text-sub);
+    margin-bottom:18px;
+    line-height:1.85;
+  }
+  .about-text p strong{ color:var(--text); font-weight:700; }
+  .about-stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+    margin-top:40px;
+    padding-top:40px;
+    border-top:1px solid var(--border);
+  }
+  .stat-item .stat-num{
+    font-size:40px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    line-height:1;
+    background:linear-gradient(120deg, var(--primary), var(--primary-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .stat-item .stat-num .suffix{ font-size:22px; -webkit-text-fill-color:var(--primary); }
+  .stat-item .stat-label{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--text-sub);
+    font-family:var(--font-mono);
+    letter-spacing:.05em;
+  }
+
+
+  /* ===== SpaceX 风格实时计时器 ===== */
+  .stat-timer .stat-live{
+    font-family:var(--font-mono);
+    font-size:30px;
+    display:flex;
+    align-items:baseline;
+    gap:2px;
+    flex-wrap:wrap;
+    line-height:1.1;
+  }
+  .stat-timer .timer-group{
+    display:inline-flex;
+    align-items:baseline;
+  }
+  .stat-timer .timer-val{
+    font-weight:800;
+    min-width:1.2em;
+    text-align:center;
+    /* 数字翻转动效 */
+    display:inline-block;
+    transition:transform .2s var(--ease);
+  }
+  .stat-timer .timer-unit{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-mute);
+    margin-left:2px;
+    -webkit-text-fill-color:var(--text-mute);
+  }
+  .stat-timer .timer-sep{
+    color:var(--primary);
+    font-weight:800;
+    opacity:.5;
+    margin:0 1px;
+    -webkit-text-fill-color:var(--primary);
+    /* 闪烁动效 */
+    animation:timerBlink 1s steps(2) infinite;
+  }
+  @keyframes timerBlink{
+    0%,50%{ opacity:.6; }
+    51%,100%{ opacity:.15; }
+  }
+  /* 秒数变化时的脉冲发光 */
+  .stat-timer .timer-val.tick{
+    animation:timerTick .3s var(--ease);
+  }
+  @keyframes timerTick{
+    0%{ transform:translateY(0); text-shadow:0 0 0 transparent; }
+    30%{ transform:translateY(-3px); text-shadow:0 4px 16px rgba(255,138,0,.4); }
+    100%{ transform:translateY(0); text-shadow:0 0 0 transparent; }
+  }
+
+  /* ===== 生日进度条 ===== */
+  .stat-birthday .stat-progress{
+    font-size:40px;
+  }
+  .stat-birthday .progress-val{
+    background:linear-gradient(120deg, var(--primary), var(--primary-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .progress-bar-wrap{
+    margin-top:10px;
+    height:6px;
+    border-radius:3px;
+    background:var(--primary-soft);
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    border-radius:3px;
+    background:linear-gradient(90deg, var(--primary), var(--primary-2));
+    transition:width .8s var(--ease-out);
+    box-shadow:0 0 12px rgba(255,138,0,.4);
+  }
+
+  /* ============================================================
+   *  技术栈 —— 卡片网格
+   * ============================================================ */
+  .tech-grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:16px;
+  }
+  .tech-card{
+    position:relative;
+    background:rgba(255,255,255,.7);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:24px 16px;
+    text-align:center;
+    transition:all .4s var(--ease);
+    overflow:hidden;
+    cursor:default;
+  }
+  .tech-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,138,0,.14), transparent 60%);
+    opacity:0;
+    transition:opacity .4s;
+  }
+  .tech-card:hover{
+    transform:translateY(-6px);
+    border-color:var(--primary);
+    box-shadow:0 16px 40px rgba(255,138,0,.18);
+  }
+  .tech-card:hover::before{ opacity:1; }
+  .tech-card .tech-icon{
+    width:40px; height:40px;
+    margin:0 auto 12px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--primary);
+    transition:transform .4s var(--ease);
+  }
+  .tech-card:hover .tech-icon{ transform:scale(1.15) rotate(-6deg); }
+  .tech-card .tech-name{
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+  }
+
+  /* ============================================================
+   *  我的方向 —— 四张大卡片
+   * ============================================================ */
+  .directions-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:24px;
+  }
+  .dir-card{
+    position:relative;
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(14px);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:36px 28px;
+    transition:all .45s var(--ease);
+    overflow:hidden;
+  }
+  .dir-card::after{
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:3px;
+    background:linear-gradient(90deg, var(--primary), var(--primary-2));
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .45s var(--ease);
+  }
+  .dir-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--primary);
+    box-shadow:var(--shadow-hover);
+  }
+  .dir-card:hover::after{ transform:scaleX(1); }
+  .dir-icon{
+    width:56px; height:56px;
+    border-radius:16px;
+    background:linear-gradient(135deg, rgba(255,138,0,.14), rgba(255,179,71,.06));
+    display:flex; align-items:center; justify-content:center;
+    color:var(--primary);
+    margin-bottom:24px;
+    transition:all .45s var(--ease);
+  }
+  .dir-card:hover .dir-icon{
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    color:#fff;
+    transform:rotate(-6deg) scale(1.05);
+  }
+  .dir-card h3{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .dir-card p{
+    font-size:14px;
+    color:var(--text-sub);
+    line-height:1.7;
+  }
+  .dir-num{
+    position:absolute;
+    top:24px; right:24px;
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--text-mute);
+    opacity:.6;
+  }
+
+  /* ============================================================
+   *  图片展示 —— 瀑布流 + Lightbox
+   * ============================================================ */
+  .gallery-masonry{
+    columns:2;
+    column-gap:24px;
+  }
+  .gallery-item{
+    position:relative;
+    break-inside:avoid;
+    margin-bottom:24px;
+    border-radius:var(--radius);
+    overflow:hidden;
+    cursor:pointer;
+    background:linear-gradient(135deg, var(--primary-soft), #fff);
+    border:1px solid var(--border);
+    transition:all .4s var(--ease);
+  }
+  .gallery-item:hover{
+    transform:translateY(-4px);
+    box-shadow:var(--shadow-hover);
+  }
+  .gallery-item img{
+    width:100%;
+    transition:transform .6s var(--ease);
+  }
+  .gallery-item video{
+    width:100%;
+    display:block;
+    transition:transform .6s var(--ease);
+  }
+  .gallery-item:hover img,
+  .gallery-item:hover video{ transform:scale(1.06); }
+  .gallery-video .video-badge{
+    position:absolute;
+    top:12px; left:12px;
+    z-index:2;
+    background:rgba(0,0,0,.55);
+    color:#fff;
+    font-size:11px;
+    font-family:var(--font-mono);
+    padding:4px 10px;
+    border-radius:999px;
+    display:flex; align-items:center; gap:5px;
+    backdrop-filter:blur(6px);
+  }
+  .gallery-video .video-badge::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--primary);
+    box-shadow:0 0 6px var(--primary);
+  }
+  .gallery-item .overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, transparent 50%, rgba(32,33,36,.7));
+    opacity:0;
+    transition:opacity .4s;
+    display:flex;
+    align-items:flex-end;
+    padding:24px;
+    color:#fff;
+  }
+  .gallery-item:hover .overlay{ opacity:1; }
+  .gallery-item .overlay .zoom-ico{
+    width:44px; height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,.2);
+    backdrop-filter:blur(10px);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:8px;
+    transition:transform .4s var(--ease);
+  }
+  .gallery-item:hover .overlay .zoom-ico{ transform:scale(1.1); }
+  .gallery-item .overlay h4{ font-size:18px; font-weight:700; }
+  .gallery-item .overlay span{ font-size:13px; opacity:.8; font-family:var(--font-mono); }
+
+  /* Lightbox 弹层 */
+  #lightbox{
+    position:fixed;
+    inset:0;
+    z-index:10001;
+    background:rgba(20,20,22,.92);
+    backdrop-filter:blur(20px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .4s var(--ease), visibility .4s;
+  }
+  #lightbox.open{ opacity:1; visibility:visible; }
+  #lightbox .lb-content{
+    position:relative;
+    max-width:90vw;
+    max-height:85vh;
+    border-radius:16px;
+    overflow:hidden;
+    transform:scale(.92);
+    transition:transform .4s var(--ease-out);
+  }
+  #lightbox.open .lb-content{ transform:scale(1); }
+  #lightbox .lb-content img,
+  #lightbox .lb-content video{
+    max-width:90vw;
+    max-height:85vh;
+    display:block;
+  }
+  #lightbox .lb-content video{
+    background:#000;
+    border-radius:8px;
+  }
+  #lightbox .lb-close{
+    position:absolute;
+    top:24px; right:24px;
+    width:44px; height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .3s;
+  }
+  #lightbox .lb-close:hover{ background:var(--primary); transform:rotate(90deg); }
+
+  /* ============================================================
+   *  博客 —— 三张卡片
+   * ============================================================ */
+  .blog-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:28px;
+  }
+  .blog-card{
+    position:relative;
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(14px);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    transition:all .45s var(--ease);
+    display:flex;
+    flex-direction:column;
+    padding:32px;
+  }
+  .blog-card:hover{
+    transform:translateY(-6px);
+    border-color:var(--primary);
+    box-shadow:var(--shadow-hover);
+  }
+  .blog-cover{
+    aspect-ratio:16/9;
+    background:linear-gradient(135deg, var(--primary-soft), var(--bg-soft));
+    position:relative;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .blog-cover svg{ width:50%; opacity:.5; transition:transform .5s var(--ease); }
+  .blog-card:hover .blog-cover svg{ transform:scale(1.1) rotate(-4deg); }
+  .blog-cover .tag{
+    position:absolute;
+    top:16px; left:16px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(8px);
+    color:var(--primary);
+    padding:5px 12px;
+    border-radius:999px;
+    font-weight:700;
+  }
+  .blog-body{
+    padding:26px 24px 28px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+  .blog-meta{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-mute);
+    margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .blog-meta .dot{ width:3px; height:3px; border-radius:50%; background:var(--text-mute); }
+  .blog-tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    background:var(--primary-soft);
+    color:var(--primary);
+    padding:5px 14px;
+    border-radius:999px;
+    font-weight:700;
+    margin-bottom:16px;
+    align-self:flex-start;
+  }
+  .blog-card h3{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:12px;
+    line-height:1.3;
+    letter-spacing:-.01em;
+  }
+  .blog-card p{
+    font-size:15px;
+    color:var(--text-sub);
+    line-height:1.7;
+    margin-bottom:24px;
+    flex:1;
+  }
+  .blog-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--primary);
+    transition:gap .3s var(--ease);
+    margin-left:auto;
+  }
+  .blog-card:hover .blog-link{ gap:14px; }
+
+  /* ============================================================
+   *  联系我
+   * ============================================================ */
+  #contact{ text-align:center; }
+  #contact .section-subtitle{ margin-left:auto; margin-right:auto; }
+  .contact-grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:18px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  .contact-card{
+    position:relative;
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:28px 12px 20px;
+    text-align:center;
+    transition:all .4s var(--ease);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  /* Hover 背景动画 */
+  .contact-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    opacity:0;
+    transition:opacity .4s var(--ease);
+    z-index:-1;
+  }
+  .contact-card:hover{
+    transform:translateY(-8px);
+    border-color:transparent;
+    box-shadow:0 18px 40px rgba(255,138,0,.3);
+  }
+  .contact-card:hover::before{ opacity:1; }
+  .contact-card .c-icon{
+    width:44px; height:44px;
+    margin:0 auto 12px;
+    color:var(--text-sub);
+    transition:all .4s var(--ease);
+  }
+  .contact-card:hover .c-icon{ color:#fff; transform:scale(1.1); }
+  .contact-card .c-name{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    transition:color .4s;
+  }
+  .contact-card:hover .c-name{ color:#fff; }
+
+  /* ============================================================
+   *  Footer
+   * ============================================================ */
+  footer{
+    padding:60px 0 40px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    background:var(--bg-soft);
+  }
+  .footer-logo{
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:.02em;
+    margin-bottom:12px;
+    background:linear-gradient(120deg, var(--primary), var(--primary-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .footer-desc{
+    font-size:14px;
+    color:var(--text-sub);
+    margin-bottom:24px;
+  }
+  .footer-meta{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-mute);
+    letter-spacing:.05em;
+  }
+  .footer-meta span{ color:var(--primary); }
+
+  /* ============================================================
+   *  Reveal 滚动入场动画
+   * ============================================================ */
+  .reveal{
+    opacity:0;
+    transform:translateY(40px);
+    transition:opacity .9s var(--ease-out), transform .9s var(--ease-out);
+    will-change:opacity, transform;
+  }
+  .reveal.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  /* 错位延迟 */
+  .reveal[data-delay="1"]{ transition-delay:.1s; }
+  .reveal[data-delay="2"]{ transition-delay:.2s; }
+  .reveal[data-delay="3"]{ transition-delay:.3s; }
+  .reveal[data-delay="4"]{ transition-delay:.4s; }
+  .reveal[data-delay="5"]{ transition-delay:.5s; }
+  .reveal[data-delay="6"]{ transition-delay:.6s; }
+
+  /* ============================================================
+   *  视差元素
+   * ============================================================ */
+  .parallax{ will-change:transform; }
+
+  /* ============================================================
+   *  响应式
+   * ============================================================ */
+  @media (max-width:1024px){
+    .container{ padding:0 24px; }
+    .section{ padding:100px 0; }
+    .hero-grid{ grid-template-columns:1fr; gap:48px; }
+    .hero-right{ order:-1; }
+    .hero-img-wrap{ width:min(360px, 80%); }
+    #about .about-grid{ grid-template-columns:1fr; gap:48px; }
+    .tech-grid{ grid-template-columns:repeat(4, 1fr); }
+    .directions-grid{ grid-template-columns:repeat(2, 1fr); }
+    .blog-grid{ grid-template-columns:repeat(2, 1fr); }
+    .contact-grid{ grid-template-columns:repeat(3, 1fr); }
+    .nav-links{ display:none; }
+    .nav-links.open{
+      display:flex;
+      position:absolute;
+      top:calc(100% + 14px);
+      left:50%;
+      transform:translateX(-50%);
+      width:min(400px, calc(100vw - 48px));
+      flex-direction:column;
+      background:rgba(255,253,249,.97);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      border:1px solid var(--border);
+      border-radius:28px;
+      padding:24px 16px;
+      gap:20px;
+      box-shadow:0 32px 80px rgba(0,0,0,.16);
+      transform-origin:top center;
+      animation:navMenuIn .42s var(--ease-out) both;
+    }
+    @keyframes navMenuIn{
+      0%{ opacity:0; transform:translateX(-50%) translateY(-16px) scale(.92); }
+      100%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+    }
+    /* 移动端菜单链接悬停效果 */
+    .nav-links.open a{
+      padding:10px 20px;
+      border-radius:14px;
+      text-align:center;
+      font-size:18px;
+    }
+    .nav-links.open a:hover{
+      background:var(--primary-soft);
+      color:var(--primary);
+    }
+    .nav-links.open a:hover::after{ display:none; }
+    .nav-links.open .nav-cta{
+      margin-top:8px;
+    }
+    /* 语言切换 - 移动端 */
+    .nav-links.open .lang-switcher{
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:4px;
+      padding:16px 0 0;
+      margin-top:8px;
+      border-top:none;
+      border-left:none;
+      padding-left:0;
+      margin-left:0;
+      align-items:center;
+    }
+    .nav-links.open .lang-switcher .lang-btn{
+      padding:8px 14px;
+      font-size:16px;
+    }
+    .nav-toggle{ display:flex; }
+  }
+  @media (max-width:640px){
+    .container{ padding:0 20px; }
+    .section{ padding:80px 0; }
+    .section-subtitle{ margin-bottom:40px; }
+    .hero-actions{ width:100%; }
+    .hero-actions .btn{ flex:1; justify-content:center; }
+    .hero-badge.b1{ left:0; }
+    .hero-badge.b2{ right:0; }
+    .tech-grid{ grid-template-columns:repeat(3, 1fr); }
+    .directions-grid{ grid-template-columns:1fr; }
+    .blog-grid{ grid-template-columns:1fr; }
+    .contact-grid{ grid-template-columns:repeat(2, 1fr); }
+    .about-stats{ grid-template-columns:1fr; gap:20px; }
+    .gallery-masonry{ columns:1; }
+    #cursor-glow{ display:none; }
+  }
+
+  /* 减少动效偏好 */
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 鼠标光晕 ============ -->
+<div id="cursor-glow"></div>
+
+<!-- ============ 粒子背景 ============ -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ============ 页面加载动画 ============ -->
+<div id="loader">
+  <div class="loader-logo" data-i18n="brand">NALING</div>
+  <div class="loader-bar"><span></span></div>
+</div>
+<script>(function(){var l=document.getElementById("loader");if(l){setTimeout(function(){l.classList.add("hidden");},200);}})();</script>
+
+<!-- ============ 导航栏 ============ -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="#hero" class="nav-logo" aria-label="纳棂 NALING" data-i18n-aria="aria.brand">
+      <span class="logo-mark"><img src="tpzy/n.png" alt="纳棂" /></span>
+      <span data-i18n="brand">纳棂</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="active" data-i18n="nav.home">首页</a></li>
+      <li><a href="interact.html" data-i18n="nav.interact">互动</a></li>
+      <li><a href="team.html" data-i18n="nav.team">团队</a></li>
+      <li><a href="updates.html" data-i18n="nav.updates">文档</a></li>
+      <li class="lang-switcher">
+        <button class="lang-btn" data-lang="zh" data-i18n-title="lang.zh" title="简体中文">简</button>
+        <button class="lang-btn" data-lang="zh-TW" data-i18n-title="lang.zhTW" title="繁體中文">繁</button>
+        <button class="lang-btn" data-lang="bo" data-i18n-title="lang.bo" title="བོད་སྐད།">བོད།</button>
+        <button class="lang-btn" data-lang="en" data-i18n-title="lang.en" title="English">EN</button>
+        <button class="lang-btn" data-lang="ja" data-i18n-title="lang.ja" title="日本語">JP</button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
+      </li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单" data-i18n-aria="aria.menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ Hero ============ -->
+<header id="hero">
+  <div class="container hero-grid">
+    <div class="hero-left">
+      <div class="hero-hello" data-i18n="hero.hello">纳棂的小窝</div>
+      <h1 class="hero-title">
+        <span class="hero-name" data-i18n="brand">纳棂</span>
+      </h1>
+      <p class="hero-role" data-i18n="hero.role">一只普通又有点特别的纳棂</p>
+      <p class="hero-desc" data-i18n="hero.desc">
+        一个喜欢记录生活、也喜欢交朋友的普通人。
+        没有什么特别厉害的技能，只是认真活着，认真喜欢着自己喜欢的事。
+        如果你也觉得合得来，欢迎来找我玩。
+      </p>
+      <div class="hero-actions">
+        <a href="#about" class="btn btn-primary" data-ripple data-i18n="hero.more">
+          了解更多
+        </a>
+        <a href="#contact" class="btn btn-ghost" data-ripple data-i18n="nav.contact">联系</a>
+      </div>
+    </div>
+
+    <div class="hero-right parallax" data-speed="0.08">
+      <div class="hero-img-wrap">
+        <div class="hero-img-card">
+          <!-- 头像：1.jpg 加载失败时显示 SVG 占位 -->
+          <img src="tpzy/1.jpg" alt="纳棂头像" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="img-placeholder" style="display:none;">
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+              <circle cx="50" cy="38" r="16"/>
+              <path d="M22 84c0-16 12-26 28-26s28 10 28 26"/>
+            </svg>
+          </div>
+        </div>
+        <!-- 浮动徽章 -->
+        <div class="hero-badge b1">
+          <span class="dot"></span>
+          <div>
+            <div class="num" data-i18n="hero.badge1">福瑞纳棂</div>
+          </div>
+        </div>
+        <div class="hero-badge b2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <div>
+            <div class="num" data-i18n="hero.badge2">欢迎扩列</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ============ 物种/设定 ============ -->
+<section id="about" class="section">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-img-wrap reveal parallax" data-speed="0.05">
+        <!-- 展示图：2.jpg -->
+        <img src="tpzy/2.jpg" alt="纳棂设定图" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+            <rect x="15" y="22" width="70" height="50" rx="6"/>
+            <path d="M15 60l20-15 12 10 18-14 20 16"/>
+            <circle cx="68" cy="38" r="5"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="about-text">
+        <span class="section-tag reveal" data-i18n="about.tag">About Me</span>
+        <h2 class="section-title reveal" data-delay="1"><span data-i18n="about.title">关于</span><span class="text-gradient" data-i18n="brand">纳棂</span></h2>
+        <p class="reveal" data-delay="2" data-i18n="about.p1">
+          我是 <strong>纳棂</strong>，一个普普通通的人，也是一名 <strong>Furry</strong> 爱好者。
+        </p>
+        <p class="reveal" data-delay="3" data-i18n="about.p2">
+          没有什么拿得出手的头衔，也不算什么厉害的人。
+          平时喜欢发发呆、听听歌、看看视频，偶尔记录一下生活里的小事。
+        </p>
+        <p class="reveal" data-delay="4" data-i18n="about.p3">
+          比起被定义成什么样子，我更想认真过好每一天。
+          如果你也喜欢这样的节奏，欢迎来找我聊聊天、交个朋友。
+        </p>
+
+        <div class="about-stats">
+          <!-- 实时计时器：从2026.5.26开始 -->
+          <div class="stat-item stat-timer reveal" data-delay="3">
+            <div class="stat-num stat-live" id="liveTimer">
+              <span class="timer-group"><span class="timer-val" id="td-days">0</span><span class="timer-unit" data-i18n="suffix.days">天</span></span>
+              <span class="timer-sep">:</span>
+              <span class="timer-group"><span class="timer-val" id="td-hours">00</span><span class="timer-unit" data-i18n="timer.h">时</span></span>
+              <span class="timer-sep">:</span>
+              <span class="timer-group"><span class="timer-val" id="td-mins">00</span><span class="timer-unit" data-i18n="timer.m">分</span></span>
+              <span class="timer-sep">:</span>
+              <span class="timer-group"><span class="timer-val" id="td-secs">00</span><span class="timer-unit" data-i18n="timer.s">秒</span></span>
+            </div>
+            <div class="stat-label" data-i18n="about.stat1">FURRY · NALING</div>
+          </div>
+
+          <!-- 火种温度 -->
+          <div class="stat-item stat-birthday reveal" data-delay="4">
+            <div class="stat-num stat-progress" data-count="100" data-suffix="%">
+              <span class="progress-val" id="birthdayPct">0</span><span class="suffix">%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="birthdayBar"></div>
+            </div>
+            <div class="stat-label" data-i18n="about.stat2">BIRTHDAY · 生日进度</div>
+          </div>
+
+          <!-- 同温者 -->
+          <div class="stat-item reveal" data-delay="5">
+            <div class="stat-num" data-count="1" data-suffix="个" data-i18n-suffix="suffix.unit">0<span class="suffix">个</span></div>
+            <div class="stat-label" data-i18n="about.stat3">ME · 独一无二</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 项目展示 ============ -->
+<section id="projects" class="section">
+  <div class="container">
+    <span class="section-tag reveal" data-i18n="project.tag">Projects</span>
+    <h2 class="section-title reveal" data-delay="1"><span data-i18n="project.title">我的</span><span class="text-gradient" data-i18n="project.titleHighlight">项目</span></h2>
+    <p class="section-subtitle reveal" data-delay="2" data-i18n="project.subtitle">一些自己折腾的小项目，还在不断增加中。</p>
+
+    <div class="blog-grid">
+      <!-- 星耀电竞 -->
+      <a href="https://aqtw.naling.dpdns.org" target="_blank" rel="noopener" class="blog-card reveal" data-delay="1">
+        <span class="blog-tag" data-i18n="project.1tag">电竞</span>
+        <h3 class="blog-title" data-i18n="project.1title">星耀电竞</h3>
+        <p class="blog-desc" data-i18n="project.1desc">一个电竞主题的项目页面，记录与分享电竞相关内容。</p>
+        <span class="blog-link" data-i18n="project.visit">去看看</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 兴趣爱好 ============ -->
+<section id="tech" class="section">
+  <div class="container">
+    <span class="section-tag reveal" data-i18n="hobby.tag">Hobbies</span>
+    <h2 class="section-title reveal" data-delay="1"><span data-i18n="hobby.title">兴趣</span><span class="text-gradient" data-i18n="hobby.titleHighlight">爱好</span></h2>
+    <p class="section-subtitle reveal" data-delay="2" data-i18n="hobby.subtitle">平时喜欢的一些小事，凑成了生活里大部分的快乐。</p>
+
+    <div class="tech-grid">
+      <!-- 12 张兴趣卡片 -->
+      <div class="tech-card reveal" data-delay="1">
+        <div class="tech-icon">
+          <!-- 音乐 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 36V10l18-4v26"/><circle cx="14" cy="36" r="4"/><circle cx="32" cy="32" r="4"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.1">听歌</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="1">
+        <div class="tech-icon">
+          <!-- 视频 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="36" height="28" rx="4"/><path d="M20 18l10 6-10 6z" fill="currentColor"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.2">看视频</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="2">
+        <div class="tech-icon">
+          <!-- 游戏 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="16" width="36" height="20" rx="10"/><path d="M14 26h6M17 23v6M32 24h.01M36 28h.01"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.3">打游戏</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="2">
+        <div class="tech-icon">
+          <!-- 美食 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8v12a4 4 0 01-8 0V8M10 20v20M34 8c-4 0-6 4-6 10s2 8 6 8M34 8v30"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.4">美食</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="3">
+        <div class="tech-icon">
+          <!-- 发呆 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="18" cy="22" r="1.4" fill="currentColor"/><circle cx="30" cy="22" r="1.4" fill="currentColor"/><path d="M18 32h12"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.6">发呆</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="4">
+        <div class="tech-icon">
+          <!-- 旅行 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><path d="M6 24h36M24 6c6 6 6 30 0 36M24 6c-6 6-6 30 0 36"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.7">旅行</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="4">
+        <div class="tech-icon">
+          <!-- 拍照 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="14" width="36" height="26" rx="4"/><circle cx="24" cy="27" r="7"/><path d="M16 14l4-6h8l4 6"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.8">拍照</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="5">
+        <div class="tech-icon">
+          <!-- 聊天 -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h32a3 3 0 013 3v18a3 3 0 01-3 3H22l-8 8v-8h-6a3 3 0 01-3-3V13a3 3 0 013-3z"/><circle cx="16" cy="22" r="1.4" fill="currentColor"/><circle cx="24" cy="22" r="1.4" fill="currentColor"/><circle cx="32" cy="22" r="1.4" fill="currentColor"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.11">聊天</div>
+      </div>
+
+      <div class="tech-card reveal" data-delay="6">
+        <div class="tech-icon">
+          <!-- Furry (爪印) -->
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="18" r="3"/><circle cx="22" cy="14" r="3"/><circle cx="30" cy="14" r="3"/><circle cx="38" cy="18" r="3"/><path d="M16 30c0-5 4-8 8-8s8 3 8 8-4 8-8 8-8-3-8-8z"/></svg>
+        </div>
+        <div class="tech-name" data-i18n="hobby.12">Furry</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 我的态度 ============ -->
+<section id="directions" class="section">
+  <div class="container">
+    <span class="section-tag reveal" data-i18n="attitude.tag">Attitude</span>
+    <h2 class="section-title reveal" data-delay="1"><span data-i18n="attitude.title">我的</span><span class="text-gradient" data-i18n="attitude.titleHighlight">态度</span></h2>
+    <p class="section-subtitle reveal" data-delay="2" data-i18n="attitude.subtitle">没有什么大道理，只是认真对待生活的几件小事。</p>
+
+    <div class="directions-grid">
+      <!-- 认真生活 -->
+      <div class="dir-card reveal" data-delay="1">
+        <span class="dir-num">01</span>
+        <div class="dir-icon">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><path d="M24 14v10l6 4"/></svg>
+        </div>
+        <h3 data-i18n="attitude.1">认真生活</h3>
+        <p data-i18n="attitude.1d">认真吃饭、认真睡觉、认真过好每一个普通的日子，这就是最重要的事。</p>
+      </div>
+
+      <!-- 真诚待人 -->
+      <div class="dir-card reveal" data-delay="2">
+        <span class="dir-num">02</span>
+        <div class="dir-icon">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 8l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/></svg>
+        </div>
+        <h3 data-i18n="attitude.2">真诚待人</h3>
+        <p data-i18n="attitude.2d">不装、不假、不套路。喜欢就是喜欢，不喜欢就是不喜欢，简简单单最好。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OC展示 ============ -->
+<section id="gallery" class="section">
+  <div class="container">
+    <span class="section-tag reveal" data-i18n="gallery.tag">OC</span>
+    <h2 class="section-title reveal" data-delay="1"><span data-i18n="gallery.title">OC</span><span class="text-gradient" data-i18n="gallery.titleHighlight">展示</span></h2>
+    <p class="section-subtitle reveal" data-delay="2" data-i18n="gallery.subtitle">一些瞬间与作品记录，点击可放大查看。</p>
+
+    <div class="gallery-masonry">
+      <!-- a.mp4 视频 -->
+      <div class="gallery-item gallery-video reveal" data-delay="1" data-src="tpzy/a.mp4" data-type="video">
+        <span class="video-badge">VIDEO</span>
+        <video src="tpzy/a.mp4" muted loop playsinline preload="metadata" alt="纳棂OC a.mp4"></video>
+        <div class="g-fallback img-placeholder" style="display:none;height:280px;">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);width:30%;"><circle cx="50" cy="50" r="28"/><path d="M42 38l20 12-20 12z"/></svg>
+        </div>
+        <div class="overlay">
+          <div>
+            <div class="zoom-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z"/></svg>
+            </div>
+            <h4 data-i18n="gallery.1">纳棂与喏欣</h4>
+            <span data-i18n="gallery.1d">视频</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- b.jpg 图片 -->
+      <div class="gallery-item reveal" data-delay="2" data-src="tpzy/b.jpg" data-type="image">
+        <img src="tpzy/b.jpg" alt="纳棂OC b.jpg" onerror="this.style.display='none';this.parentNode.querySelector('.g-fallback').style.display='flex';" />
+        <div class="g-fallback img-placeholder" style="display:none;height:340px;">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);width:30%;"><rect x="15" y="22" width="70" height="50" rx="6"/><path d="M15 60l20-15 12 10 18-14 20 16"/><circle cx="68" cy="38" r="5"/></svg>
+        </div>
+        <div class="overlay">
+          <div>
+            <div class="zoom-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg>
+            </div>
+            <h4 data-i18n="gallery.2">纳棂与喏欣</h4>
+            <span data-i18n="gallery.2d">图片</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- c.jpg 图片 -->
+      <div class="gallery-item reveal" data-delay="3" data-src="tpzy/c.jpg" data-type="image">
+        <img src="tpzy/c.jpg" alt="纳棂OC c.jpg" onerror="this.style.display='none';this.parentNode.querySelector('.g-fallback').style.display='flex';" />
+        <div class="g-fallback img-placeholder" style="display:none;height:220px;">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);width:28%;"><path d="M20 80l30-50 30 50z"/><circle cx="50" cy="60" r="4"/></svg>
+        </div>
+        <div class="overlay">
+          <div>
+            <div class="zoom-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg>
+            </div>
+            <h4 data-i18n="gallery.3">纳棂</h4>
+            <span data-i18n="gallery.3d">图片</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 联系我 ============ -->
+<section id="contact" class="section">
+  <div class="container">
+    <span class="section-tag reveal" style="margin:0 auto 20px;" data-i18n="contact.tag">Contact</span>
+    <h2 class="section-title reveal" data-delay="1"><span data-i18n="contact.title">与我</span><span class="text-gradient" data-i18n="contact.titleHighlight">扩列</span></h2>
+    <p class="section-subtitle reveal" data-delay="2" data-i18n="contact.subtitle">期待与你的相遇，欢迎随时来找我。</p>
+
+    <div class="contact-grid">
+      <!-- QQ -->
+      <a href="https://qm.qq.com/q/nrrroqRh28" target="_blank" rel="noopener" class="contact-card reveal" data-delay="1">
+        <div class="c-icon">
+          <img src="tpzy/qq.svg" alt="QQ" />
+        </div>
+        <div class="c-name" data-i18n="contact.qq">QQ</div>
+      </a>
+
+      <!-- 抖音 -->
+      <a href="https://v.douyin.com/Jzeo3aXzp5U/" target="_blank" rel="noopener" class="contact-card reveal" data-delay="2">
+        <div class="c-icon">
+          <img src="tpzy/douying.svg" alt="抖音" />
+        </div>
+        <div class="c-name" data-i18n="contact.douyin">抖音</div>
+      </a>
+
+      <!-- 快手 -->
+      <a href="https://v.kuaishou.com/K3yV1YNp" target="_blank" rel="noopener" class="contact-card reveal" data-delay="3">
+        <div class="c-icon">
+          <img src="tpzy/kuaishou.svg" alt="快手" />
+        </div>
+        <div class="c-name" data-i18n="contact.kuaishou">快手</div>
+      </a>
+
+      <!-- X -->
+      <a href="https://x.com/**********" target="_blank" rel="noopener" class="contact-card reveal" data-delay="4">
+        <div class="c-icon">
+          <img src="tpzy/x.svg" alt="X" />
+        </div>
+        <div class="c-name" data-i18n="contact.x">X</div>
+      </a>
+
+      <!-- YouTube -->
+      <a href="https://www.youtube.com/@%E7%BA%B3%E6%A3%82" target="_blank" rel="noopener" class="contact-card reveal" data-delay="5">
+        <div class="c-icon">
+          <img src="tpzy/youtube.svg" alt="YouTube" />
+        </div>
+        <div class="c-name" data-i18n="contact.youtube">YouTube</div>
+      </a>
+
+      <!-- Discord -->
+      <a href="https://discord.com/invite/ZHMMFhJj2Y" target="_blank" rel="noopener" class="contact-card reveal" data-delay="6">
+        <div class="c-icon">
+          <img src="tpzy/discord.svg" alt="Discord" />
+        </div>
+        <div class="c-name" data-i18n="contact.discord">Discord</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer>
+  <div class="container">
+    <div class="footer-logo" data-i18n="brand">纳棂</div>
+    <p class="footer-desc" data-i18n="footer.desc">一个小透明 · 欢迎来扩列</p>
+  </div>
+</footer>
+
+<!-- ============ Lightbox ============ -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="图片预览" data-i18n-aria="aria.preview">
+  <button class="lb-close" id="lbClose" aria-label="关闭" data-i18n-aria="aria.close">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="lb-content" id="lbContent">
+    <img id="lbImg" src="" alt="预览图" />
+  </div>
+</div>
+
+<!-- ============================================================
+ *  JavaScript —— 全部原生，无依赖
+ * ============================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 1. 页面加载动画（立即隐藏，不等待图片等资源） ---------- */
+  function hideLoader(){
+    var loader = document.getElementById("loader");
+    if(loader){ loader.classList.add("hidden"); }
+  }
+  // DOM 就绪立即隐藏，最多再兜底 1 秒
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", hideLoader);
+  }else{
+    hideLoader();
+  }
+  // 兜底：500ms 后强制隐藏
+  setTimeout(hideLoader, 500);
+
+  /* ---------- 2. 导航栏滚动变色 ---------- */
+  var navbar = document.getElementById("navbar");
+  function onScroll(){
+    if(window.pageYOffset > 30){
+      navbar.classList.add("scrolled");
+    }else{
+      navbar.classList.remove("scrolled");
+    }
+  }
+  window.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+
+  /* ---------- 3. 移动端菜单 ---------- */
+  var navToggle = document.getElementById("navToggle");
+  var navLinks  = document.getElementById("navLinks");
+  navToggle.addEventListener("click", function(){
+    navToggle.classList.toggle("active");
+    navLinks.classList.toggle("open");
+  });
+  // 点击菜单项后关闭
+  navLinks.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      navToggle.classList.remove("active");
+      navLinks.classList.remove("open");
+    });
+  });
+  /* ---------- 5. 鼠标光晕 ---------- */
+  var glow = document.getElementById("cursor-glow");
+  var glowX = 0, glowY = 0, tgtX = 0, tgtY = 0;
+  window.addEventListener("mousemove", function(e){
+    tgtX = e.clientX;
+    tgtY = e.clientY;
+    glow.style.opacity = "1";
+  });
+  window.addEventListener("mouseleave", function(){ glow.style.opacity = "0"; });
+  // 平滑跟随（lerp）
+  function animGlow(){
+    glowX += (tgtX - glowX) * 0.12;
+    glowY += (tgtY - glowY) * 0.12;
+    glow.style.left = glowX + "px";
+    glow.style.top  = glowY + "px";
+    requestAnimationFrame(animGlow);
+  }
+  animGlow();
+
+  /* ---------- 6. 按钮涟漪 Ripple ---------- */
+  document.querySelectorAll("[data-ripple]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      var rect = btn.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height);
+      var ripple = document.createElement("span");
+      ripple.className = "ripple";
+      ripple.style.width = ripple.style.height = size + "px";
+      ripple.style.left = (e.clientX - rect.left - size/2) + "px";
+      ripple.style.top  = (e.clientY - rect.top  - size/2) + "px";
+      btn.appendChild(ripple);
+      setTimeout(function(){ ripple.remove(); }, 600);
+    });
+  });
+
+  /* ---------- 7. 滚动 Reveal 动画 (IntersectionObserver) ---------- */
+  var reveals = document.querySelectorAll(".reveal");
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          en.target.classList.add("visible");
+          // 触发数字渐变
+          if(en.target.querySelector && en.target.querySelector("[data-count]")){
+            startCount(en.target.querySelector("[data-count]"));
+          }
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold:0.12, rootMargin:"0px 0px -8% 0px" });
+    reveals.forEach(function(el){ io.observe(el); });
+  }else{
+    // 回退：直接显示
+    reveals.forEach(function(el){ el.classList.add("visible"); });
+  }
+
+  /* ---------- 8. 数字渐变动画 ---------- */
+  function startCount(el){
+    if(el.dataset.counted === "1") return;
+    el.dataset.counted = "1";
+    /* 生日进度卡片由独立逻辑处理，跳过 */
+    if(el.classList.contains("stat-progress")){ startBirthdayProgress(el); return; }
+    var target = parseInt(el.getAttribute("data-count"), 10) || 0;
+    var suffix = el.getAttribute("data-suffix") || "";
+    var dur = 1400, start = null;
+    function step(ts){
+      if(!start) start = ts;
+      var prog = Math.min((ts - start) / dur, 1);
+      // easeOutCubic
+      var eased = 1 - Math.pow(1 - prog, 3);
+      var val = Math.round(target * eased);
+      el.innerHTML = val + '<span class="suffix">' + suffix + '</span>';
+      if(prog < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- 8.5 SpaceX 风格实时计时器 ---------- */
+  /* 计时起始：2026-05-26 00:00:00 (北京时间) */
+  var BIRTH_DATE = new Date("2026-05-26T00:00:00+08:00");
+  var timerStarted = false;
+
+  function startLiveTimer(){
+    if(timerStarted) return;
+    timerStarted = true;
+
+    var elDays  = document.getElementById("td-days");
+    var elHours = document.getElementById("td-hours");
+    var elMins  = document.getElementById("td-mins");
+    var elSecs  = document.getElementById("td-secs");
+    if(!elDays || !elHours || !elMins || !elSecs) return;
+
+    var lastSec = -1;
+
+    function updateTimer(){
+      var now = new Date();
+      var diff = now - BIRTH_DATE;
+      if(diff < 0) diff = 0;
+
+      var totalSec = Math.floor(diff / 1000);
+      var days  = Math.floor(totalSec / 86400);
+      var hours = Math.floor((totalSec % 86400) / 3600);
+      var mins  = Math.floor((totalSec % 3600) / 60);
+      var secs  = totalSec % 60;
+
+      elDays.textContent  = days;
+      elHours.textContent = String(hours).padStart(2, "0");
+      elMins.textContent  = String(mins).padStart(2, "0");
+
+      /* 秒数变化时添加脉冲动画 */
+      if(secs !== lastSec){
+        elSecs.textContent = String(secs).padStart(2, "0");
+        elSecs.classList.remove("tick");
+        void elSecs.offsetWidth; /* 触发重排重启动画 */
+        elSecs.classList.add("tick");
+        lastSec = secs;
+      }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+
+  /* ---------- 8.6 生日进度百分比 ---------- */
+  /* 计算从今年生日到明年生日之间的进度百分比 */
+  /* 生日：2月5日 11:00 */
+  var BIRTH_MONTH = 1;  /* JS 月份从 0 开始，1 = 2月 */
+  var BIRTH_DAY   = 5;
+  var BIRTH_HOUR  = 11;
+  var BIRTH_MIN   = 0;
+
+  function startBirthdayProgress(el){
+    var pctEl = document.getElementById("birthdayPct");
+    var barEl = document.getElementById("birthdayBar");
+    if(!pctEl || !barEl) return;
+
+    var now = new Date();
+    /* 今年的生日 */
+    var thisYearBday = new Date(now.getFullYear(), BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0);
+    /* 如果今年生日还没到，用去年的生日作为起点 */
+    if(now < thisYearBday){
+      thisYearBday = new Date(now.getFullYear() - 1, BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0);
+    }
+    /* 明年的生日作为终点 */
+    var nextBday = new Date(thisYearBday.getFullYear() + 1, BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0);
+
+    var totalMs = nextBday - thisYearBday;
+    var elapsedMs = now - thisYearBday;
+    var pct = Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100));
+    pct = Math.round(pct * 10) / 10; /* 保留一位小数 */
+
+    /* 渐变动画到目标值 */
+    var dur = 1600, start = null, fromVal = 0;
+    function step(ts){
+      if(!start) start = ts;
+      var prog = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - prog, 3);
+      var val = fromVal + (pct - fromVal) * eased;
+      pctEl.textContent = val.toFixed(1);
+      barEl.style.width = val + "%";
+      if(prog < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    /* 每分钟更新一次 */
+    setInterval(function(){
+      var n = new Date();
+      var tBday = new Date(n.getFullYear(), BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0);
+      if(n < tBday){ tBday = new Date(n.getFullYear() - 1, BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0); }
+      var nBday = new Date(tBday.getFullYear() + 1, BIRTH_MONTH, BIRTH_DAY, BIRTH_HOUR, BIRTH_MIN, 0);
+      var total = nBday - tBday;
+      var elapsed = n - tBday;
+      var p = Math.min(100, Math.max(0, (elapsed / total) * 100));
+      p = Math.round(p * 10) / 10;
+      pctEl.textContent = p.toFixed(1);
+      barEl.style.width = p + "%";
+    }, 60000);
+  }
+
+  /* 当计时器区域进入视口时启动 */
+  var timerSection = document.querySelector(".stat-timer");
+  if(timerSection){
+    if("IntersectionObserver" in window){
+      var timerIO = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting){
+            startLiveTimer();
+            timerIO.unobserve(en.target);
+          }
+        });
+      }, { threshold:0.1 });
+      timerIO.observe(timerSection);
+    }else{
+      startLiveTimer();
+    }
+  }
+
+  /* ---------- 9. 技术卡片鼠标位置辉光 ---------- */
+  document.querySelectorAll(".tech-card").forEach(function(card){
+    card.addEventListener("mousemove", function(e){
+      var rect = card.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top)  / rect.height) * 100;
+      card.style.setProperty("--mx", x + "%");
+      card.style.setProperty("--my", y + "%");
+    });
+  });
+
+  /* ---------- 10. 滚动视差 ---------- */
+  var parallaxEls = document.querySelectorAll(".parallax");
+  function parallax(){
+    var st = window.pageYOffset;
+    parallaxEls.forEach(function(el){
+      var speed = parseFloat(el.getAttribute("data-speed")) || 0.1;
+      el.style.transform = "translateY(" + (st * speed) + "px)";
+    });
+  }
+  window.addEventListener("scroll", parallax, { passive:true });
+
+  /* ---------- 11. Lightbox ---------- */
+  var lightbox = document.getElementById("lightbox");
+  var lbContent= document.getElementById("lbContent");
+  var lbImg    = document.getElementById("lbImg");
+  var lbClose  = document.getElementById("lbClose");
+  document.querySelectorAll(".gallery-item").forEach(function(item){
+    item.addEventListener("click", function(){
+      var src  = item.getAttribute("data-src");
+      var type = item.getAttribute("data-type") || "image";
+      var img  = item.querySelector("img");
+      var vid  = item.querySelector("video");
+      // 若媒体加载失败则不打开
+      if(type === "image" && img && img.style.display === "none"){ return; }
+      if(type === "video" && vid && vid.readyState === 0 && vid.networkState === 3){ return; }
+
+      // 清空容器并按类型填充
+      lbContent.innerHTML = "";
+      if(type === "video"){
+        var v = document.createElement("video");
+        v.src = src;
+        v.controls = true;
+        v.autoplay = true;
+        v.loop = true;
+        v.playsInline = true;
+        v.style.maxWidth = "90vw";
+        v.style.maxHeight = "85vh";
+        v.style.display = "block";
+        lbContent.appendChild(v);
+      } else {
+        var newImg = document.createElement("img");
+        newImg.src = src;
+        newImg.alt = "预览图";
+        newImg.style.maxWidth = "90vw";
+        newImg.style.maxHeight = "85vh";
+        newImg.style.display = "block";
+        lbContent.appendChild(newImg);
+      }
+      lightbox.classList.add("open");
+      document.body.style.overflow = "hidden";
+    });
+  });
+  function closeLightbox(){
+    lightbox.classList.remove("open");
+    document.body.style.overflow = "";
+    setTimeout(function(){
+      // 暂停并清空视频，避免后台继续播放
+      var v = lbContent.querySelector("video");
+      if(v){ v.pause(); v.src = ""; }
+      lbContent.innerHTML = '<img id="lbImg" src="" alt="预览图" />';
+      lbImg = document.getElementById("lbImg");
+    }, 400);
+  }
+  lbClose.addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", function(e){
+    if(e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+  });
+
+  /* ---------- 11.5 视频项：悬停播放 / 移开暂停 ---------- */
+  document.querySelectorAll(".gallery-video").forEach(function(item){
+    var v = item.querySelector("video");
+    if(!v) return;
+    item.addEventListener("mouseenter", function(){
+      var p = v.play();
+      if(p && p.catch){ p.catch(function(){}); }
+    });
+    item.addEventListener("mouseleave", function(){
+      v.pause();
+    });
+  });
+
+  /* ---------- 12. 平滑滚动 + 导航高亮（Scroll Spy） ---------- */
+  // 所有页内锚点平滑滚动
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener("click", function(e){
+      var href = a.getAttribute("href");
+      if(href.length > 1){
+        var target = document.querySelector(href);
+        if(target){
+          e.preventDefault();
+          // 关闭移动端导航
+          var navLinks = document.getElementById("navLinks");
+          var navToggle = document.getElementById("navToggle");
+          if(navLinks && navLinks.classList.contains("open")){
+            navLinks.classList.remove("open");
+            if(navToggle) navToggle.classList.remove("active");
+          }
+          target.scrollIntoView({ behavior:"smooth", block:"start" });
+        }
+      }
+    });
+  });
+
+  // Scroll Spy: 滚动时自动高亮当前 section 对应的导航项
+  (function(){
+    var navLinksAll = document.querySelectorAll('.site-nav .nav-links a[href^="#"]');
+    if(navLinksAll.length === 0) return;
+
+    // 收集所有 section id
+    var sections = [];
+    navLinksAll.forEach(function(link){
+      var id = link.getAttribute("href").replace("#", "");
+      var el = document.getElementById(id);
+      if(el) sections.push({ id: id, el: el, link: link });
+    });
+
+    // 按文档流顺序排序
+    sections.sort(function(a,b){ return a.el.offsetTop - b.el.offsetTop; });
+
+    function updateActive(){
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var windowHeight = window.innerHeight;
+      var current = null;
+
+      // 从下往上找，当前滚动位置在哪个 section 范围内
+      for(var i = sections.length - 1; i >= 0; i--){
+        var sec = sections[i];
+        // section 顶部在视口上半部即视为活跃
+        if(sec.el.offsetTop - 120 <= scrollTop){
+          current = sec;
+          break;
+        }
+      }
+
+      // 如果滚动到最底部，高亮最后一个
+      if(!current && sections.length > 0){
+        var docHeight = document.documentElement.scrollHeight;
+        if(scrollTop + windowHeight >= docHeight - 50){
+          current = sections[sections.length - 1];
+        }else{
+          current = sections[0];
+        }
+      }
+
+      // 更新 active 类
+      navLinksAll.forEach(function(link){ link.classList.remove("active"); });
+      if(current && current.link) current.link.classList.add("active");
+    }
+
+    // 节流处理
+    var ticking = false;
+    window.addEventListener("scroll", function(){
+      if(!ticking){
+        requestAnimationFrame(function(){
+          updateActive();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // 初始调用
+    updateActive();
+  })();
+
+  /* ---------- 13. 深色模式切换 ---------- */
+  var themeToggle = document.getElementById("themeToggle");
+  var THEME_KEY = "naling-theme";
+
+  function getTheme(){
+    var saved = localStorage.getItem(THEME_KEY);
+    if(saved === "dark" || saved === "light") return saved;
+    // 跟随系统偏好
+    if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+    return "light";
+  }
+
+  function applyTheme(theme){
+    if(theme === "dark"){
+      document.documentElement.setAttribute("data-theme", "dark");
+    }else{
+      document.documentElement.removeAttribute("data-theme");
+    }
+    // 更新明暗按钮样式
+    if(themeToggle){
+      if(theme === "dark"){
+        themeToggle.classList.add("dark");
+        themeToggle.textContent = "明亮";
+      }else{
+        themeToggle.classList.remove("dark");
+        themeToggle.textContent = "阴暗";
+      }
+    }
+  }
+
+  function toggleTheme(){
+    var current = getTheme();
+    var next = current === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  }
+
+  if(themeToggle) themeToggle.addEventListener("click", toggleTheme);
+  applyTheme(getTheme());
+
+  /* 监听系统主题变化 */
+  if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(e){
+      if(!localStorage.getItem(THEME_KEY)){
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+
+  /* ---------- 14. 漂浮粒子背景 ---------- */
+  (function(){
+    var canvas = document.getElementById("particleCanvas");
+    if(!canvas) return;
+    var ctx = canvas.getContext("2d");
+    var W, H;
+    var particles = [];
+
+    // 粒子类型：星星 ⭐、音符 🎵、爪印 🐾小圆点
+    function resize(){
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    var PARTICLE_COUNT = 40;
+
+    function createParticle(){
+      var types = ["star","note","paw","dot"];
+      var type = types[Math.floor(Math.random() * types.length)];
+      return {
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - .5) * .35,
+        vy: (Math.random() - .5) * .35 - .15,
+        size: 4 + Math.random() * 8,
+        opacity: .2 + Math.random() * .35,
+        type: type,
+        life: 1,
+        decay: .0003 + Math.random() * .0005,
+        hue: Math.random() < .4 ? 30 : (Math.random() < .5 ? 280 : 200 + Math.random() * 160)
+      };
+    }
+
+    for(var i = 0; i < PARTICLE_COUNT; i++){
+      particles.push(createParticle());
+    }
+
+    function drawParticle(p){
+      ctx.save();
+      ctx.globalAlpha = p.opacity * p.life;
+      ctx.translate(p.x, p.y);
+
+      if(p.type === "star"){
+        // 小十字星
+        ctx.strokeStyle = "hsl(" + p.hue + ", 80%, 70%)";
+        ctx.lineWidth = 1;
+        var s = p.size;
+        ctx.beginPath();
+        ctx.moveTo(-s, 0); ctx.lineTo(s, 0);
+        ctx.moveTo(0, -s); ctx.lineTo(0, s);
+        ctx.stroke();
+      } else if(p.type === "note"){
+        // 小音符形状
+        ctx.fillStyle = "hsl(" + p.hue + ", 70%, 65%)";
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * .35, 0, Math.PI * 2);
+        ctx.fill();
+      } else if(p.type === "paw"){
+        // 小爪印（简化版：一个大圆+四个小圆）
+        ctx.fillStyle = "hsl(" + p.hue + ", 80%, 70%)";
+        var r = p.size * .3;
+        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+        var pr = r * .45;
+        ctx.beginPath(); ctx.arc(-r*1.1, -r*1.4, pr, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(r*1.1, -r*1.4, pr, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, -r*1.9, pr, 0, Math.PI*2); ctx.fill();
+      } else {
+        // 小圆点
+        ctx.fillStyle = "hsla(" + p.hue + ", 85%, 70%, .6)";
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * .25, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function animateParticles(){
+      ctx.clearRect(0, 0, W, H);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+
+        // 边界回弹 + 重生
+        if(p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20 || p.life <= 0){
+          var fresh = createParticle();
+          // 从边界重生
+          var edge = Math.floor(Math.random() * 4);
+          if(edge === 0){ fresh.x = -10; fresh.y = Math.random() * H; }
+          else if(edge === 1){ fresh.x = W + 10; fresh.y = Math.random() * H; }
+          else if(edge === 2){ fresh.x = Math.random() * W; fresh.y = -10; }
+          else { fresh.x = Math.random() * W; fresh.y = H + 10; }
+          fresh.life = 1;
+          particles[i] = fresh;
+        } else {
+          drawParticle(p);
+        }
+      }
+
+      requestAnimationFrame(animateParticles);
+    }
+
+    animateParticles();
+  })();
+
+
+
+})();
+
+/* ============================================================
+ *  多语言切换系统 i18n
+ * ============================================================ */
+(function(){
+  "use strict";
+
+  var I18N = {
+    /* ===== 简体中文 ===== */
+    "zh": {
+      "brand": "纳棂",
+      "page.title": "纳棂 NALING · 个人主页",
+      "page.home": "首页",
+      "page.interact": "互动",
+      "page.update": "更新",
+      "nav.home": "首页",
+      "nav.interact": "互动",
+      "nav.team": "团队",
+      "nav.contact": "联系",
+      "nav.updates": "文档",
+      "hero.hello": "纳棂的小窝",
+      "hero.iam": "我是",
+      "hero.role": "一只普通又有点特别的纳棂",
+      "hero.desc": "一个喜欢记录生活、也喜欢交朋友的普通人。\n没有什么特别厉害的技能，只是认真活着，认真喜欢着自己喜欢的事。\n如果你也觉得合得来，欢迎来找我玩。",
+      "hero.more": "了解更多",
+      "hero.badge1": "福瑞纳棂",
+      "hero.badge2": "欢迎扩列",
+      "about.tag": "About Me",
+      "about.title": "关于",
+      "about.p1": "我是 纳棂，一个普普通通的人，也是一名 Furry 爱好者。",
+      "about.p2": "没有什么拿得出手的头衔，也不算什么厉害的人。平时喜欢发发呆、听听歌、看看视频，偶尔记录一下生活里的小事。",
+      "about.p3": "比起被定义成什么样子，我更想认真过好每一天。如果你也喜欢这样的节奏，欢迎来找我聊聊天、交个朋友。",
+      "about.stat1": "FURRY · NALING",
+      "about.stat2": "BIRTHDAY · 生日进度",
+      "about.stat3": "ME · 独一无二",
+      "timer.h": "时", "timer.m": "分", "timer.s": "秒",
+      "tab.home": "首页", "tab.chat": "互动", "tab.update": "更新",
+      "about.chatbtn": "和纳棂对话",
+      "project.tag": "Projects",
+      "project.title": "我的",
+      "project.titleHighlight": "项目",
+      "project.subtitle": "一些自己折腾的小项目，还在不断增加中。",
+      "project.1tag": "电竞",
+      "project.1title": "星耀电竞",
+      "project.1desc": "一个电竞主题的项目页面，记录与分享电竞相关内容。",
+      "project.visit": "去看看",
+      "hobby.tag": "Hobbies",
+      "hobby.title": "兴趣",
+      "hobby.titleHighlight": "爱好",
+      "hobby.subtitle": "平时喜欢的一些小事，凑成了生活里大部分的快乐。",
+      "hobby.1": "听歌", "hobby.2": "看视频", "hobby.3": "打游戏", "hobby.4": "美食",
+      "hobby.6": "发呆", "hobby.7": "旅行", "hobby.8": "拍照",
+      "hobby.11": "聊天", "hobby.12": "Furry",
+      "attitude.tag": "Attitude",
+      "attitude.title": "我的",
+      "attitude.titleHighlight": "态度",
+      "attitude.subtitle": "没有什么大道理，只是认真对待生活的几件小事。",
+      "attitude.1": "认真生活", "attitude.1d": "认真吃饭、认真睡觉、认真过好每一个普通的日子，这就是最重要的事。",
+      "attitude.2": "真诚待人", "attitude.2d": "不装、不假、不套路。喜欢就是喜欢，不喜欢就是不喜欢，简简单单最好。",
+      "gallery.tag": "OC",
+      "gallery.title": "OC",
+      "gallery.titleHighlight": "展示",
+      "gallery.subtitle": "一些瞬间与作品记录，点击可放大查看。",
+      "gallery.1": "纳棂与喏欣", "gallery.1d": "视频",
+      "gallery.2": "纳棂与喏欣", "gallery.2d": "图片",
+      "gallery.3": "纳棂", "gallery.3d": "图片",
+      "daily.tag": "Daily",
+      "daily.title": "日常",
+      "daily.titleHighlight": "动态",
+      "daily.subtitle": "记录一些生活里的小事和碎碎念，没什么特别的，就是想记下来。",
+      "daily.1tag": "日常", "daily.1meta": "碎碎念", "daily.1title": "今天也认真过了一天", "daily.1desc": "起床、吃饭、发呆、听歌，没什么大事发生，但一整天都安安静静的，挺好。",
+      "daily.2tag": "音乐", "daily.2meta": "听歌", "daily.2title": "最近循环的歌单", "daily.2desc": "没有特别的目的，就是一直放着，做什么都陪着。音乐大概是生活里最温柔的背景音。",
+      "daily.3tag": "心情", "daily.3meta": "心情", "daily.3title": "想认识更多朋友", "daily.3desc": "一个人呆久了也会想找人说说话。如果你也喜欢发呆、听歌、慢慢聊天，欢迎来找我。",
+      "daily.readmore": "看看",
+      "contact.tag": "Contact",
+      "contact.title": "与我",
+      "contact.titleHighlight": "扩列",
+      "contact.subtitle": "期待与你的相遇，欢迎随时来找我。",
+      "footer.desc": "一个小透明 · 欢迎来扩列",
+      "suffix.days": "天", "suffix.percent": "%", "suffix.unit": "个",
+      "contact.qq": "QQ", "contact.douyin": "抖音", "contact.kuaishou": "快手",
+      "contact.x": "X", "contact.youtube": "YouTube", "contact.discord": "Discord",
+      "aria.brand": "纳棂 NALING", "aria.menu": "菜单", "aria.preview": "图片预览", "aria.close": "关闭",
+      "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語"
+    },
+
+    /* ===== 繁體中文 ===== */
+    "zh-TW": {
+      "brand": "納棂",
+      "page.title": "納棂 NALING · 個人主頁",
+      "page.home": "首頁",
+      "page.interact": "互動",
+      "page.update": "更新",
+      "nav.home": "首頁",
+      "nav.interact": "互動",
+      "nav.team": "團隊",
+      "nav.contact": "聯繫",
+      "nav.updates": "文檔",
+      "hero.hello": "納棂的小窩",
+      "hero.iam": "我是",
+      "hero.role": "一隻普通又有點特別的納棂",
+      "hero.desc": "一個喜歡記錄生活、也喜歡交朋友的普通人。\n沒有什麼特別厲害的技能，只是認真活著，認真喜歡著自己喜歡的事。\n如果你也覺得合得來，歡迎來找我玩。",
+      "hero.more": "了解更多",
+      "hero.badge1": "福瑞納棂",
+      "hero.badge2": "歡迎擴列",
+      "about.tag": "About Me",
+      "about.title": "關於",
+      "about.p1": "我是 納棂，一個普普通通的人，也是一名 Furry 愛好者。",
+      "about.p2": "沒有什麼拿得出手的頭銜，也不算什麼厲害的人。平時喜歡發發呆、聽聽歌、看看影片，偶爾記錄一下生活裡的小事。",
+      "about.p3": "比起被定義成什麼樣子，我更想認真過好每一天。如果你也喜歡這樣的節奏，歡迎來找我聊聊天、交個朋友。",
+      "about.stat1": "FURRY · NALING",
+      "about.stat2": "BIRTHDAY · 生日進度",
+      "about.stat3": "ME · 獨一無二",
+      "timer.h": "時", "timer.m": "分", "timer.s": "秒",
+      "project.tag": "Projects",
+      "project.title": "我的",
+      "project.titleHighlight": "項目",
+      "project.subtitle": "一些自己折騰的小項目，還在不斷增加中。",
+      "project.1tag": "電競",
+      "project.1title": "星耀電競",
+      "project.1desc": "一個電競主題的項目頁面，記錄與分享電競相關內容。",
+      "project.visit": "去看看",
+      "hobby.tag": "Hobbies",
+      "hobby.title": "興趣",
+      "hobby.titleHighlight": "愛好",
+      "hobby.subtitle": "平時喜歡的一些小事，湊成了生活裡大部分的快樂。",
+      "hobby.1": "聽歌", "hobby.2": "看影片", "hobby.3": "打遊戲", "hobby.4": "美食",
+      "hobby.6": "發呆", "hobby.7": "旅行", "hobby.8": "拍照",
+      "hobby.11": "聊天", "hobby.12": "Furry",
+      "attitude.tag": "Attitude",
+      "attitude.title": "我的",
+      "attitude.titleHighlight": "態度",
+      "attitude.subtitle": "沒有什麼大道理，只是認真對待生活的幾件小事。",
+      "attitude.1": "認真生活", "attitude.1d": "認真吃飯、認真睡覺、認真過好每一個普通的日子，這就是最重要的事。",
+      "attitude.2": "真誠待人", "attitude.2d": "不裝、不假、不套路。喜歡就是喜歡，不喜歡就是不喜歡，簡簡單單最好。",
+      "gallery.tag": "OC",
+      "gallery.title": "OC",
+      "gallery.titleHighlight": "展示",
+      "gallery.subtitle": "一些瞬間與作品記錄，點擊可放大查看。",
+      "gallery.1": "納棂與喏欣", "gallery.1d": "影片",
+      "gallery.2": "納棂與喏欣", "gallery.2d": "圖片",
+      "gallery.3": "納棂", "gallery.3d": "圖片",
+      "daily.tag": "Daily",
+      "daily.title": "日常",
+      "daily.titleHighlight": "動態",
+      "daily.subtitle": "記錄一些生活裡的小事和碎碎念，沒什麼特別的，就是想記下來。",
+      "daily.1tag": "日常", "daily.1meta": "碎碎念", "daily.1title": "今天也認真過了一天", "daily.1desc": "起床、吃飯、發呆、聽歌，沒什麼大事發生，但一整天都安安靜靜的，挺好。",
+      "daily.2tag": "音樂", "daily.2meta": "聽歌", "daily.2title": "最近循環的歌單", "daily.2desc": "沒有特別的目的，就是一直放著，做什麼都陪著。音樂大概是生活裡最溫柔的背景音。",
+      "daily.3tag": "心情", "daily.3meta": "心情", "daily.3title": "想認識更多朋友", "daily.3desc": "一個人呆久了也會想找人說說話。如果你也喜歡發呆、聽歌、慢慢聊天，歡迎來找我。",
+      "daily.readmore": "看看",
+      "contact.tag": "Contact",
+      "contact.title": "與我",
+      "contact.titleHighlight": "擴列",
+      "contact.subtitle": "期待與你的相遇，歡迎隨時來找我。",
+      "footer.desc": "一個小透明 · 歡迎來擴列",
+      "suffix.days": "天", "suffix.percent": "%", "suffix.unit": "個",
+      "contact.qq": "QQ", "contact.douyin": "抖音", "contact.kuaishou": "快手",
+      "contact.x": "X", "contact.youtube": "YouTube", "contact.discord": "Discord",
+      "aria.brand": "納棂 NALING", "aria.menu": "選單", "aria.preview": "圖片預覽", "aria.close": "關閉",
+      "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語"
+    },
+
+    /* ===== 藏文 ===== */
+    "bo": {
+      "brand": "ན་ལིང་།",
+      "page.title": "ན་ལིང་། NALING · མི་སྒེར་གྱི་མདུན་ངོས།",
+      "page.home": "མདུན་ངོས།",
+      "page.interact": "ཕན་ཚུན།",
+      "page.update": "གསར་དུ།",
+      "nav.home": "མདུན་ངོས།",
+      "nav.interact": "ཕན་ཚུན།",
+      "nav.team": "ཚོགས་པ།",
+      "nav.contact": "འབྲེལ་བ།",
+      "nav.updates": "ཡིག་ཆ།",
+      "hero.hello": "ན་ལིང་གི་ཁྱིམ་ཆུང་།",
+      "hero.iam": "ང་ནི།",
+      "hero.role": "དཀྱུས་མ་ཞིག་ཡིན་ལ་དམིགས་བསལ་ཡང་ཡོད་པའི་ན་ལིང་།",
+      "hero.desc": "འཚོ་བ་ཟིན་ཐོ་འགོད་པར་དགའ་ཞིང་གྲོགས་པོ་སྒྲིག་པར་དགའ་བའི་དཀྱུས་མ་ཞིག\nལྷག་བསམ་གྱིས་འཚོ་བ་རོལ་བཞིན་པ་ལས་མཚར་སྡུག་ལྡན་པའི་ནུས་པ་མེད།\nཁྱོད་ཀྱང་མཐུན་སོང་ན་རྩེད་མོ་རྩེ་བར་ཤོག",
+      "hero.more": "མང་ཙམ་ཤེས་པ།",
+      "hero.badge1": "ཕུར་རི་ན་ལིང་།",
+      "hero.badge2": "གྲོགས་པོ་སྒྲིག་རོགས།",
+      "about.tag": "About Me",
+      "about.title": "ངོ་སྤྲོད།",
+      "about.p1": "ང་ནི ན་ལིང་། དཀྱུས་མ་ཞིག་ཡིན་ལ་ Furry དགའ་མཁན་ཡང་ཡིན།",
+      "about.p2": "མགོ་རྙོག་པོ་མེད་ལ་ནུས་པ་ཆེན་པོ་ཡང་མེད། ཉིན་རྒྱུན་བསམ་བློ་གཏོང་རྒྱུ་དང་གླུ་དབྱངས་ཉན་རྒྱུ་དང་བརྙན་ལ་ལྟ་རྒྱུར་དགའ།",
+      "about.p3": "ང་ཅི་ཞིག་ཡིན་མིན་ལས་ཉིན་རེ་རེ་ནན་ཏན་གྱིས་རོལ་རྒྱུ་དེ་གལ་ཆེ། ཁྱོད་ཀྱང་འདི་ལ་དགའ་ན་ཁ་བརྡ་བྱེད་པར་ཤོག",
+      "about.stat1": "FURRY · NALING",
+      "about.stat2": "BIRTHDAY · སྐྱེས་སྐར་འཕེལ་རིམ།",
+      "about.stat3": "ME · ཐུན་མོང་མ་ཡིན།",
+      "timer.h": "ཆུ་ཚོད།", "timer.m": "སྐར་མ།", "timer.s": "སྐར་ཆ།",
+      "project.tag": "Projects",
+      "project.title": "ངའི",
+      "project.titleHighlight": "རྣམ་གྲངས།",
+      "project.subtitle": "རང་གིས་བཟོས་པའི་རྣམ་གྲངས་ཆུང་ཆུང་ཁག ད་དུང་མུ་མཐུད་འཕེལ་བཞིན་ཡོད།",
+      "project.1tag": "རྩེད་མོ།",
+      "project.1title": "སྐར་མའི་རྩེད་མོ།",
+      "project.1desc": "རྩེད་མོའི་རྣམ་གྲངས་ཤོག་ངོས་ཤིག རྩེད་མོའི་ནང་དོན་ཟིན་ཐོ་དང་ཁྱབ་སྤེལ།",
+      "project.visit": "ལྟ་ཀློག",
+      "hobby.tag": "Hobbies",
+      "hobby.title": "དགའ་ཕྱོགས།",
+      "hobby.titleHighlight": "མོས་པ།",
+      "hobby.subtitle": "ཉིན་རྒྱུན་དགའ་སའི་དོན་ཆུང་རྣམས་ཀྱིས་འཚོ་བའི་སྤྲོ་སྣང་མང་ཆེ་བ་བཟོས་ཡོད།",
+      "hobby.1": "གླུ་ཉན།", "hobby.2": "བརྙན་ལྟ།", "hobby.3": "རྩེད་མོ།", "hobby.4": "ཟ་མ།",
+      "hobby.6": "བསམ་བློ།", "hobby.7": "འགྲུལ་བཞུད།", "hobby.8": "པར་ལེན།",
+      "hobby.11": "ཁ་བརྡ།", "hobby.12": "Furry",
+      "attitude.tag": "Attitude",
+      "attitude.title": "ངའི",
+      "attitude.titleHighlight": "རྣམ་འགྱུར།",
+      "attitude.subtitle": "གནས་ལུགས་ཆེན་པོ་མེད་ལ་འཚོ་བའི་དོན་ཆུང་ཁ་ཤས་ལ་ནན་ཏན་བྱེད་པ་ཙམ།",
+      "attitude.1": "ནན་ཏན་འཚོ་བ།", "attitude.1d": "ནན་ཏན་གྱིས་ཟ་མ་ཟ་བ་དང་ཉལ་བ། ཉིན་རེ་རེ་ནན་ཏན་གྱིས་རོལ་རྒྱུ་དེ་གལ་ཆེ་ཤོས་ཡིན།",
+      "attitude.2": "ལྷག་བསམ་གྱིས་འབྲེལ་འདྲིས།", "attitude.2d": "རྫུ་བཏབ་མེད་ལ་རྫུན་མེད། དགའ་ན་དགའ་བ་ལས་མི་དགའ་ན་མི་དགའ། སྟབས་བདེ་ན་ལེགས།",
+      "gallery.tag": "OC",
+      "gallery.title": "OC",
+      "gallery.titleHighlight": "འགྲེམས་སྟོན།",
+      "gallery.subtitle": "སྐད་ཅིག་མ་དང་བརྩམས་ཆོས་ཀྱི་ཟིན་ཐོ། ཆེ་རུ་བལྟ་བར་གནོན།",
+      "gallery.1": "ན་ལིང་དང་ནོ་ཤིན།", "gallery.1d": "བརྙན།",
+      "gallery.2": "ན་ལིང་དང་ནོ་ཤིན།", "gallery.2d": "པར།",
+      "gallery.3": "ན་ལིང་།", "gallery.3d": "པར།",
+      "daily.tag": "Daily",
+      "daily.title": "ཉིན་རྒྱུན།",
+      "daily.titleHighlight": "གནས་ཚུལ།",
+      "daily.subtitle": "འཚོ་བའི་དོན་ཆུང་དང་བསམ་ཚུལ་ཟིན་ཐོ་འགོད་པ། དམིགས་བསལ་མེད་ལ་ཟིན་ཐོར་འགོད་འདོད་ཙམ།",
+      "daily.1tag": "ཉིན་རྒྱུན།", "daily.1meta": "བསམ་ཚུལ།", "daily.1title": "དེ་རིང་ཡང་ནན་ཏན་གྱིས་ཉིན་ཞིག་རོལ།", "daily.1desc": "ཡར་ལངས་པ་དང་ཟ་མ་ཟ་བ། བསམ་བློ་གཏོང་བ་དང་གླུ་ཉན་པ། དོན་ཆེན་མེད་ཀྱང་ཉིན་གང་བོ་ཁུ་སིམ་སིམ་ཡིན། ཡག་པོ་འདུག",
+      "daily.2tag": "རོལ་དབྱངས།", "daily.2meta": "གླུ་ཉན།", "daily.2title": "ཉེ་ཆར་བསྐྱར་གཏོང་གླུ་མཛོད།", "daily.2desc": "དམིགས་ཡུལ་མེད་པར་རྒྱུན་དུ་གཏོང་བཞིན་པ་ཡིན། རོལ་དབྱངས་ནི་འཚོ་བའི་ནང་གི་འཇམ་པའི་རྒྱབ་ལྗོངས་སྒྲ་ཡིན།",
+      "daily.3tag": "སེམས་ཁམས།", "daily.3meta": "སེམས་ཁམས།", "daily.3title": "གྲོགས་པོ་མང་ཙམ་ངོ་ཤེས་འདོད།", "daily.3desc": "གཅིག་པུ་ཡུན་རིང་སྡོད་ན་ཁ་བརྡ་བྱེད་འདོད། ཁྱོད་ཀྱང་བསམ་བློ་གཏོང་བ་དང་གླུ་ཉན་པར་དགའ་ན་ཤོག",
+      "daily.readmore": "ལྟ་ཀློག",
+      "contact.tag": "Contact",
+      "contact.title": "ང་དང་",
+      "contact.titleHighlight": "འབྲེལ་བ།",
+      "contact.subtitle": "ཁྱོད་དང་འཕྲད་པར་རེ་བཞིན། དུས་ངེས་མེད་དུ་ང་བཙལ་དུ་ཤོག",
+      "footer.desc": "ཆུང་ཞིང་གསལ་མདངས་མེད་པ་ཞིག · གྲོགས་པོ་སྒྲིག་རོགས།",
+      "suffix.days": "ཉིན།", "suffix.percent": "%", "suffix.unit": "གཅིག",
+      "contact.qq": "QQ", "contact.douyin": "ཏའོ་ཡིན།", "contact.kuaishou": "མགྱོགས་ལག་པ།",
+      "contact.x": "X", "contact.youtube": "YouTube", "contact.discord": "Discord",
+      "aria.brand": "ན་ལིང་། NALING", "aria.menu": "འདེམས་བྱང་།", "aria.preview": "པར་རིས་སྔོན་ལྟ།", "aria.close": "ཁ་རྒྱག",
+      "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語"
+    },
+
+    /* ===== English ===== */
+    "en": {
+      "brand": "NALING",
+      "page.title": "NALING · Personal Homepage",
+      "page.home": "Home",
+      "page.interact": "Interact",
+      "page.update": "Updates",
+      "nav.home": "Home",
+      "nav.interact": "Interact",
+      "nav.team": "Team",
+      "nav.contact": "Contact",
+      "nav.updates": "Docs",
+      "hero.hello": "NALING's Little Home",
+      "hero.iam": "I am",
+      "hero.role": "An ordinary yet somewhat special NALING",
+      "hero.desc": "An ordinary person who enjoys recording life and making friends.\nNo impressive skills, just living earnestly and loving what I love.\nIf you feel we'd get along, come say hi.",
+      "hero.more": "Learn More",
+      "hero.badge1": "Furry NALING",
+      "hero.badge2": "Let's be friends",
+      "about.tag": "Species · Setting",
+      "about.title": "Fire Wolf Clan",
+      "about.p1": "An ancient clan of the Ember Wasteland — the Fire Wolf Clan · Crimson Wolves, with \"Ember\" as their soul core.",
+      "about.p2": "Crimson red as the main color, with bright white paw pads and belly, deep purple markings on neck and tail that glow orange-red with emotion. Innately able to sense others' \"kindness warmth\", fond of sunset and warm things, collects sun-warmed stones to gift to those they acknowledge.",
+      "about.p3": "Naling is a youth whose ember is weaker than ordinary fire wolves, deemed a \"broken ember\" by his clan. Wandering the wasteland alone, searching for a \"kindred warmth\" to reignite his flame. Shy and slow to trust, cold outside but warm inside, fiercely protective — he may not say much, but he shows he cares through action.",
+      "about.stat1": "Wasteland Time · NALING",
+      "about.stat2": "Ember · Warmth Gauge",
+      "about.stat3": "Seeking · Kindred",
+      "about.stat1": "FURRY · NALING",
+      "about.stat2": "BIRTHDAY · Progress",
+      "about.stat3": "ME · One of a kind",
+      "timer.h": "h", "timer.m": "m", "timer.s": "s",
+      "project.tag": "Projects",
+      "project.title": "My",
+      "project.titleHighlight": "Projects",
+      "project.subtitle": "Some little projects I've built, still growing.",
+      "project.1tag": "Esports",
+      "project.1title": "Star Esports",
+      "project.1desc": "An esports-themed project page for recording and sharing esports content.",
+      "project.visit": "Visit",
+      "hobby.tag": "Hobbies",
+      "hobby.title": "My",
+      "hobby.titleHighlight": "Hobbies",
+      "hobby.subtitle": "Little things I enjoy that make up most of life's happiness.",
+      "hobby.1": "Music", "hobby.2": "Videos", "hobby.3": "Games", "hobby.4": "Food",
+      "hobby.6": "Daydream", "hobby.7": "Travel", "hobby.8": "Photos",
+      "hobby.11": "Chatting", "hobby.12": "Furry",
+      "attitude.tag": "Attitude",
+      "attitude.title": "My",
+      "attitude.titleHighlight": "Attitude",
+      "attitude.subtitle": "No grand philosophy, just taking a few small things in life seriously.",
+      "attitude.1": "Live earnestly", "attitude.1d": "Eat well, sleep well, and live every ordinary day earnestly. That's what matters most.",
+      "attitude.2": "Be genuine", "attitude.2d": "No faking, no pretending, no games. Like is like, dislike is dislike. Simple is best.",
+      "gallery.tag": "OC",
+      "gallery.title": "OC",
+      "gallery.titleHighlight": "Showcase",
+      "gallery.subtitle": "Some moments and works. Click to enlarge.",
+      "gallery.1": "Naling & Nuoxin", "gallery.1d": "Video",
+      "gallery.2": "Naling & Nuoxin", "gallery.2d": "Image",
+      "gallery.3": "Naling", "gallery.3d": "Image",
+      "daily.tag": "Daily",
+      "daily.title": "Daily",
+      "daily.titleHighlight": "Updates",
+      "daily.subtitle": "Recording little things and random thoughts. Nothing special, just want to write them down.",
+      "daily.1tag": "Daily", "daily.1meta": "Thoughts", "daily.1title": "Lived another day earnestly", "daily.1desc": "Woke up, ate, spaced out, listened to music. Nothing big happened, but the whole day was quiet and nice.",
+      "daily.2tag": "Music", "daily.2meta": "Listening", "daily.2title": "Recently on loop", "daily.2desc": "No particular purpose, just playing it as background. Music is life's gentlest soundtrack.",
+      "daily.3tag": "Mood", "daily.3meta": "Mood", "daily.3title": "Want to meet more friends", "daily.3desc": "Being alone too long makes me want to talk to someone. If you also like daydreaming, music, and slow chats, come find me.",
+      "daily.readmore": "Read",
+      "contact.tag": "Contact",
+      "contact.title": "Let's",
+      "contact.titleHighlight": "Connect",
+      "contact.subtitle": "Looking forward to meeting you. Feel free to reach out anytime.",
+      "footer.desc": "A little nobody · Let's be friends",
+      "suffix.days": " days", "suffix.percent": "%", "suffix.unit": "",
+      "contact.qq": "QQ", "contact.douyin": "Douyin", "contact.kuaishou": "Kuaishou",
+      "contact.x": "X", "contact.youtube": "YouTube", "contact.discord": "Discord",
+      "aria.brand": "NALING", "aria.menu": "Menu", "aria.preview": "Image Preview", "aria.close": "Close",
+      "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語"
+    },
+
+    /* ===== 日本語 ===== */
+    "ja": {
+      "brand": "ナリン",
+      "page.title": "ナリン NALING · 個人ホームページ",
+      "page.home": "ホーム",
+      "page.interact": "交流",
+      "page.update": "更新",
+      "nav.home": "ホーム",
+      "nav.interact": "交流",
+      "nav.team": "チーム",
+      "nav.contact": "お問い合わせ",
+      "nav.updates": "文書",
+      "hero.hello": "ナリンの小さな家",
+      "hero.iam": "私は",
+      "hero.role": "普通で、でもちょっと特別なナリン",
+      "hero.desc": "生活を記録し、友達を作るのが好きな普通の人。\nすごいスキルはないけど、真面目に生きて、好きなことを好きでいるだけ。\n気が合いそうなら、遊びに来てね。",
+      "hero.more": "もっと見る",
+      "hero.badge1": "ファーリーナリン",
+      "hero.badge2": "友達募集",
+      "about.tag": "About Me",
+      "about.title": "について",
+      "about.p1": "私はナリン、普通の人で、Furryファンでもあります。",
+      "about.p2": "立派な肩書きもないし、すごい人でもない。普段はぼーとしたり、音楽を聴いたり、動画を見たり、たまに生活の小さなことを記録したりしています。",
+      "about.p3": "何かに定義されるより、毎日を真面目に生きたい。あなたもこのペースが好きなら、おしゃべりしに来てね。",
+      "about.stat1": "FURRY · NALING",
+      "about.stat2": "BIRTHDAY · 誕生日進捗",
+      "about.stat3": "ME · 唯一無二",
+      "timer.h": "時", "timer.m": "分", "timer.s": "秒",
+      "project.tag": "Projects",
+      "project.title": "私の",
+      "project.titleHighlight": "プロジェクト",
+      "project.subtitle": "自分で作った小さなプロジェクト。まだまだ増えていく予定。",
+      "project.1tag": "eスポーツ",
+      "project.1title": "星耀eスポーツ",
+      "project.1desc": "eスポーツをテーマにしたプロジェクトページ。eスポーツの記録と共有。",
+      "project.visit": "見に行く",
+      "hobby.tag": "Hobbies",
+      "hobby.title": "趣味",
+      "hobby.titleHighlight": "愛好",
+      "hobby.subtitle": "日常の小さな楽しみが、生活のほとんどの幸せを作っています。",
+      "hobby.1": "音楽", "hobby.2": "動画", "hobby.3": "ゲーム", "hobby.4": "グルメ",
+      "hobby.6": "ぼーとする", "hobby.7": "旅行", "hobby.8": "写真",
+      "hobby.11": "おしゃべり", "hobby.12": "Furry",
+      "attitude.tag": "Attitude",
+      "attitude.title": "私の",
+      "attitude.titleHighlight": "姿勢",
+      "attitude.subtitle": "大した哲学はないけど、生活のいくつかの小さなことを真面目に扱っています。",
+      "attitude.1": "真面目に生きる", "attitude.1d": "ちゃんと食べて、ちゃんと寝て、毎日の普通の日を真面目に過ごす。それが一番大事。",
+      "attitude.2": "誠実に", "attitude.2d": "偽らない、嘘はない、駆け引きなし。好きは好き、嫌いは嫌い。シンプルが一番。",
+      "gallery.tag": "OC",
+      "gallery.title": "OC",
+      "gallery.titleHighlight": "展示",
+      "gallery.subtitle": "いくつかの瞬間と作品の記録。クリックで拡大。",
+      "gallery.1": "ナリンとヌォシン", "gallery.1d": "動画",
+      "gallery.2": "ナリンとヌォシン", "gallery.2d": "画像",
+      "gallery.3": "ナリン", "gallery.3d": "画像",
+      "daily.tag": "Daily",
+      "daily.title": "日常",
+      "daily.titleHighlight": "更新",
+      "daily.subtitle": "生活の小さなことやつぶやきを記録。特別なことではないけど、書き留めたい。",
+      "daily.1tag": "日常", "daily.1meta": "つぶやき", "daily.1title": "今日も真面目に一日を過ごした", "daily.1desc": "起きて、食べて、ぼーとして、音楽を聴く。大きなことはなかったけど、一日静かでよかった。",
+      "daily.2tag": "音楽", "daily.2meta": "聴く", "daily.2title": "最近ループしているプレイリスト", "daily.2desc": "特別な目的はなく、ただ流している。音楽は生活の中で一番優しいBGM。",
+      "daily.3tag": "気分", "daily.3meta": "気分", "daily.3title": "もっと友達が欲しい", "daily.3desc": "一人でいると誰かと話したくなる。ぼーとすることや音楽やゆっくりおしゃべりが好きなら、来てね。",
+      "daily.readmore": "見る",
+      "contact.tag": "Contact",
+      "contact.title": "つながり",
+      "contact.titleHighlight": "募集",
+      "contact.subtitle": "あなたとの出会いを楽しみに。いつでも気軽に連絡してね。",
+      "footer.desc": "目立たない存在 · 友達募集",
+      "suffix.days": "日", "suffix.percent": "%", "suffix.unit": "個",
+      "contact.qq": "QQ", "contact.douyin": "抖音", "contact.kuaishou": "快手",
+      "contact.x": "X", "contact.youtube": "YouTube", "contact.discord": "Discord",
+      "aria.brand": "ナリン NALING", "aria.menu": "メニュー", "aria.preview": "画像プレビュー", "aria.close": "閉じる",
+      "lang.zh": "简体中文", "lang.zhTW": "繁體中文", "lang.bo": "བོད་སྐད།", "lang.en": "English", "lang.ja": "日本語"
+    }
+  };
+
+  /* ---------- 语言切换逻辑 ---------- */
+  var LANG_KEY = "naling-locale";
+  var supportedLangs = ["zh", "zh-TW", "bo", "en", "ja"];
+
+  function getLang(){
+    var saved = localStorage.getItem(LANG_KEY);
+    if(saved && supportedLangs.indexOf(saved) !== -1) return saved;
+    return "zh";
+  }
+
+  function setLang(lang){
+    if(supportedLangs.indexOf(lang) === -1) lang = "zh";
+    localStorage.setItem(LANG_KEY, lang);
+    applyLang(lang);
+  }
+
+  function applyLang(lang){
+    var dict = I18N[lang] || I18N["zh"];
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var key = el.getAttribute("data-i18n");
+      if(dict[key] !== undefined){
+        el.innerHTML = dict[key].replace(/\n/g, "<br>");
+      }
+    });
+    // 更新 title
+    document.title = dict["page.title"] || (dict["brand"] + " · NALING");
+    // 更新 html lang 属性
+    var htmlLangMap = {"zh":"zh-CN","zh-TW":"zh-TW","bo":"bo","en":"en","ja":"ja"};
+    document.documentElement.lang = htmlLangMap[lang] || "zh-CN";
+    // 更新语言按钮高亮
+    document.querySelectorAll(".lang-btn").forEach(function(btn){
+      if(btn.getAttribute("data-lang") === lang){
+        btn.classList.add("active");
+      }else{
+        btn.classList.remove("active");
+      }
+    });
+    // 更新语言按钮的 title
+    document.querySelectorAll("[data-i18n-title]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-title");
+      if(dict[key] !== undefined){
+        el.setAttribute("title", dict[key]);
+      }
+    });
+    // 更新 aria-label 属性
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-aria");
+      if(dict[key] !== undefined){
+        el.setAttribute("aria-label", dict[key]);
+      }
+    });
+    // 更新数字后缀
+    document.querySelectorAll("[data-i18n-suffix]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-suffix");
+      if(dict[key] !== undefined){
+        var newSuffix = dict[key];
+        el.setAttribute("data-suffix", newSuffix);
+        // 如果数字已经计数完成（有 .suffix 子元素），更新显示的后缀文字
+        var suffixSpan = el.querySelector(".suffix");
+        if(suffixSpan){
+          suffixSpan.textContent = newSuffix;
+        }
+      }
+    });
+  }
+
+  // 绑定语言切换按钮
+  document.querySelectorAll(".lang-btn").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var lang = btn.getAttribute("data-lang");
+      setLang(lang);
+    });
+  });
+
+  // 初始化语言
+  applyLang(getLang());
+
+  /* ---------- 三标签栏切换 ---------- */
+  (function(){
+    // 首页显示全部，其他标签待定
+    var allSections = ['hero','about','novel','projects','tech','directions','gallery','contact'];
+
+    function switchTab(cat){
+      // 更新标签状态
+      document.querySelectorAll('.tab-switcher .tab-btn').forEach(function(t){
+        t.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-switcher .tab-btn[data-tab="'+cat+'"]').forEach(function(t){
+        t.classList.add('active');
+      });
+      
+      // "互动"跳转到互动页
+      if(cat === 'chat'){
+        window.location.href = 'interact.html';
+        return;
+      }
+      
+      // 首页和更新都显示全部内容（后续再分）
+      allSections.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.style.display = '';
+      });
+    }
+
+    document.querySelectorAll('.tab-switcher .tab-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        switchTab(btn.getAttribute('data-tab'));
+      });
+    });
+
+    switchTab('home');
+  })();
+})();
+</script>
+
+</body>
+</html>
