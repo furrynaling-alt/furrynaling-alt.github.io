@@ -20,6 +20,12 @@
   --orange: #f59e0b;
   --red: #ef4444;
   --cyan: #06b6d4;
+  --primary: #7c3aed; --primary-2: #d944ff; --primary-soft: rgba(124,58,237,.08);
+  --text: #1a1a2e; --text-sub: #6c6c80; --text-mute: #9b9bb8;
+  --card-bg: #ffffff; --card-border: #e8e8f0;
+  --shadow: 0 2px 12px rgba(0,0,0,.04); --shadow-hover: 0 8px 30px rgba(124,58,237,.12);
+  --ease: cubic-bezier(.4,0,.2,1); --ease-out: cubic-bezier(0,0,.2,1);
+  --font-sans: 'PingFang SC','Microsoft YaHei',-apple-system,sans-serif;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -31,6 +37,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+/* ── 统一导航栏 ── */
+#navbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);background:rgba(255,255,255,.75);border-bottom:1px solid rgba(0,0,0,.06);transition:all .3s var(--ease);}
+#navbar.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.06);background:rgba(255,255,255,.88);}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:62px;gap:20px;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:1.15rem;color:var(--ink);flex-shrink:0;}
+.nav-logo img{height:34px;width:auto;transition:transform .3s var(--ease);}
+.nav-logo:hover img{transform:scale(1.08);}
+.nav-links{display:flex;align-items:center;gap:6px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--text-sub);font-size:.92rem;font-weight:500;padding:8px 18px;border-radius:10px;transition:all .25s var(--ease);}
+.nav-links a:hover{color:var(--primary);background:var(--primary-soft);}
+.nav-links a.active{color:var(--primary);background:var(--primary-soft);font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.lang-switcher{display:flex;gap:2px;background:var(--bg);border-radius:10px;padding:3px;border:1px solid var(--border);}
+.lang-btn{padding:4px 8px;border:none;border-radius:7px;font-size:.78rem;cursor:pointer;background:transparent;color:var(--text-mute);transition:all .2s;font-family:var(--font-sans);white-space:nowrap;}
+.lang-btn:hover{color:var(--text-sub);}
+.lang-btn.active{background:var(--primary);color:#fff;font-weight:600;}
+.theme-toggle-btn{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--card-bg);color:var(--text-sub);font-size:1.1rem;cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;}
+.theme-toggle-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft);transform:rotate(30deg);}
+.nav-toggle{display:none;flex-shrink:0;width:38px;height:38px;border:none;border-radius:10px;background:var(--card-bg);border:1px solid var(--border);color:var(--text-sub);font-size:1.3rem;cursor:pointer;transition:all .25s;align-items:center;justify-content:center;}
+@media (max-width:860px){.nav-links{display:none;}.nav-toggle{display:flex;}.lang-switcher{display:none;}.nav-inner{padding:0 16px;}}
 
 /* Hero */
 .hero {
@@ -180,6 +207,30 @@ footer { text-align: center; padding: 30px 20px; color: var(--muted); font-size:
 </style>
 </head>
 <body>
+
+<!-- ══ 统一导航栏 ══ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><img src="tpzy/naling-logo.svg" alt="纳棂"><span>纳棂 NALING</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="interact.html">互动</a></li>
+      <li><a href="team.html">团队</a></li>
+      <li><a href="team-docs.html" class="active">文档</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="zh">简</button>
+        <button class="lang-btn" data-lang="zh-TW">繁</button>
+        <button class="lang-btn" data-lang="bo">བོད།</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="jp">JP</button>
+      </div>
+      <button class="theme-toggle-btn" id="themeToggle" title="切换模式">🌙</button>
+      <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
+    </div>
+  </div>
+</nav>
 
 <div class="hero">
   <h1>纳棂</h1>
@@ -395,6 +446,52 @@ footer { text-align: center; padding: 30px 20px; color: var(--muted); font-size:
 <footer>
   纳棂 · 个人品牌全栈站点 · 2026
 </footer>
+
+<script>
+/* ── 导航栏脚本 ── */
+(function(){
+  var html = document.documentElement;
+
+  // 导航栏滚动阴影
+  var navbar = document.getElementById('navbar');
+  var scrollTicking = false;
+  window.addEventListener('scroll', function(){
+    if(!scrollTicking){
+      requestAnimationFrame(function(){
+        navbar.classList.toggle('scrolled', window.scrollY > 10);
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  });
+
+  // 移动端菜单
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.querySelector('.nav-links');
+  if(navToggle && navLinks){
+    navToggle.addEventListener('click', function(){
+      var open = navLinks.style.display === 'flex';
+      navLinks.style.display = open ? '' : 'flex';
+      navToggle.classList.toggle('active', !open);
+    });
+  }
+
+  // 语言切换
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      localStorage.setItem('naling-lang', btn.getAttribute('data-lang'));
+    });
+  });
+  var savedLang = localStorage.getItem('naling-lang');
+  if(savedLang){
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-lang') === savedLang);
+    });
+  }
+})();
+</script>
 
 <script>
 var C = {

@@ -60,7 +60,7 @@
 
 /* ===== 全局 ===== */
 *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
-html{ scroll-behavior:smooth; }
+html{ scroll-behavior:smooth; } html::-webkit-scrollbar{ width:0; height:0; } html{ scrollbar-width:none; }
 body{
   font-family:var(--font-sans);
   background:var(--bg);
@@ -540,7 +540,8 @@ var filteredDocs = [];
 var TDWZ_FILES = [];
 // 默认内置文档（source 对应子目录，file 不含路径前缀）
 var KNOWN_FILES = [
-  { file:"iOS Dynamic Island灵动岛", htmlFile:"tdwz/iOS-Dynamic-Island灵动岛.html", source:"tdwz", author:"mochen", date:"2025-08-04", category:"project", desc:"基于 iOS Live Activities 架构，通过 ActivityKit 和 SwiftUI 实现实时状态展示与交互。支持 iOS18+、iPhone14 Pro 以上灵动岛机型。" }
+  { file:"纳棂 · 架构全景图", htmlFile:"tdwz/纳棂架构概览.html", source:"tdwz", author:"nailing", date:"2026-08-05", category:"project", desc:"纳棂个人站全栈架构全景：7大板块覆盖页面关系、技术分层、功能分布、API域、文档流转与创新亮点，一图纵览全局。" },
+  { file:"iOS Dynamic Island灵动岛", htmlFile:"tdwz/iOS-Dynamic-Island灵动岛.html", source:"tdwz", author:"mochen", date:"2026-08-04", category:"project", desc:"基于 iOS Live Activities 架构，通过 ActivityKit 和 SwiftUI 实现实时状态展示与交互。支持 iOS18+、iPhone14 Pro 以上灵动岛机型。" }
 ];
 
 // 扫描两个目录，并加入超时兜底确保已知文档总是能显示

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ═══════════════════════════════════════════════
+  【页面标题】→ 改成你自己的标题
+  ═══════════════════════════════════════════════ -->
+<title>文档标题</title>
+<style>
+/* ═══════════════════════════════════════════════
+   一、全局变量 — 所有颜色/尺寸统一从这里改
+   支持明亮(light) + 暗色(dark) 双主题
+   修改颜色上限最多覆盖对应 :root 变量即可
+  ═══════════════════════════════════════════════ */
+  :root {
+    --bg: #fdfaf5;
+    --text: #2c2416;
+    --text-secondary: #6b5e4a;
+    --heading: #1a1207;
+    --border: #e5dccf;
+    --code-bg: #f5efe4;
+    --table-stripe: #f8f3e8;
+    --table-header: #ebe1d0;
+    --blockquote-bg: #f9f4ea;
+    --blockquote-border: #c9a96e;
+    --tag-bg: #f0e6d3;
+    --tag-text: #8b6914;
+    --accent: #b8860b;              /* 主色调 — 链接/边框/按钮等高亮色 */
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --topbar-bg: rgba(253,250,245,0.85); /* 导航栏毛玻璃背景 */
+    --table-bg: #fffdf8;
+  }
+
+  /* 暗色模式下自动切换为以下值 */
+  [data-theme="dark"] {
+    --bg: #1a1a2e;
+    --text: #f0ebe3;
+    --text-secondary: #c4b5a5;
+    --heading: #f0ebe3;
+    --border: #2a2a4a;
+    --code-bg: #1e1e36;
+    --table-stripe: #1e1e36;
+    --table-header: #252545;
+    --blockquote-bg: #1e1e36;
+    --blockquote-border: #ffa040;
+    --tag-bg: #252545;
+    --tag-text: #ffbe60;
+    --accent: #ffa040;
+    --shadow: 0 2px 16px rgba(0,0,0,0.3);
+    --topbar-bg: rgba(20,20,38,0.9);
+    --table-bg: #1a1a2e;
+  }
+
+  /* 暗色模式下给 body 叠加渐变背景 */
+  [data-theme="dark"] body {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+    background-attachment: fixed;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* 隐藏原生滚动条 — 页面更干净 */
+  html::-webkit-scrollbar { width: 0; height: 0; }
+  html { scrollbar-width: none; }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "宋体", serif;
+    /* ↑ 如果想换成无衬线体，改这一行即可 */
+    background: var(--bg);
+    color: var(--text);
+    line-height: 2;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     二、顶部导航栏 — doc-topbar
+     - position:sticky 固定在页面顶部
+     - 毛玻璃半透明效果
+     - 包含: 面包屑路径 / 作者标签 / 暗色切换 / 返回按钮
+     ═══════════════════════════════════════════════ */
+  .doc-topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--topbar-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  /* 面包屑导航 */
+  .doc-topbar .breadcrumb {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .doc-topbar .breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .doc-topbar .breadcrumb a:hover { opacity: 0.7; }
+  .doc-topbar .breadcrumb .sep {
+    color: var(--border);
+    user-select: none;
+  }
+
+  .doc-topbar .left-group {
+    display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;
+  }
+
+  /* 作者标签 (小徽章) — 在面包屑右侧 */
+  .doc-topbar .meta-badge {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* 明亮/暗色模式切换按钮 */
+  .doc-topbar .theme-toggle-btn {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .doc-topbar .theme-toggle-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* PC端右侧返回 */
+  .doc-topbar .back-btn {
+    flex-shrink: 0;
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .doc-topbar .back-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     三、正文排版区 — doc-container / doc-hero / doc-body
+     ═══════════════════════════════════════════════ */
+
+  /* 内容容器 — 设定最大阅读宽度，居中 */
+  .doc-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+
+  /* ── 封面区 (标题/作者/日期) ── */
+  .doc-hero {
+    text-align: center;
+    padding: 40px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  /* 圆形头像/图标容器 */
+  .doc-hero .icon-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8d5b0 0%, #c9a96e 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    box-shadow: 0 8px 24px rgba(184,134,11,0.2);
+  }
+  .doc-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .doc-hero .subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+  .doc-hero .hero-meta {
+    display: flex; gap: 20px; justify-content: center;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+  .doc-hero .hero-meta span {
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ── 正文内容排版 ── */
+
+  /* 二级标题 — 左侧有竖线装饰 */
+  .doc-body h2 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin: 44px 0 16px;
+    padding-left: 14px;
+    border-left: 4px solid var(--accent);
+    line-height: 1.5;
+  }
+  /* 三级标题 */
+  .doc-body h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin: 32px 0 12px;
+    line-height: 1.5;
+  }
+  /* 段落 — 首行缩进 */
+  .doc-body p {
+    margin: 0 0 16px;
+    text-indent: 2em;
+    font-size: 1.05rem;
+  }
+  /* 如果某段不需要缩进，加 class="no-indent" */
+  .doc-body p.no-indent { text-indent: 0; }
+
+  /* 列表 */
+  .doc-body ul, .doc-body ol {
+    margin: 8px 0 20px;
+    padding-left: 1.8em;
+  }
+  .doc-body li {
+    margin-bottom: 8px;
+    font-size: 1.03rem;
+    position: relative;
+  }
+  .doc-body ul li::marker { color: var(--accent); }
+
+  /* 行内代码 */
+  .doc-body code {
+    background: var(--code-bg);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.92em;
+    font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
+    color: #8b6914;
+    border: 1px solid var(--border);
+  }
+  /* 加粗 */
+  .doc-body strong {
+    color: var(--heading);
+    font-weight: 700;
+  }
+
+  /* ── 表格 ── */
+  .doc-body .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0 28px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .doc-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: var(--table-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .doc-body thead th {
+    background: var(--table-header);
+    font-weight: 700;
+    padding: 14px 18px;
+    text-align: left;
+    color: var(--heading);
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .doc-body tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .doc-body tbody tr:nth-child(even) td {
+    background: var(--table-stripe);
+  }
+  .doc-body tbody tr:last-child td { border-bottom: none; }
+
+  /* ── 引用块 ── */
+  .doc-body blockquote {
+    background: var(--blockquote-bg);
+    border-left: 4px solid var(--blockquote-border);
+    margin: 24px 0;
+    padding: 20px 24px;
+    border-radius: 0 10px 10px 0;
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  .doc-body blockquote p { text-indent: 0; margin: 0; }
+
+  /* ── 分割线 (带装饰星号) ── */
+  .doc-body hr {
+    border: none;
+    border-top: 2px dashed var(--border);
+    margin: 40px 0;
+    text-align: center;
+  }
+  .doc-body hr::after {
+    content: "✦ ✦ ✦";
+    display: inline-block;
+    position: relative;
+    top: -0.75em;
+    background: var(--bg);
+    padding: 0 16px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── 信息卡片 (文章底部作者/日期/分类摘要) ── */
+  .doc-body .info-card {
+    background: var(--blockquote-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 28px 0;
+    border: 1px solid var(--border);
+  }
+  .doc-body .info-card .card-row {
+    display: flex; gap: 12px;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 2;
+  }
+  .doc-body .info-card .card-label {
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 4em;
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     四、页脚
+     ═══════════════════════════════════════════════ */
+  .doc-footer {
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     五、回到顶部按钮 (右下角固定悬浮)
+     - 滚动超过 400px 自动显示
+     ═══════════════════════════════════════════════ */
+  .scroll-top-btn {
+    position: fixed; bottom: 32px; right: 32px; z-index: 200;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transform: translateY(12px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(184,134,11,0.35);
+  }
+  .scroll-top-btn.show {
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+  .scroll-top-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184,134,11,0.5);
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     六、移动端悬浮返回箭头 (居中在导航栏中间)
+     - 仅在 PC (≥769px) 显示
+     ═══════════════════════════════════════════════ */
+  .nav-center-back {
+    display: none;
+    position: fixed; left: 50%; top: 23px;
+    z-index: 101;
+    transform: translate(-50%,0);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 1rem;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav-center-back:hover { background: var(--accent); color: #fff; }
+  @media (min-width: 769px) {
+    .nav-center-back { display: flex; }
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     七、响应式
+     - ≤640px 时缩小间距和字号
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .doc-container { padding: 28px 18px 56px; }
+    .doc-hero h1 { font-size: 1.5rem; }
+    .doc-body p { text-indent: 1.5em; font-size: 1rem; }
+    .doc-body h2 { font-size: 1.25rem; }
+    .doc-topbar { padding: 10px 16px; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+  八、顶部导航栏 HTML
+  需要修改的占位:
+    - 面包屑中的链接地址和文字
+    - meta-badge 中的作者名
+    - back-btn 的返回链接
+  ═══════════════════════════════════════════════ -->
+<nav class="doc-topbar">
+  <div class="left-group">
+    <div class="breadcrumb">
+      <a href="../team-docs.html">HNBC（海纳柏舛）文档库</a>
+      <span class="sep">/</span>
+      <span>文档标题</span>          <!-- ← 改成当前文章标题 -->
+    </div>
+    <span class="meta-badge">作者名</span>  <!-- ← 改成作者名 -->
+  </div>
+  <button class="theme-toggle-btn" id="themeToggle" title="切换阴暗/明亮模式">阴暗</button>
+  <a href="../team-docs.html" class="nav-center-back" title="返回">←</a>
+  <a href="../team-docs.html" class="back-btn">← 返回</a>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════
+  九、正文区域
+  ═══════════════════════════════════════════════ -->
+<div class="doc-container">
+
+  <!-- ── 封面区 — 标题/作者/日期 ── -->
+  <div class="doc-hero">
+    <div class="icon-circle">
+      <!-- 头像 — 替换 src 为实际图片路径 -->
+      <img src="../tpzy/default-avatar.jpg" alt="头像"
+           style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+           onerror="this.style.display='none';this.parentElement.textContent='姓';" />
+           <!-- ↑ 图片加载失败时显示文字首字 -->
+    </div>
+    <h1>文章主标题</h1>                     <!-- ← 改成你的标题 -->
+    <p class="subtitle">副标题 / 一行描述</p> <!-- ← 改成副标题 -->
+    <div class="hero-meta">
+      <span>👤 作者名</span>                 <!-- ← -->
+      <span>📅 2026-08-05</span>             <!-- ← 改成日期 -->
+      <span>📂 分类</span>                   <!-- ← 改成分类名 -->
+    </div>
+  </div>
+
+  <!-- ── 正文内容 — 在这里写你的实际内容 ── -->
+  <div class="doc-body">
+
+    <h2>一级章节</h2>
+    <p>段落内容。段落会自动首行缩进。如果某段不想缩进，给 <code>&lt;p&gt;</code> 加上 <code>class="no-indent"</code>。</p>
+
+    <h3>二级小标题</h3>
+    <ul>
+      <li><strong>要点标签</strong>: 具体说明内容</li>
+      <li><strong>另一个要点</strong>: 更多说明</li>
+    </ul>
+
+    <!-- 表格示例 -->
+    <h2>数据表</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>列A</th><th>列B</th><th>列C</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>数据1</td><td>数据2</td><td>数据3</td></tr>
+          <tr><td>数据4</td><td>数据5</td><td>数据6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 引用块 -->
+    <blockquote>
+      <p>这是一段引用文字，用于强调重要内容或摘录。</p>
+    </blockquote>
+
+    <!-- 分割线 -->
+    <hr>
+
+    <!-- 信息卡片 — 放在文章末尾 -->
+    <div class="info-card">
+      <div class="card-row"><span class="card-label">作者</span><span>作者名</span></div>
+      <div class="card-row"><span class="card-label">日期</span><span>2026-08-05</span></div>
+      <div class="card-row"><span class="card-label">分类</span><span>分类名</span></div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="doc-footer">
+      海纳柏舛（HNBC）· 团队文档库 · 作者名 著
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+  十、回到顶部按钮 (不要修改)
+  ═══════════════════════════════════════════════ -->
+<button class="scroll-top-btn" id="scrollTopBtn" title="回到顶部">↑</button>
+
+
+<!-- ═══════════════════════════════════════════════
+  十一、脚本区
+  - 主题切换 (明亮/暗色)，记住用户偏好
+  - 回到顶部按钮的显示/隐藏逻辑
+  ═══════════════════════════════════════════════ -->
+<script>
+(function(){
+  /* ── 主题初始化 & 切换 ── */
+  var html = document.documentElement;
+  var savedTheme = localStorage.getItem('naling-theme');
+  if(savedTheme === 'dark'){
+    html.setAttribute('data-theme','dark');
+  }
+  var toggleBtn = document.getElementById('themeToggle');
+  if(toggleBtn){
+    updateToggleText();
+    toggleBtn.addEventListener('click', function(){
+      var cur = html.getAttribute('data-theme');
+      var next = (cur === 'dark') ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('naling-theme', next);
+      updateToggleText();
+    });
+  }
+  function updateToggleText(){
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    toggleBtn.textContent = isDark ? '明亮' : '阴暗';
+  }
+
+  /* ── 回到顶部按钮 ── */
+  var btn = document.getElementById('scrollTopBtn');
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        if(window.scrollY > 400){ btn.classList.add('show'); }
+        else { btn.classList.remove('show'); }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

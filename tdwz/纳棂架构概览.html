@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纳棂 · 架构全景图 — 海纳柏舛（HNBC）文档库</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   一、全局变量 — 模板色彩系统
+  ═══════════════════════════════════════════════ */
+  :root {
+    --bg: #fdfaf5;
+    --text: #2c2416;
+    --text-secondary: #6b5e4a;
+    --heading: #1a1207;
+    --border: #e5dccf;
+    --code-bg: #f5efe4;
+    --table-stripe: #f8f3e8;
+    --table-header: #ebe1d0;
+    --blockquote-bg: #f9f4ea;
+    --blockquote-border: #c9a96e;
+    --tag-bg: #f0e6d3;
+    --tag-text: #8b6914;
+    --accent: #b8860b;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --topbar-bg: rgba(253,250,245,0.85);
+    --table-bg: #fffdf8;
+  }
+
+  [data-theme="dark"] {
+    --bg: #1a1a2e;
+    --text: #f0ebe3;
+    --text-secondary: #c4b5a5;
+    --heading: #f0ebe3;
+    --border: #2a2a4a;
+    --code-bg: #1e1e36;
+    --table-stripe: #1e1e36;
+    --table-header: #252545;
+    --blockquote-bg: #1e1e36;
+    --blockquote-border: #ffa040;
+    --tag-bg: #252545;
+    --tag-text: #ffbe60;
+    --accent: #ffa040;
+    --shadow: 0 2px 16px rgba(0,0,0,0.3);
+    --topbar-bg: rgba(20,20,38,0.9);
+    --table-bg: #1a1a2e;
+  }
+
+  [data-theme="dark"] body {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+    background-attachment: fixed;
+  }
+
+  /* ═══════════════════════════════════════════════
+     架构内容专用变量（独立命名空间，避免与模板冲突）
+     ═══════════════════════════════════════════════ */
+  .arch-content {
+    --arch-accent: #7c3aed;
+    --arch-accent2: #d944ff;
+    --arch-accent3: #ff6b9d;
+    --arch-border: #e8e8f0;
+    --arch-bg: #ffffff;
+    --arch-bg2: #f8f9fc;
+    --arch-text: #1a1a2e;
+    --arch-muted: #6c6c80;
+    --arch-green: #10b981;
+    --arch-blue: #3b82f6;
+    --arch-orange: #f59e0b;
+    --arch-red: #ef4444;
+    --arch-cyan: #06b6d4;
+  }
+
+  [data-theme="dark"] .arch-content {
+    --arch-accent: #a78bfa;
+    --arch-accent2: #e879f9;
+    --arch-accent3: #fda4af;
+    --arch-border: #2a2a4a;
+    --arch-bg: #1a1a2e;
+    --arch-bg2: #1e1e36;
+    --arch-text: #e0e0e0;
+    --arch-muted: #9999bb;
+    --arch-green: #34d399;
+    --arch-blue: #60a5fa;
+    --arch-orange: #fbbf24;
+    --arch-red: #f87171;
+    --arch-cyan: #22d3ee;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "宋体", serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 2;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══════════════════════════════════════════════
+     二、顶部导航栏
+     ═══════════════════════════════════════════════ */
+  .doc-topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--topbar-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .doc-topbar .breadcrumb {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .doc-topbar .breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .doc-topbar .breadcrumb a:hover { opacity: 0.7; }
+  .doc-topbar .breadcrumb .sep {
+    color: var(--border);
+    user-select: none;
+  }
+
+  .doc-topbar .left-group {
+    display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;
+  }
+
+  .doc-topbar .meta-badge {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .doc-topbar .theme-toggle-btn {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .doc-topbar .theme-toggle-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .doc-topbar .back-btn {
+    flex-shrink: 0;
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .doc-topbar .back-btn:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ═══════════════════════════════════════════════
+     三、正文排版区
+     ═══════════════════════════════════════════════ */
+
+  .doc-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+  }
+
+  /* ── 封面区 ── */
+  .doc-hero {
+    text-align: center;
+    padding: 32px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .doc-hero .icon-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed 0%, #d944ff 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 2rem;
+    box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+    overflow: hidden;
+  }
+  .doc-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .doc-hero .subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+  .doc-hero .hero-meta {
+    display: flex; gap: 20px; justify-content: center;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+  .doc-hero .hero-meta span {
+    display: flex; align-items: center; gap: 5px;
+  }
+  .doc-hero .hero-tags {
+    margin-top: 14px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  }
+  .doc-hero .hero-tag {
+    padding: 3px 12px; border-radius: 16px; font-size: 12px; font-weight: 600;
+    background: rgba(124,58,237,0.1); color: #7c3aed;
+  }
+
+  /* ── 架构内容区域 ── */
+  .arch-content {
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+  }
+  .arch-content h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--arch-text);
+    margin: 36px 0 10px;
+    padding-left: 14px;
+    border-left: 4px solid var(--arch-accent);
+    line-height: 1.5;
+  }
+  .arch-content .sec-desc {
+    font-size: 0.9rem;
+    color: var(--arch-muted);
+    margin-bottom: 20px;
+    padding-left: 18px;
+  }
+
+  /* 卡片网格 */
+  .arch-content .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .arch-content .card {
+    background: var(--arch-bg2);
+    border: 1px solid var(--arch-border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .arch-content .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.12);
+  }
+  .arch-content .card .num {
+    font-size: 28px; font-weight: 800; color: var(--arch-accent);
+  }
+  .arch-content .card .label {
+    font-size: 13px; color: var(--arch-muted); margin-top: 4px;
+  }
+
+  /* ECharts 图表容器 */
+  .arch-content .chart-box {
+    background: var(--arch-bg);
+    border: 1px solid var(--arch-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0 24px;
+  }
+  .arch-content .chart-box h3 {
+    font-size: 14px; font-weight: 600; color: var(--arch-text); margin-bottom: 4px;
+  }
+  .arch-content .chart-box .sub {
+    font-size: 12px; color: var(--arch-muted); margin-bottom: 10px;
+  }
+  .arch-content .chart {
+    width: 100%;
+  }
+
+  /* 技术栈分层 */
+  .arch-content .arch-flow {
+    display: flex; flex-direction: column; gap: 8px; margin: 16px 0 24px;
+  }
+  .arch-content .arch-layer {
+    background: var(--arch-bg2);
+    border: 1px solid var(--arch-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .arch-content .arch-layer .layer-label {
+    font-size: 12px; font-weight: 700; color: var(--arch-accent);
+    min-width: 72px; text-align: right;
+  }
+  .arch-content .arch-layer .layer-items {
+    display: flex; gap: 6px; flex-wrap: wrap; flex: 1;
+  }
+  .arch-content .arch-item {
+    padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 500;
+  }
+  .arch-content .ai-purple { background: rgba(124,58,237,0.1); color: #7c3aed; border: 1px solid rgba(124,58,237,0.2); }
+  .arch-content .ai-pink { background: rgba(217,68,255,0.1); color: #d944ff; border: 1px solid rgba(217,68,255,0.2); }
+  .arch-content .ai-blue { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); }
+  .arch-content .ai-green { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+  .arch-content .ai-orange { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid rgba(245,158,11,0.2); }
+  .arch-content .ai-cyan { background: rgba(6,182,212,0.1); color: #0891b2; border: 1px solid rgba(6,182,212,0.2); }
+
+  [data-theme="dark"] .arch-content .ai-purple { background: rgba(167,139,250,0.15); color: #c4b5fd; border-color: rgba(167,139,250,0.3); }
+  [data-theme="dark"] .arch-content .ai-pink { background: rgba(232,121,249,0.15); color: #f0abfc; border-color: rgba(232,121,249,0.3); }
+  [data-theme="dark"] .arch-content .ai-blue { background: rgba(96,165,250,0.15); color: #93c5fd; border-color: rgba(96,165,250,0.3); }
+  [data-theme="dark"] .arch-content .ai-green { background: rgba(52,211,153,0.15); color: #6ee7b7; border-color: rgba(52,211,153,0.3); }
+  [data-theme="dark"] .arch-content .ai-orange { background: rgba(251,191,36,0.15); color: #fcd34d; border-color: rgba(251,191,36,0.3); }
+  [data-theme="dark"] .arch-content .ai-cyan { background: rgba(34,211,238,0.15); color: #67e8f9; border-color: rgba(34,211,238,0.3); }
+
+  /* 创新卡片 */
+  .arch-content .innov-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0 24px;
+  }
+  .arch-content .innov-card {
+    background: var(--arch-bg);
+    border: 1px solid var(--arch-border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative; overflow: hidden;
+  }
+  .arch-content .innov-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(180deg, var(--arch-accent), var(--arch-accent2));
+  }
+  .arch-content .innov-card h4 {
+    font-size: 15px; font-weight: 700; color: var(--arch-accent);
+    margin-bottom: 6px; padding-left: 10px;
+  }
+  .arch-content .innov-card p {
+    font-size: 13px; color: var(--arch-muted); padding-left: 10px; line-height: 1.6;
+  }
+
+  /* 表格 */
+  .arch-content .table-wrap {
+    overflow-x: auto; margin: 16px 0 28px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .arch-content .arch-table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+    background: var(--arch-bg); border-radius: var(--radius); overflow: hidden;
+  }
+  .arch-content .arch-table thead th {
+    background: var(--arch-bg2);
+    font-weight: 700;
+    padding: 12px 16px;
+    text-align: left;
+    color: var(--arch-accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--arch-accent);
+  }
+  .arch-content .arch-table tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--arch-border);
+    color: var(--arch-text);
+  }
+  .arch-content .arch-table tbody tr:hover td {
+    background: var(--arch-bg2);
+  }
+
+  /* 脱敏 */
+  .arch-content .censored {
+    background: var(--arch-border);
+    color: transparent;
+    border-radius: 3px;
+    user-select: none;
+    padding: 0 4px;
+    letter-spacing: 2px;
+  }
+
+  /* ── 页脚 ── */
+  .doc-footer {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+
+  /* ═══════════════════════════════════════════════
+     四、回到顶部按钮
+     ═══════════════════════════════════════════════ */
+  .scroll-top-btn {
+    position: fixed; bottom: 32px; right: 32px; z-index: 200;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transform: translateY(12px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(184,134,11,0.35);
+  }
+  .scroll-top-btn.show {
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+  .scroll-top-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184,134,11,0.5);
+  }
+
+  .nav-center-back {
+    display: none;
+    position: fixed; left: 50%; top: 23px;
+    z-index: 101;
+    transform: translate(-50%,0);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 1rem;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav-center-back:hover { background: var(--accent); color: #fff; }
+  @media (min-width: 769px) {
+    .nav-center-back { display: flex; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     五、响应式
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .doc-container { padding: 20px 16px 48px; }
+    .doc-hero h1 { font-size: 1.4rem; }
+    .arch-content .innov-grid { grid-template-columns: 1fr; }
+    .doc-topbar { padding: 10px 16px; }
+    .arch-content .arch-layer { flex-direction: column; align-items: flex-start; }
+    .arch-content .arch-layer .layer-label { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ 顶部导航栏 ══ -->
+<nav class="doc-topbar">
+  <div class="left-group">
+    <div class="breadcrumb">
+      <a href="../team-docs.html">HNBC（海纳柏舛）文档库</a>
+      <span class="sep">/</span>
+      <span>纳棂 · 架构全景图</span>
+    </div>
+    <span class="meta-badge">纳棂</span>
+  </div>
+  <button class="theme-toggle-btn" id="themeToggle" title="切换阴暗/明亮模式">阴暗</button>
+  <a href="../team-docs.html" class="nav-center-back" title="返回">←</a>
+  <a href="../team-docs.html" class="back-btn">← 返回</a>
+</nav>
+
+<!-- ══ 正文区域 ══ -->
+<div class="doc-container">
+
+  <!-- ── 封面区 ── -->
+  <div class="doc-hero">
+    <div class="icon-circle">
+      <img src="../tpzy/nl.jpg" alt="纳棂"
+           style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+           onerror="this.style.display='none';this.parentElement.textContent='纳';" />
+    </div>
+    <h1>纳棂 · 架构全景图</h1>
+    <p class="subtitle">个人品牌全栈站点 — GitHub Pages + CloudBase 混合架构，一图纵览全局</p>
+    <div class="hero-tags">
+      <span class="hero-tag">Vanilla JS 零框架</span>
+      <span class="hero-tag">CloudBase 云函数</span>
+      <span class="hero-tag">GitHub Pages</span>
+      <span class="hero-tag">AES-256-GCM 加密</span>
+    </div>
+    <div class="hero-meta">
+      <span>👤 纳棂</span>
+      <span>📅 2026-08-05</span>
+      <span>📂 项目架构</span>
+    </div>
+  </div>
+
+  <!-- ── 架构内容 ── -->
+  <div class="arch-content">
+
+    <!-- 核心数据 -->
+    <h2>核心数据一览</h2>
+    <p class="sec-desc">站点整体规模与技术指标</p>
+    <div class="card-grid">
+      <div class="card"><div class="num">7</div><div class="label">独立页面</div></div>
+      <div class="card"><div class="num">15+</div><div class="label">API 端点</div></div>
+      <div class="card"><div class="num">8</div><div class="label">数据库集合</div></div>
+      <div class="card"><div class="num">5</div><div class="label">语言国际化</div></div>
+      <div class="card"><div class="num">4</div><div class="label">团队成员</div></div>
+      <div class="card"><div class="num">2</div><div class="label">CDN 依赖</div></div>
+    </div>
+
+    <!-- 页面关系架构 -->
+    <h2>页面关系架构</h2>
+    <p class="sec-desc">7 个页面之间的导航与依赖关系</p>
+    <div id="chart-arch" class="chart" style="height:540px"></div>
+
+    <!-- 技术栈分层 -->
+    <h2>技术栈分层架构</h2>
+    <p class="sec-desc">从客户端到数据的完整技术选型</p>
+    <div class="arch-flow">
+      <div class="arch-layer">
+        <div class="layer-label">客户端</div>
+        <div class="layer-items">
+          <span class="arch-item ai-purple">Chrome / Edge / Safari</span>
+          <span class="arch-item ai-pink">移动端浏览器</span>
+          <span class="arch-item ai-blue">桌面端浏览器</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">前端</div>
+        <div class="layer-items">
+          <span class="arch-item ai-purple">HTML5 语义化</span>
+          <span class="arch-item ai-pink">CSS3 变量 + 动画</span>
+          <span class="arch-item ai-blue">Vanilla JS 零框架</span>
+          <span class="arch-item ai-green">ECharts 可视化</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">静态托管</div>
+        <div class="layer-items">
+          <span class="arch-item ai-blue">GitHub Pages</span>
+          <span class="arch-item ai-blue">CloudFlare CDN</span>
+          <span class="arch-item ai-blue">自定义域名</span>
+          <span class="arch-item ai-cyan">HTTPS / TLS 1.3</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">API 网关</div>
+        <div class="layer-items">
+          <span class="arch-item ai-purple">CloudBase HTTP Service</span>
+          <span class="arch-item ai-purple">CORS 跨域</span>
+          <span class="arch-item ai-cyan">JWT Bearer Token</span>
+          <span class="arch-item ai-cyan">Token 过期检测</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">服务层</div>
+        <div class="layer-items">
+          <span class="arch-item ai-purple">CloudBase 云函数</span>
+          <span class="arch-item ai-pink">Node.js 运行时</span>
+          <span class="arch-item ai-blue">智谱 AI 对话/审核</span>
+          <span class="arch-item ai-green">SMTP 邮件服务</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">安全层</div>
+        <div class="layer-items">
+          <span class="arch-item ai-orange">AES-256-GCM 聊天加密</span>
+          <span class="arch-item ai-orange">JWT 7 天过期</span>
+          <span class="arch-item ai-orange">AI + 本地双重审核</span>
+          <span class="arch-item ai-orange">邮箱域名白名单</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-label">数据层</div>
+        <div class="layer-items">
+          <span class="arch-item ai-green">CloudBase NoSQL</span>
+          <span class="arch-item ai-green">8 个集合</span>
+          <span class="arch-item ai-green">SHA256 哈希</span>
+          <span class="arch-item ai-cyan">本地 JSON 文件</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页面功能分布 -->
+    <h2>页面功能分布</h2>
+    <p class="sec-desc">各页面的功能权重与复杂度</p>
+    <div id="chart-pages" class="chart" style="height:350px"></div>
+
+    <!-- API 分布 -->
+    <h2>API 端点功能分布</h2>
+    <p class="sec-desc">15+ 云端 API 按业务域分类</p>
+    <div id="chart-api" class="chart" style="height:350px"></div>
+
+    <!-- 文档流转 -->
+    <h2>文档访问全链路</h2>
+    <p class="sec-desc">从用户进入站点到获取文档的完整流程</p>
+    <div id="chart-flow" class="chart" style="height:320px"></div>
+
+    <!-- 创新亮点 -->
+    <h2>架构创新与核心亮点</h2>
+    <p class="sec-desc">项目中独具特色的技术方案</p>
+    <div class="innov-grid">
+      <div class="innov-card">
+        <h4>Token 全站访问网关</h4>
+        <p>统一 token-check.js 模块拦截所有页面入口，JWT 签名验证 + URL Token 直传双模式。7 天有效期，支持无感刷新，过期自动跳转门户获取新 Token。</p>
+      </div>
+      <div class="innov-card">
+        <h4>AES-256-GCM 加密聊天</h4>
+        <p>所有 AI 聊天消息在云端以 AES-256-GCM 加密存储，即使数据库被拖库也无法解密。密钥由服务端环境变量管理，与代码完全分离。</p>
+      </div>
+      <div class="innov-card">
+        <h4>双引擎内容审核</h4>
+        <p>智谱 AI 模型（结构审核）+ 本地拼音/中文词汇库（实时拦截）双重保障。5 次违规永久封禁，评论与聊天全覆盖，无需人工干预。</p>
+      </div>
+      <div class="innov-card">
+        <h4>五语言国际化零依赖</h4>
+        <p>简中 / 繁中 / 藏语 / English / 日本語 五语言实时切换。纯 JS 字典实现，无 i18n 库依赖，localStorage 持久化语言偏好。</p>
+      </div>
+      <div class="innov-card">
+        <h4>iOS 液态玻璃设计</h4>
+        <p>backdrop-filter: blur + 多层内阴影 + 扫光动画，精确复刻 iOS 灵动岛视觉效果。明暗双主题自动跟随系统，CSS 变量驱动全局配色。</p>
+      </div>
+      <div class="innov-card">
+        <h4>邮箱验证码登录</h4>
+        <p>nodemailer + SMTP 发送 6 位验证码，60 秒冷却 + 单日 3 次限制。域名白名单仅允许 QQ/Gmail/Outlook/iCloud/163 邮箱。未注册自动创建账号。</p>
+      </div>
+      <div class="innov-card">
+        <h4>零外部框架纯原生</h4>
+        <p>全站仅 2 个外部 CDN 依赖（marked.js 渲染 Markdown、qrcodejs 生成二维码），其余全部使用浏览器原生 API。首屏加载 &lt; 200KB。</p>
+      </div>
+      <div class="innov-card">
+        <h4>Markdown 文档系统</h4>
+        <p>云端 .md 文件 + 本地兜底数据，marked.js 实时渲染。支持 URL 参数路由、IntersectionObserver 章节定位、敏感信息脱敏、5 语言双语排版。</p>
+      </div>
+    </div>
+
+    <!-- 页面对比 -->
+    <h2>各页面功能对比</h2>
+    <p class="sec-desc">页面入口、功能复杂度、外部依赖一览</p>
+    <div class="table-wrap">
+      <table class="arch-table">
+        <thead><tr><th>页面</th><th>文件名</th><th>Token 验证</th><th>外部依赖</th><th>核心功能</th></tr></thead>
+        <tbody>
+          <tr><td>门户首页</td><td>index.html</td><td>token-check</td><td>无</td><td>入口导航、Token 分发、OG 元数据</td></tr>
+          <tr><td>文档阅读器</td><td>doc-viewer.html</td><td>无</td><td>marked.js</td><td>Markdown 渲染、章节导航、暗黑模式</td></tr>
+          <tr><td>互动中心</td><td>interact.html</td><td>token-check</td><td>无</td><td>AI 聊天、评论区、个人资料、账号管理</td></tr>
+          <tr><td>团队页面</td><td>team.html</td><td>token-check</td><td>qrcodejs</td><td>成员展示、加密货币打赏、玻璃特效</td></tr>
+          <tr><td>团队文档库</td><td>team-docs.html</td><td>token-check</td><td>无</td><td>文档索引、作者筛选、分页、文档搜索</td></tr>
+          <tr><td>项目动态</td><td>updates.html</td><td>token-check</td><td>无</td><td>项目更新日志、时间线展示</td></tr>
+          <tr><td>架构概览</td><td>本页</td><td>无</td><td>ECharts</td><td>架构可视化、技术栈展示、数据统计</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 云函数 API -->
+    <h2>云函数 API 路由一览</h2>
+    <p class="sec-desc">CloudBase 云函数提供的 HTTP API 端点</p>
+    <div class="table-wrap">
+      <table class="arch-table">
+        <thead><tr><th>路由</th><th>方法</th><th>认证</th><th>功能</th></tr></thead>
+        <tbody>
+          <tr><td>/api</td><td>GET</td><td>无</td><td>健康检查</td></tr>
+          <tr><td>/api/db-init</td><td>GET</td><td>无</td><td>数据库集合初始化</td></tr>
+          <tr><td>/api/send-code</td><td>POST</td><td>无</td><td>发送邮箱验证码（60s 冷却）</td></tr>
+          <tr><td>/api/login</td><td>POST</td><td>无</td><td>验证码登录 / 自动注册</td></tr>
+          <tr><td>/api/moderate</td><td>POST</td><td>JWT</td><td>AI + 本地内容审核</td></tr>
+          <tr><td>/api/chat</td><td>POST</td><td>JWT</td><td>AI 对话（每日 180 次限制）</td></tr>
+          <tr><td>/api/chat/conversations</td><td>GET/POST/DELETE</td><td>JWT</td><td>对话历史 CRUD</td></tr>
+          <tr><td>/api/chat/messages</td><td>GET</td><td>JWT</td><td>获取对话消息（AES 解密）</td></tr>
+          <tr><td>/api/chat/limit</td><td>GET</td><td>JWT</td><td>查询剩余对话次数</td></tr>
+          <tr><td>/api/comments</td><td>GET/POST</td><td>部分 JWT</td><td>评论列表 / 发表评论</td></tr>
+          <tr><td>/api/comments/delete</td><td>POST</td><td>JWT</td><td>软删除自己的评论</td></tr>
+          <tr><td>/api/comments/like</td><td>POST</td><td>JWT</td><td>点赞 / 取消点赞</td></tr>
+          <tr><td>/api/comments/mine</td><td>GET</td><td>JWT</td><td>我的帖子列表</td></tr>
+          <tr><td>/api/profile</td><td>GET/POST</td><td>JWT</td><td>个人资料查询 / 更新</td></tr>
+          <tr><td>/api/account</td><td>DELETE</td><td>JWT</td><td>账号注销（软删除）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="doc-footer">
+      海纳柏舛（HNBC）· 团队文档库 · 纳棂 著
+    </div>
+
+  </div><!-- .arch-content -->
+</div><!-- .doc-container -->
+
+<!-- 回到顶部 -->
+<button class="scroll-top-btn" id="scrollTopBtn" title="回到顶部">↑</button>
+
+<!-- ══ 脚本区 ══ -->
+<script>
+(function(){
+  /* ── 主题切换 ── */
+  var html = document.documentElement;
+  var savedTheme = localStorage.getItem('naling-theme');
+  if(savedTheme === 'dark'){
+    html.setAttribute('data-theme','dark');
+  }
+  var toggleBtn = document.getElementById('themeToggle');
+  if(toggleBtn){
+    updateToggleText();
+    toggleBtn.addEventListener('click', function(){
+      var cur = html.getAttribute('data-theme');
+      var next = (cur === 'dark') ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('naling-theme', next);
+      updateToggleText();
+    });
+  }
+  function updateToggleText(){
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    toggleBtn.textContent = isDark ? '明亮' : '阴暗';
+  }
+
+  /* ── 回到顶部 ── */
+  var btn = document.getElementById('scrollTopBtn');
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        if(window.scrollY > 400){ btn.classList.add('show'); }
+        else { btn.classList.remove('show'); }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+<!-- ══ ECharts 图表脚本 ══ -->
+<script>
+var C = {
+  purple: '#7c3aed', pink: '#d944ff', blue: '#3b82f6', green: '#10b981',
+  orange: '#f59e0b', cyan: '#06b6d4', red: '#ef4444', ink: '#1a1a2e',
+  muted: '#6c6c80', border: '#e8e8f0', bg2: '#f8f9fc'
+};
+
+// 图1: 页面关系架构图
+(function() {
+  var el = document.getElementById('chart-arch');
+  if(!el) return;
+  var chart = echarts.init(el);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: { appendToBody: true },
+    series: [{
+      type: 'graph',
+      layout: 'force',
+      force: { repulsion: 350, edgeLength: [100, 180], gravity: 0.12 },
+      roam: false,
+      label: { show: true, fontSize: 12, color: '#fff', fontWeight: 'bold' },
+      edgeSymbol: ['none', 'arrow'],
+      edgeSymbolSize: [0, 8],
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' },
+      data: [
+        { name: 'GitHub Pages\n静态托管', x: 300, y: 150, symbolSize: 75, itemStyle: { color: C.blue } },
+        { name: 'CloudBase\n云函数', x: 300, y: 350, symbolSize: 70, itemStyle: { color: C.purple } },
+        { name: '门户首页\nindex', x: 150, y: 40, symbolSize: 45, itemStyle: { color: C.orange } },
+        { name: '文档阅读器\ndoc-viewer', x: 450, y: 40, symbolSize: 45, itemStyle: { color: C.green } },
+        { name: '互动中心\ninteract', x: 0, y: 180, symbolSize: 50, itemStyle: { color: C.pink } },
+        { name: '团队页面\nteam', x: 600, y: 180, symbolSize: 45, itemStyle: { color: C.cyan } },
+        { name: '团队文档库\nteam-docs', x: 600, y: 280, symbolSize: 45, itemStyle: { color: C.green } },
+        { name: '项目动态\nupdates', x: 0, y: 280, symbolSize: 45, itemStyle: { color: C.orange } },
+        { name: 'CloudBase\nNoSQL', x: 300, y: 480, symbolSize: 55, itemStyle: { color: C.green } },
+        { name: '智谱AI\n审核/对话', x: 500, y: 400, symbolSize: 45, itemStyle: { color: C.red } },
+        { name: 'SMTP\n邮件服务', x: 100, y: 400, symbolSize: 40, itemStyle: { color: C.cyan } }
+      ],
+      links: [
+        { source: '门户首页\nindex', target: 'GitHub Pages\n静态托管' },
+        { source: '文档阅读器\ndoc-viewer', target: 'GitHub Pages\n静态托管' },
+        { source: '互动中心\ninteract', target: 'GitHub Pages\n静态托管' },
+        { source: '团队页面\nteam', target: 'GitHub Pages\n静态托管' },
+        { source: '团队文档库\nteam-docs', target: 'GitHub Pages\n静态托管' },
+        { source: '项目动态\nupdates', target: 'GitHub Pages\n静态托管' },
+        { source: '互动中心\ninteract', target: 'CloudBase\n云函数' },
+        { source: 'CloudBase\n云函数', target: 'CloudBase\nNoSQL' },
+        { source: 'CloudBase\n云函数', target: '智谱AI\n审核/对话', lineStyle: { type: 'dashed', color: C.red } },
+        { source: 'CloudBase\n云函数', target: 'SMTP\n邮件服务', lineStyle: { type: 'dashed', color: C.cyan } }
+      ],
+      lineStyle: { color: C.muted, width: 2, curveness: 0.15 }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图2: 页面功能权重
+(function() {
+  var el = document.getElementById('chart-pages');
+  if(!el) return;
+  var chart = echarts.init(el);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, appendToBody: true },
+    grid: { left: '8%', right: '5%', top: '8%', bottom: '12%' },
+    xAxis: { type: 'category', data: ['index', 'doc-viewer', 'interact', 'team', 'team-docs', 'updates'], axisLabel: { color: C.ink, fontSize: 12 }, axisLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'value', name: '功能模块数', nameTextStyle: { color: C.muted }, axisLabel: { color: C.muted }, splitLine: { lineStyle: { color: C.border } } },
+    series: [
+      {
+        type: 'bar',
+        data: [
+          { value: 3, itemStyle: { color: C.orange } },
+          { value: 5, itemStyle: { color: C.green } },
+          { value: 8, itemStyle: { color: C.pink } },
+          { value: 4, itemStyle: { color: C.cyan } },
+          { value: 6, itemStyle: { color: C.green } },
+          { value: 2, itemStyle: { color: C.orange } }
+        ],
+        barWidth: '45%',
+        itemStyle: { borderRadius: [6,6,0,0] },
+        label: { show: true, position: 'top', color: C.ink, fontWeight: 'bold' }
+      }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图3: API 业务域分布
+(function() {
+  var el = document.getElementById('chart-api');
+  if(!el) return;
+  var chart = echarts.init(el);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: { trigger: 'item', appendToBody: true, formatter: '{b}: {c} 个 ({d}%)' },
+    legend: { orient: 'vertical', right: '5%', top: 'middle', textStyle: { color: C.ink, fontSize: 13 } },
+    series: [{
+      type: 'pie',
+      radius: ['35%', '65%'],
+      center: ['35%', '50%'],
+      label: { show: true, formatter: '{b}\n{c}个', fontSize: 12, color: C.ink },
+      itemStyle: { borderColor: '#fff', borderWidth: 2 },
+      data: [
+        { value: 3, name: '认证系统', itemStyle: { color: C.purple } },
+        { value: 5, name: 'AI 对话', itemStyle: { color: C.pink } },
+        { value: 4, name: '评论社交', itemStyle: { color: C.green } },
+        { value: 1, name: '内容审核', itemStyle: { color: C.blue } },
+        { value: 1, name: '数据库初始化', itemStyle: { color: C.cyan } },
+        { value: 2, name: '个人资料', itemStyle: { color: C.orange } },
+        { value: 1, name: '健康检查', itemStyle: { color: C.red } }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图4: 文档访问流转（桑基图）
+(function() {
+  var el = document.getElementById('chart-flow');
+  if(!el) return;
+  var chart = echarts.init(el);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: { trigger: 'item', appendToBody: true },
+    series: [{
+      type: 'sankey',
+      left: '3%', right: '8%', top: '5%', bottom: '5%',
+      nodeWidth: 18, nodeGap: 12,
+      label: { fontSize: 13, color: C.ink, fontWeight: 'bold' },
+      lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.5 },
+      data: [
+        { name: '访问门户', itemStyle: { color: C.purple } },
+        { name: '获取 Token', itemStyle: { color: C.blue } },
+        { name: '进入页面', itemStyle: { color: C.orange } },
+        { name: '文档列表', itemStyle: { color: C.cyan } },
+        { name: 'Markdown 渲染', itemStyle: { color: C.green } },
+        { name: '阅读文章', itemStyle: { color: C.green } },
+        { name: 'Token 过期', itemStyle: { color: C.red } },
+        { name: '返回门户', itemStyle: { color: C.red } }
+      ],
+      links: [
+        { source: '访问门户', target: '获取 Token', value: 100 },
+        { source: '获取 Token', target: '进入页面', value: 95 },
+        { source: '获取 Token', target: '返回门户', value: 5 },
+        { source: '进入页面', target: '文档列表', value: 80 },
+        { source: '进入页面', target: 'Token 过期', value: 15 },
+        { source: '文档列表', target: 'Markdown 渲染', value: 75 },
+        { source: 'Markdown 渲染', target: '阅读文章', value: 73 },
+        { source: 'Token 过期', target: '返回门户', value: 15 }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+</script>
+
+</body>
+</html>
