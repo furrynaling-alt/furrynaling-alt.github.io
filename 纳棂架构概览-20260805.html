@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纳棂 - 项目架构概览</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root {
+  --ink: #1a1a2e;
+  --muted: #6c6c80;
+  --accent: #7c3aed;
+  --accent2: #d944ff;
+  --accent3: #ff6b9d;
+  --bg: #ffffff;
+  --bg2: #f8f9fc;
+  --border: #e8e8f0;
+  --green: #10b981;
+  --blue: #3b82f6;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --cyan: #06b6d4;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #f5f0ff 0%, #fdf0ff 50%, #fff5f8 100%);
+  padding: 60px 20px 50px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+.hero p { font-size: 15px; color: var(--muted); }
+.hero .tags { margin-top: 16px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.tag {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.tag-purple { background: #f0e7ff; color: var(--accent); }
+.tag-pink { background: #fce7f3; color: var(--accent3); }
+.tag-blue { background: #dbeafe; color: var(--blue); }
+.tag-green { background: #d1fae5; color: var(--green); }
+
+/* Section */
+.sec { padding: 40px 0; border-bottom: 1px solid var(--border); }
+.sec:last-child { border-bottom: none; }
+.sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  padding-left: 14px;
+  border-left: 4px solid var(--accent);
+}
+.sec-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; padding-left: 18px; }
+
+/* Chart */
+.chart-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+}
+.chart-box h3 { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.chart-box .sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.chart { width: 100%; }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 16px 0; }
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.1); }
+.card .icon { font-size: 28px; margin-bottom: 8px; }
+.card .num { font-size: 28px; font-weight: 800; color: var(--accent); }
+.card .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* Innovation */
+.innov-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+@media (max-width: 600px) { .innov-grid { grid-template-columns: 1fr; } }
+.innov-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.innov-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+}
+.innov-card h4 { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 6px; padding-left: 10px; }
+.innov-card p { font-size: 13px; color: var(--muted); padding-left: 10px; line-height: 1.6; }
+
+/* Architecture flow */
+.arch-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+.arch-layer {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.arch-layer .layer-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 70px;
+  text-align: right;
+}
+.arch-layer .layer-items { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.arch-item {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.ai-purple { background: #f0e7ff; color: var(--accent); border: 1px solid #d4c4f5; }
+.ai-pink { background: #fce7f3; color: var(--accent3); border: 1px solid #f3c4d8; }
+.ai-blue { background: #dbeafe; color: var(--blue); border: 1px solid #b8d0f9; }
+.ai-green { background: #d1fae5; color: var(--green); border: 1px solid #a3e6c2; }
+.ai-orange { background: #fef3c7; color: #b45309; border: 1px solid #f0d97a; }
+.ai-cyan { background: #cffafe; color: #0891b2; border: 1px solid #99e0eb; }
+
+/* Table */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.tbl th { background: var(--bg2); color: var(--accent); font-weight: 600; padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--accent); }
+.tbl td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--ink); }
+.tbl tr:hover td { background: #faf8ff; }
+
+/* Censored */
+.censored {
+  background: #e8e8f0;
+  color: transparent;
+  border-radius: 3px;
+  user-select: none;
+  padding: 0 4px;
+  letter-spacing: 2px;
+}
+
+footer { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>纳棂</h1>
+  <p>个人品牌全栈站点 — GitHub Pages + CloudBase 混合架构</p>
+  <div class="tags">
+    <span class="tag tag-purple">Vanilla JS 零框架</span>
+    <span class="tag tag-pink">CloudBase 云函数</span>
+    <span class="tag tag-blue">GitHub Pages</span>
+    <span class="tag tag-green">AES-256-GCM 加密</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- 核心数据 -->
+<section class="sec">
+  <div class="sec-title">核心数据一览</div>
+  <div class="sec-desc">站点整体规模与技术指标</div>
+  <div class="card-grid">
+    <div class="card"><div class="num">7</div><div class="label">独立页面</div></div>
+    <div class="card"><div class="num">15+</div><div class="label">API 端点</div></div>
+    <div class="card"><div class="num">8</div><div class="label">数据库集合</div></div>
+    <div class="card"><div class="num">5</div><div class="label">语言国际化</div></div>
+    <div class="card"><div class="num">4</div><div class="label">团队成员</div></div>
+    <div class="card"><div class="num">2</div><div class="label">CDN 依赖</div></div>
+  </div>
+</section>
+
+<!-- 页面架构 -->
+<section class="sec">
+  <div class="sec-title">页面关系架构</div>
+  <div class="sec-desc">7 个页面之间的导航与依赖关系</div>
+  <div id="chart-arch" class="chart" style="height:400px"></div>
+</section>
+
+<!-- 技术栈分层 -->
+<section class="sec">
+  <div class="sec-title">技术栈分层架构</div>
+  <div class="sec-desc">从客户端到数据的完整技术选型</div>
+  <div class="arch-flow">
+    <div class="arch-layer">
+      <div class="layer-label">客户端</div>
+      <div class="layer-items">
+        <span class="arch-item ai-purple">Chrome / Edge / Safari</span>
+        <span class="arch-item ai-pink">移动端浏览器</span>
+        <span class="arch-item ai-blue">桌面端浏览器</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">前端</div>
+      <div class="layer-items">
+        <span class="arch-item ai-purple">HTML5 语义化</span>
+        <span class="arch-item ai-pink">CSS3 变量 + 动画</span>
+        <span class="arch-item ai-blue">Vanilla JS 零框架</span>
+        <span class="arch-item ai-green">ECharts 可视化</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">静态托管</div>
+      <div class="layer-items">
+        <span class="arch-item ai-blue">GitHub Pages</span>
+        <span class="arch-item ai-blue">CloudFlare CDN</span>
+        <span class="arch-item ai-blue">自定义域名</span>
+        <span class="arch-item ai-cyan">HTTPS / TLS 1.3</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">API 网关</div>
+      <div class="layer-items">
+        <span class="arch-item ai-purple">CloudBase HTTP Service</span>
+        <span class="arch-item ai-purple">CORS 跨域</span>
+        <span class="arch-item ai-cyan">JWT Bearer Token</span>
+        <span class="arch-item ai-cyan">Token 过期检测</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">服务层</div>
+      <div class="layer-items">
+        <span class="arch-item ai-purple">CloudBase 云函数</span>
+        <span class="arch-item ai-pink">Node.js 运行时</span>
+        <span class="arch-item ai-blue">智谱 AI 对话/审核</span>
+        <span class="arch-item ai-green">SMTP 邮件服务</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">安全层</div>
+      <div class="layer-items">
+        <span class="arch-item ai-orange">AES-256-GCM 聊天加密</span>
+        <span class="arch-item ai-orange">JWT 7 天过期</span>
+        <span class="arch-item ai-orange">AI + 本地双重审核</span>
+        <span class="arch-item ai-orange">邮箱域名白名单</span>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="layer-label">数据层</div>
+      <div class="layer-items">
+        <span class="arch-item ai-green">CloudBase NoSQL</span>
+        <span class="arch-item ai-green">8 个集合</span>
+        <span class="arch-item ai-green">SHA256 哈希</span>
+        <span class="arch-item ai-cyan">本地 JSON 文件</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 页面功能分布 -->
+<section class="sec">
+  <div class="sec-title">页面功能分布</div>
+  <div class="sec-desc">各页面的功能权重与复杂度</div>
+  <div id="chart-pages" class="chart" style="height:350px"></div>
+</section>
+
+<!-- API 分布 -->
+<section class="sec">
+  <div class="sec-title">API 端点功能分布</div>
+  <div class="sec-desc">15+ 云端 API 按业务域分类</div>
+  <div id="chart-api" class="chart" style="height:350px"></div>
+</section>
+
+<!-- 文档流转 -->
+<section class="sec">
+  <div class="sec-title">文档访问全链路</div>
+  <div class="sec-desc">从用户进入站点到获取文档的完整流程</div>
+  <div id="chart-flow" class="chart" style="height:320px"></div>
+</section>
+
+<!-- 创新亮点 -->
+<section class="sec">
+  <div class="sec-title">架构创新与核心亮点</div>
+  <div class="sec-desc">项目中独具特色的技术方案</div>
+  <div class="innov-grid">
+    <div class="innov-card">
+      <h4>Token 全站访问网关</h4>
+      <p>统一 token-check.js 模块拦截所有页面入口，JWT 签名验证 + URL Token 直传双模式。7 天有效期，支持无感刷新，过期自动跳转门户获取新 Token。</p>
+    </div>
+    <div class="innov-card">
+      <h4>AES-256-GCM 加密聊天</h4>
+      <p>所有 AI 聊天消息在云端以 AES-256-GCM 加密存储，即使数据库被拖库也无法解密。密钥由服务端环境变量管理，与代码完全分离。</p>
+    </div>
+    <div class="innov-card">
+      <h4>双引擎内容审核</h4>
+      <p>智谱 AI 模型（结构审核）+ 本地拼音/中文词汇库（实时拦截）双重保障。5 次违规永久封禁，评论与聊天全覆盖，无需人工干预。</p>
+    </div>
+    <div class="innov-card">
+      <h4>五语言国际化零依赖</h4>
+      <p>简中 / 繁中 / 藏语 / English / 日本語 五语言实时切换。纯 JS 字典实现，无 i18n 库依赖，localStorage 持久化语言偏好。</p>
+    </div>
+    <div class="innov-card">
+      <h4>iOS 液态玻璃设计</h4>
+      <p>backdrop-filter: blur + 多层内阴影 + 扫光动画，精确复刻 iOS 灵动岛视觉效果。明暗双主题自动跟随系统，CSS 变量驱动全局配色。</p>
+    </div>
+    <div class="innov-card">
+      <h4>邮箱验证码登录</h4>
+      <p>nodemailer + SMTP 发送 6 位验证码，60 秒冷却 + 单日 3 次限制。域名白名单仅允许 QQ/Gmail/Outlook/iCloud/163 邮箱。未注册自动创建账号。</p>
+    </div>
+    <div class="innov-card">
+      <h4>零外部框架纯原生</h4>
+      <p>全站仅 2 个外部 CDN 依赖（marked.js 渲染 Markdown、qrcodejs 生成二维码），其余全部使用浏览器原生 API。首屏加载 < 200KB。</p>
+    </div>
+    <div class="innov-card">
+      <h4>Markdown 文档系统</h4>
+      <p>云端 .md 文件 + 本地兜底数据，marked.js 实时渲染。支持 URL 参数路由、IntersectionObserver 章节定位、敏感信息脱敏、5 语言双语排版。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 页面对比 -->
+<section class="sec">
+  <div class="sec-title">各页面功能对比</div>
+  <div class="sec-desc">页面入口、功能复杂度、外部依赖</div>
+  <table class="tbl">
+    <thead><tr><th>页面</th><th>文件名</th><th>Token 验证</th><th>外部依赖</th><th>核心功能</th></tr></thead>
+    <tbody>
+      <tr><td>门户首页</td><td>index.html</td><td>token-check</td><td>无</td><td>入口导航、Token 分发、OG 元数据</td></tr>
+      <tr><td>文档阅读器</td><td>doc-viewer.html</td><td>无</td><td>marked.js</td><td>Markdown 渲染、章节导航、暗黑模式</td></tr>
+      <tr><td>互动中心</td><td>interact.html</td><td>token-check</td><td>无</td><td>AI 聊天、评论区、个人资料、账号管理</td></tr>
+      <tr><td>团队页面</td><td>team.html</td><td>token-check</td><td>qrcodejs</td><td>成员展示、加密货币打赏、玻璃特效</td></tr>
+      <tr><td>团队文档库</td><td>team-docs.html</td><td>token-check</td><td>无</td><td>文档索引、作者筛选、分页、文档搜索</td></tr>
+      <tr><td>项目动态</td><td>updates.html</td><td>token-check</td><td>无</td><td>项目更新日志、时间线展示</td></tr>
+      <tr><td>架构概览</td><td>本页</td><td>无</td><td>ECharts</td><td>架构可视化、技术栈展示、数据统计</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 云函数 API 路由 -->
+<section class="sec">
+  <div class="sec-title">云函数 API 路由一览</div>
+  <div class="sec-desc">CloudBase 云函数提供的 HTTP API 端点</div>
+  <table class="tbl">
+    <thead><tr><th>路由</th><th>方法</th><th>认证</th><th>功能</th></tr></thead>
+    <tbody>
+      <tr><td>/api</td><td>GET</td><td>无</td><td>健康检查</td></tr>
+      <tr><td>/api/db-init</td><td>GET</td><td>无</td><td>数据库集合初始化</td></tr>
+      <tr><td>/api/send-code</td><td>POST</td><td>无</td><td>发送邮箱验证码（60s 冷却）</td></tr>
+      <tr><td>/api/login</td><td>POST</td><td>无</td><td>验证码登录 / 自动注册</td></tr>
+      <tr><td>/api/moderate</td><td>POST</td><td>JWT</td><td>AI + 本地内容审核</td></tr>
+      <tr><td>/api/chat</td><td>POST</td><td>JWT</td><td>AI 对话（每日 180 次限制）</td></tr>
+      <tr><td>/api/chat/conversations</td><td>GET/POST/DELETE</td><td>JWT</td><td>对话历史 CRUD</td></tr>
+      <tr><td>/api/chat/messages</td><td>GET</td><td>JWT</td><td>获取对话消息（AES 解密）</td></tr>
+      <tr><td>/api/chat/limit</td><td>GET</td><td>JWT</td><td>查询剩余对话次数</td></tr>
+      <tr><td>/api/comments</td><td>GET/POST</td><td>部分 JWT</td><td>评论列表 / 发表评论</td></tr>
+      <tr><td>/api/comments/delete</td><td>POST</td><td>JWT</td><td>软删除自己的评论</td></tr>
+      <tr><td>/api/comments/like</td><td>POST</td><td>JWT</td><td>点赞 / 取消点赞</td></tr>
+      <tr><td>/api/comments/mine</td><td>GET</td><td>JWT</td><td>我的帖子列表</td></tr>
+      <tr><td>/api/profile</td><td>GET/POST</td><td>JWT</td><td>个人资料查询 / 更新</td></tr>
+      <tr><td>/api/account</td><td>DELETE</td><td>JWT</td><td>账号注销（软删除）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+
+<footer>
+  纳棂 · 个人品牌全栈站点 · 2026
+</footer>
+
+<script>
+var C = {
+  purple: '#7c3aed', pink: '#d944ff', blue: '#3b82f6', green: '#10b981',
+  orange: '#f59e0b', cyan: '#06b6d4', red: '#ef4444', ink: '#1a1a2e',
+  muted: '#6c6c80', border: '#e8e8f0', bg2: '#f8f9fc'
+};
+
+// 图1: 页面关系架构图
+(function() {
+  var chart = echarts.init(document.getElementById('chart-arch'));
+  chart.setOption({
+    backgroundColor: '#fff',
+    animation: false,
+    tooltip: { appendToBody: true },
+    series: [{
+      type: 'graph',
+      layout: 'force',
+      force: { repulsion: 500, edgeLength: [120, 200], gravity: 0.08 },
+      roam: false,
+      label: { show: true, fontSize: 12, color: '#fff', fontWeight: 'bold' },
+      edgeSymbol: ['none', 'arrow'],
+      edgeSymbolSize: [0, 8],
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' },
+      data: [
+        { name: 'GitHub Pages\n静态托管', x: 300, y: 150, symbolSize: 75, itemStyle: { color: C.blue } },
+        { name: 'CloudBase\n云函数', x: 300, y: 350, symbolSize: 70, itemStyle: { color: C.purple } },
+        { name: '门户首页\nindex', x: 150, y: 40, symbolSize: 45, itemStyle: { color: C.orange } },
+        { name: '文档阅读器\ndoc-viewer', x: 450, y: 40, symbolSize: 45, itemStyle: { color: C.green } },
+        { name: '互动中心\ninteract', x: 0, y: 180, symbolSize: 50, itemStyle: { color: C.pink } },
+        { name: '团队页面\nteam', x: 600, y: 180, symbolSize: 45, itemStyle: { color: C.cyan } },
+        { name: '团队文档库\nteam-docs', x: 600, y: 280, symbolSize: 45, itemStyle: { color: C.green } },
+        { name: '项目动态\nupdates', x: 0, y: 280, symbolSize: 45, itemStyle: { color: C.orange } },
+        { name: 'CloudBase\nNoSQL', x: 300, y: 480, symbolSize: 55, itemStyle: { color: C.green } },
+        { name: '智谱AI\n审核/对话', x: 500, y: 400, symbolSize: 45, itemStyle: { color: C.red } },
+        { name: 'SMTP\n邮件服务', x: 100, y: 400, symbolSize: 40, itemStyle: { color: C.cyan } }
+      ],
+      links: [
+        { source: '门户首页\nindex', target: 'GitHub Pages\n静态托管' },
+        { source: '文档阅读器\ndoc-viewer', target: 'GitHub Pages\n静态托管' },
+        { source: '互动中心\ninteract', target: 'GitHub Pages\n静态托管' },
+        { source: '团队页面\nteam', target: 'GitHub Pages\n静态托管' },
+        { source: '团队文档库\nteam-docs', target: 'GitHub Pages\n静态托管' },
+        { source: '项目动态\nupdates', target: 'GitHub Pages\n静态托管' },
+        { source: '互动中心\ninteract', target: 'CloudBase\n云函数' },
+        { source: 'CloudBase\n云函数', target: 'CloudBase\nNoSQL' },
+        { source: 'CloudBase\n云函数', target: '智谱AI\n审核/对话', lineStyle: { type: 'dashed', color: C.red } },
+        { source: 'CloudBase\n云函数', target: 'SMTP\n邮件服务', lineStyle: { type: 'dashed', color: C.cyan } }
+      ],
+      lineStyle: { color: C.muted, width: 2, curveness: 0.15 }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图2: 页面功能权重
+(function() {
+  var chart = echarts.init(document.getElementById('chart-pages'));
+  chart.setOption({
+    backgroundColor: '#fff',
+    animation: false,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, appendToBody: true },
+    grid: { left: '8%', right: '5%', top: '8%', bottom: '12%' },
+    xAxis: { type: 'category', data: ['index', 'doc-viewer', 'interact', 'team', 'team-docs', 'updates'], axisLabel: { color: C.ink, fontSize: 12 }, axisLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'value', name: '功能模块数', nameTextStyle: { color: C.muted }, axisLabel: { color: C.muted }, splitLine: { lineStyle: { color: C.border } } },
+    series: [
+      {
+        type: 'bar',
+        data: [
+          { value: 3, itemStyle: { color: C.orange } },
+          { value: 5, itemStyle: { color: C.green } },
+          { value: 8, itemStyle: { color: C.pink } },
+          { value: 4, itemStyle: { color: C.cyan } },
+          { value: 6, itemStyle: { color: C.green } },
+          { value: 2, itemStyle: { color: C.orange } }
+        ],
+        barWidth: '45%',
+        itemStyle: { borderRadius: [6,6,0,0] },
+        label: { show: true, position: 'top', color: C.ink, fontWeight: 'bold' }
+      }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图3: API 业务域分布
+(function() {
+  var chart = echarts.init(document.getElementById('chart-api'));
+  chart.setOption({
+    backgroundColor: '#fff',
+    animation: false,
+    tooltip: { trigger: 'item', appendToBody: true, formatter: '{b}: {c} 个 ({d}%)' },
+    legend: { orient: 'vertical', right: '5%', top: 'middle', textStyle: { color: C.ink, fontSize: 13 } },
+    series: [{
+      type: 'pie',
+      radius: ['35%', '65%'],
+      center: ['35%', '50%'],
+      label: { show: true, formatter: '{b}\n{c}个', fontSize: 12, color: C.ink },
+      itemStyle: { borderColor: '#fff', borderWidth: 2 },
+      data: [
+        { value: 3, name: '认证系统', itemStyle: { color: C.purple } },
+        { value: 5, name: 'AI 对话', itemStyle: { color: C.pink } },
+        { value: 4, name: '评论社交', itemStyle: { color: C.green } },
+        { value: 1, name: '内容审核', itemStyle: { color: C.blue } },
+        { value: 1, name: '数据库初始化', itemStyle: { color: C.cyan } },
+        { value: 2, name: '个人资料', itemStyle: { color: C.orange } },
+        { value: 1, name: '健康检查', itemStyle: { color: C.red } }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// 图4: 文档访问流转（桑基图）
+(function() {
+  var chart = echarts.init(document.getElementById('chart-flow'));
+  chart.setOption({
+    backgroundColor: '#fff',
+    animation: false,
+    tooltip: { trigger: 'item', appendToBody: true },
+    series: [{
+      type: 'sankey',
+      left: '3%', right: '8%', top: '5%', bottom: '5%',
+      nodeWidth: 18, nodeGap: 12,
+      label: { fontSize: 13, color: C.ink, fontWeight: 'bold' },
+      lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.5 },
+      data: [
+        { name: '访问门户', itemStyle: { color: C.purple } },
+        { name: '获取 Token', itemStyle: { color: C.blue } },
+        { name: '进入页面', itemStyle: { color: C.orange } },
+        { name: '文档列表', itemStyle: { color: C.cyan } },
+        { name: 'Markdown 渲染', itemStyle: { color: C.green } },
+        { name: '阅读文章', itemStyle: { color: C.green } },
+        { name: 'Token 过期', itemStyle: { color: C.red } },
+        { name: '返回门户', itemStyle: { color: C.red } }
+      ],
+      links: [
+        { source: '访问门户', target: '获取 Token', value: 100 },
+        { source: '获取 Token', target: '进入页面', value: 95 },
+        { source: '获取 Token', target: '返回门户', value: 5 },
+        { source: '进入页面', target: '文档列表', value: 80 },
+        { source: '进入页面', target: 'Token 过期', value: 15 },
+        { source: '文档列表', target: 'Markdown 渲染', value: 75 },
+        { source: 'Markdown 渲染', target: '阅读文章', value: 73 },
+        { source: 'Token 过期', target: '返回门户', value: 15 }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+</script>
+
+</body>
+</html>
