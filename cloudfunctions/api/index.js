@@ -43,6 +43,11 @@ const MAX_VIOLATIONS = 5;
 const CODE_COOLDOWN_MS = 60 * 1000;
 const DAILY_CHAT_LIMIT = 180;
 const AVATAR_CHANGE_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 头像每天只能改一次
+const LOGIN_IP_WINDOW_MS = 5 * 60 * 1000;   // 登录 IP 频率窗口 5 分钟
+const LOGIN_IP_MAX = 10;                      // 每 IP 每窗口最多 10 次登录尝试
+const COMMENT_COOLDOWN_MS = 30 * 1000;        // 评论冷却 30 秒
+const COMMENT_DAILY_MAX = 30;                 // 每日评论上限
+const LIKE_COOLDOWN_MS = 3 * 1000;            // 点赞冷却 3 秒
 
 // 邮箱域名白名单（仅允许常用个人邮箱）
 const ALLOWED_EMAIL_DOMAINS = [
@@ -516,10 +521,20 @@ async function handleSendCode(body) {
   }
 }
 
-async function handleLogin(body) {
+async function handleLogin(body, clientIP) {
   const email = (body.email || '').trim().toLowerCase();
   const code = (body.code || '').trim();
   if (!email || !code) return response(400, { ok: false, error: '缺少参数' });
+
+  // IP 频率限制：同一 IP 每 5 分钟最多 10 次登录尝试（防暴力破解）
+  const ipHash = hashIP(clientIP);
+  const ipRecent = await db.collection('verify_codes')
+    .where({ ipHash, type: 'login_attempt', createdAt: _.gte(Date.now() - LOGIN_IP_WINDOW_MS) }).count();
+  if (ipRecent.total >= LOGIN_IP_MAX) {
+    return response(429, { ok: false, error: '登录尝试过于频繁，请5分钟后再试' });
+  }
+  // 记录本次登录尝试（用于 IP 频率计数）
+  db.collection('verify_codes').add({ email, type: 'login_attempt', ipHash, createdAt: Date.now() }).catch(() => {});
 
   const vc = await db.collection('verify_codes')
     .where({ email, code, used: false }).orderBy('createdAt', 'desc').limit(1).get();
@@ -827,6 +842,21 @@ async function handleAddComment(body, auth) {
   if (!content) return response(400, { ok: false, error: '内容不能为空' });
   if (content.length > 1000) return response(400, { ok: false, error: '内容过长' });
 
+  // 频率限制：冷却 30 秒 + 每日上限 30 条
+  const lastComment = await db.collection('comments')
+    .where({ email: auth.email }).orderBy('createdAt', 'desc').limit(1).get();
+  if (lastComment.data.length > 0 && (Date.now() - lastComment.data[0].createdAt) < COMMENT_COOLDOWN_MS) {
+    const remain = Math.ceil((COMMENT_COOLDOWN_MS - (Date.now() - lastComment.data[0].createdAt)) / 1000);
+    return response(429, { ok: false, error: `发言太快了，请${remain}秒后再试` });
+  }
+
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const todayCnt = await db.collection('comments')
+    .where({ email: auth.email, createdAt: _.gte(todayStart.getTime()) }).count();
+  if (todayCnt.total >= COMMENT_DAILY_MAX) {
+    return response(429, { ok: false, error: `今日评论已达上限（${COMMENT_DAILY_MAX}条），请明天再来` });
+  }
+
   const user = await db.collection('users').where({ email: auth.email }).get();
   if (user.data.length === 0) return response(404, { ok: false, error: '账号不存在' });
 
@@ -873,6 +903,13 @@ async function handleLikeComment(body, auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
   const commentId = (body.commentId || '').trim();
   if (!commentId) return response(400, { ok: false, error: '缺少commentId' });
+
+  // 频率限制：冷却 3 秒，防止快速点击刷数据库
+  const lastLike = await db.collection('likes')
+    .where({ email: auth.email }).orderBy('createdAt', 'desc').limit(1).get();
+  if (lastLike.data.length > 0 && (Date.now() - lastLike.data[0].createdAt) < LIKE_COOLDOWN_MS) {
+    return response(429, { ok: false, error: '操作太快了，请稍后再试' });
+  }
 
   const comment = await db.collection('comments').doc(commentId).get();
   if (!comment.data || comment.data.length === 0) return response(404, { ok: false, error: '帖子不存在' });
@@ -1071,6 +1108,11 @@ exports.main = async (event, context) => {
 
   const query = event.queryStringParameters || {};
 
+  // 获取客户端 IP（X-Forwarded-For 取第一个，兼容代理层）
+  const clientIP = (event.headers?.['x-forwarded-for'] || event.headers?.['x-real-ip'] || '').split(',')[0].trim()
+    || (event.requestContext?.identity?.sourceIp || '').trim()
+    || '0.0.0.0';
+
   let auth = null;
   const authHeader = event.headers?.authorization || event.headers?.Authorization || '';
   if (authHeader.startsWith('Bearer ')) {
@@ -1108,7 +1150,7 @@ exports.main = async (event, context) => {
 
       case '/login':
         if (method !== 'POST') return response(405, { error: 'Method not allowed' });
-        return await handleLogin(body);
+        return await handleLogin(body, clientIP);
 
       case '/moderate':
         if (method !== 'POST') return response(405, { error: 'Method not allowed' });
