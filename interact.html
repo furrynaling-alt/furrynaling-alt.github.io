@@ -1224,7 +1224,7 @@
         <!-- 左侧历史对话侧边栏 -->
         <aside class="chat-sidebar" id="chatSidebar">
           <div class="sidebar-header">
-            <span data-i18n="chat.loading">对话历史</span>
+            <span data-i18n="chat.history">对话历史</span>
             <button class="sidebar-toggle-btn" id="sidebarToggle" title="收起侧边栏">☰</button>
           </div>
           <button class="new-chat-btn" id="newChatBtn" data-i18n="chat.new">+ 新建对话</button>
@@ -1738,16 +1738,25 @@ $('#avatarWrap').addEventListener('click', function() {
 $('#avatarFile').addEventListener('change', function() {
   const file = this.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    setProfileStatus('图片不能超过 2MB', 'error');
+  if (file.size > 5 * 1024 * 1024) {
+    setProfileStatus('图片不能超过 5MB', 'error');
     return;
   }
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    profileAvatar = e.target.result;
+  // 用 Canvas 压缩头像到 200x200，避免 base64 过大导致请求失败
+  const img = new Image();
+  img.onload = function() {
+    const size = Math.min(img.width, img.height, 200);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    // 裁剪中心正方形
+    const sx = (img.width - size) / 2;
+    const sy = (img.height - size) / 2;
+    ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
+    profileAvatar = canvas.toDataURL('image/jpeg', 0.75);
     updateProfilePanel();
   };
-  reader.readAsDataURL(file);
+  img.src = URL.createObjectURL(file);
 });
 
 // 昵称输入
@@ -2311,6 +2320,7 @@ var i18nDict = {
     "login.need":"请先登录","login.profile.required":"请完善个人资料后再评论",
     "chat.new":"+ 新对话","chat.new.default":"新对话","chat.delete":"删除","chat.delete.confirm":"确定删除该对话？",
     "chat.placeholder":"输入消息...","chat.send":"发送","chat.loading":"加载中...","chat.empty":"暂无对话",
+    "chat.history":"对话历史",
     "chat.thinking":"思考中...","chat.error":"发送失败，请重试","chat.no.conversations":"点击 + 开始新对话",
     "comment.title":"评论区","comment.empty":"✨ 还没有帖子，来说点什么吧~","comment.load.error":"⚠️ 加载失败，请重试",
     "comment.placeholder":"分享你的想法...","comment.submit":"发布","comment.login.tip":"请先登录后再发布帖子",
@@ -2338,6 +2348,7 @@ var i18nDict = {
     "login.need":"請先登入","login.profile.required":"請完善個人資料後再評論",
     "chat.new":"+ 新對話","chat.new.default":"新對話","chat.delete":"刪除","chat.delete.confirm":"確定刪除此對話？",
     "chat.placeholder":"輸入訊息...","chat.send":"發送","chat.loading":"載入中...","chat.empty":"暫無對話",
+    "chat.history":"對話歷史",
     "chat.thinking":"思考中...","chat.error":"發送失敗，請重試","chat.no.conversations":"點擊 + 開始新對話",
     "comment.title":"評論區","comment.empty":"✨ 還沒有貼文，來說點什麼吧~","comment.load.error":"⚠️ 載入失敗，請重試",
     "comment.placeholder":"分享你的想法...","comment.submit":"發布","comment.login.tip":"請先登入後再發布貼文",
@@ -2365,6 +2376,7 @@ var i18nDict = {
     "login.need":"སྔོན་ལ་ཐོ་འགོད་གནང་།","login.profile.required":"སྔོན་ལ་མི་སྒེར་གནས་ཚུལ་ཚང་བཅོས་གནང་།",
     "chat.new":"+ སྐད་ཆ་གསར་པ།","chat.new.default":"སྐད་ཆ་གསར་པ།","chat.delete":"གསུབ།","chat.delete.confirm":"སྐད་ཆ་འདི་གསུབ་རྩིས་ཡོད་དམ།",
     "chat.placeholder":"གཏམ་འཇུག...","chat.send":"གཏོང་།","chat.loading":"འཇུག་བཞིན་པ...","chat.empty":"སྐད་ཆ་མེད།",
+    "chat.history":"སྐད་ཆའི་ལོ་རྒྱུས།",
     "chat.thinking":"བསམ་གཞིགས་བྱེད་བཞིན་པ...","chat.error":"གཏོང་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།","chat.no.conversations":"+ སྐད་ཆ་གསར་པ་འགོ་འཛུགས།",
     "comment.title":"དཔྱད་གཏམ།","comment.empty":"✨ ད་དུང་ཡིག་ཟམ་མེད། ཅི་ཞིག་ལབ་དང་།","comment.load.error":"⚠️ འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
     "comment.placeholder":"ཁྱེད་ཀྱི་བསམ་ཚུལ་བརྗོད།","comment.submit":"སྤེལ།","comment.login.tip":"སྔོན་ལ་ཐོ་འགོད་གནང་།",
@@ -2392,6 +2404,7 @@ var i18nDict = {
     "login.need":"Please login first","login.profile.required":"Please complete your profile before commenting",
     "chat.new":"+ New Chat","chat.new.default":"New Chat","chat.delete":"Delete","chat.delete.confirm":"Delete this conversation?",
     "chat.placeholder":"Type a message...","chat.send":"Send","chat.loading":"Loading...","chat.empty":"No conversations",
+    "chat.history":"Chat History",
     "chat.thinking":"Thinking...","chat.error":"Send failed, please retry","chat.no.conversations":"Click + to start a new chat",
     "comment.title":"Comments","comment.empty":"✨ No posts yet, say something~","comment.load.error":"⚠️ Load failed, please retry",
     "comment.placeholder":"Share your thoughts...","comment.submit":"Post","comment.login.tip":"Please login to post",
@@ -2419,6 +2432,7 @@ var i18nDict = {
     "login.need":"先にログインしてください","login.profile.required":"コメントする前にプロフィールを完成させてください",
     "chat.new":"+ 新規チャット","chat.new.default":"新規チャット","chat.delete":"削除","chat.delete.confirm":"この会話を削除しますか？",
     "chat.placeholder":"メッセージを入力...","chat.send":"送信","chat.loading":"読み込み中...","chat.empty":"会話がありません",
+    "chat.history":"チャット履歴",
     "chat.thinking":"考え中...","chat.error":"送信に失敗しました。再試行してください","chat.no.conversations":"+ をクリックして新規チャットを開始",
     "comment.title":"コメント","comment.empty":"✨ まだ投稿がありません。何か話しましょう〜","comment.load.error":"⚠️ 読み込みに失敗しました。再試行してください",
     "comment.placeholder":"あなたの考えを共有...","comment.submit":"投稿","comment.login.tip":"投稿するにはログインしてください",
