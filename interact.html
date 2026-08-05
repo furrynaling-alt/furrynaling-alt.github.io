@@ -721,6 +721,47 @@
   }
   .user-bar .delete-account-btn:hover{background:#e74c3c;color:#fff;border-color:#e74c3c;}
 
+  /* 个人资料面板 / 登录弹窗内的通用按钮与链接（不再局限于顶部状态栏） */
+  .logout-btn{
+    background:var(--primary-soft);
+    color:var(--text-sub);
+    border:none;padding:10px 24px;border-radius:50px;
+    font-size:14px;cursor:pointer;
+    transition:all .3s;
+    font-family:inherit;
+  }
+  .logout-btn:hover{background:#e74c3c;color:#fff;}
+  .delete-account-btn{
+    background:transparent;
+    color:var(--text-mute);
+    border:1px solid var(--border);
+    padding:10px 22px;border-radius:50px;
+    font-size:13px;cursor:pointer;
+    transition:all .3s;
+    font-family:inherit;
+  }
+  .delete-account-btn:hover{background:#e74c3c;color:#fff;border-color:#e74c3c;}
+
+  /* 账号管理区：退出/注销按钮横向排列 */
+  .account-actions{
+    display:flex;gap:12px;justify-content:center;
+    margin-top:26px;padding-top:22px;border-top:1px solid var(--border);
+  }
+
+  /* 隐私协议链接：个人资料底部 / 登录弹窗底部 */
+  .profile-privacy{
+    text-align:center;margin-top:18px;
+    font-size:12px;color:var(--text-mute);
+  }
+  .profile-privacy a, .login-privacy a{
+    color:var(--primary);text-decoration:none;
+  }
+  .profile-privacy a:hover, .login-privacy a:hover{text-decoration:underline;}
+  .login-privacy{
+    text-align:center;margin-top:18px;
+    font-size:12px;color:var(--text-mute);
+  }
+
   /* 注销确认弹窗 */
   .delete-modal-overlay{
     position:fixed;inset:0;z-index:2000;
@@ -1113,6 +1154,8 @@
     line-height:1;padding:0;margin-left:4px;font-family:inherit;
   }
   .c-delete-btn:hover{background:rgba(231,76,60,.12);color:#e74c3c;}
+  .c-delete-btn.admin{background:rgba(231,76,60,.14);color:#e74c3c;border:1px solid rgba(231,76,60,.3);}
+  .c-delete-btn.admin:hover{background:rgba(231,76,60,.24);}
   .comment-empty{text-align:center;padding:40px 20px;color:var(--text-mute);}
   .pagination{
     display:flex;justify-content:center;gap:8px;margin-top:24px;
@@ -1191,10 +1234,6 @@
   <!-- 已登录状态栏 -->
   <div class="user-bar" id="userBar" style="display:none">
     <span>已登录：<span class="user-email" id="userEmail"></span></span>
-    <div>
-      <button class="delete-account-btn" id="deleteAccountBtn">注销账号</button>
-      <button class="logout-btn" id="logoutBtn" data-i18n="login.logout">退出登录</button>
-    </div>
   </div>
 
   <!-- 账号注销确认弹窗 -->
@@ -1324,6 +1363,15 @@
         <h3 class="my-comments-title" data-i18n="profile.my.posts">📝 我的帖子</h3>
         <div id="myCommentsList"><div class="my-comment-empty" data-i18n="profile.loading">加载中...</div></div>
       </div>
+      <!-- 账号管理 -->
+      <div class="account-actions">
+        <button class="logout-btn" id="logoutBtn" data-i18n="login.logout">退出登录</button>
+        <button class="delete-account-btn" id="deleteAccountBtn">注销账号</button>
+      </div>
+      <!-- 隐私协议 -->
+      <div class="profile-privacy">
+        <a href="privacy.html" target="_blank" rel="noopener">《隐私协议》</a>
+      </div>
     </div>
   </div>
 </main>
@@ -1353,6 +1401,9 @@
       </div>
       <button class="btn-primary" id="verifyBtn" data-i18n="login.submit">验证并登录</button>
       <div class="modal-error" id="codeError"></div>
+    </div>
+    <div class="login-privacy">
+      登录即表示你已阅读并同意 <a href="privacy.html" target="_blank" rel="noopener">《隐私协议》</a>
     </div>
   </div>
 </div>
@@ -1652,6 +1703,7 @@ async function loadProfile() {
     if (resp.ok && resp.profile) {
       profileNickname = resp.profile.nickname || '';
       profileAvatar = resp.profile.avatar || '';
+      window.currentUserIsAdmin = !!resp.profile.isAdmin;
       // 更新个人面板
       updateProfilePanel();
       // 更新评论区锁定状态
@@ -1835,6 +1887,7 @@ $('#commentInput').addEventListener('input', function() {
 async function loadComments() {
   try {
     const resp = await api(`/comments?page=${commentPage}&pageSize=${COMMENTS_PER_PAGE}`, 'GET');
+    window.currentUserIsAdmin = !!(resp && resp.isAdmin);
     const list = $('#commentList');
     const pages = $('#commentPages');
 
@@ -1860,7 +1913,7 @@ async function loadComments() {
           ${avatarHtml}
           <span class="c-name">${escapeHtml(nick)}</span>
           <span class="c-time">${fmtTime(c.createdAt)}</span>
-          ${isMine ? `<button class="c-delete-btn" onclick="deleteMyComment('${c.id}')" title="删除">×</button>` : ''}
+          ${isMine || window.currentUserIsAdmin ? `<button class="c-delete-btn ${window.currentUserIsAdmin && !isMine ? 'admin' : ''}" onclick="deleteMyComment('${c.id}')" title="${isMine ? '删除' : '管理员删除'}">×</button>` : ''}
         </div>
         <div class="c-body">${escapeHtml(c.content)}</div>
         <div class="c-footer">

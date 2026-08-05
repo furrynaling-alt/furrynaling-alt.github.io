@@ -190,6 +190,13 @@ function verifyToken(token) {
   catch { return null; }
 }
 
+// 判断给定邮箱是否为管理员（来自环境变量 ADMIN_EMAILS，逗号分隔，大小写不敏感）
+function isAdminEmail(email) {
+  const list = (process.env.ADMIN_EMAILS || '')
+    .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  return !!email && list.includes(String(email).toLowerCase());
+}
+
 function hashIP(ip) {
   return crypto.createHash('sha256').update(ip + '*******').digest('hex').slice(0, 16);
 }
@@ -835,7 +842,8 @@ async function handleGetComments(query, auth) {
       likeCount: likeCounts[c._id] || 0,
       likedByMe: likedSet.has(c._id)
     })),
-    total: total.total, page, pageSize
+    total: total.total, page, pageSize,
+    isAdmin: isAdminEmail(auth && auth.email)
   });
 }
 
@@ -894,7 +902,7 @@ async function handleDeleteComment(body, auth) {
     return response(404, { ok: false, error: '帖子不存在' });
   }
   const c = Array.isArray(comment.data) ? comment.data[0] : comment.data;
-  if (c.email !== auth.email) {
+  if (c.email !== auth.email && !isAdminEmail(auth.email)) {
     return response(403, { ok: false, error: '只能删除自己的帖子' });
   }
 
@@ -979,7 +987,8 @@ async function handleGetProfile(auth) {
       violationCount: u.violationCount || 0,
       isBanned,
       isPermanentlyBanned: isPermanent,
-      banMessage: isBanned ? getBanMessage(u.bannedUntil) : null
+      banMessage: isBanned ? getBanMessage(u.bannedUntil) : null,
+      isAdmin: isAdminEmail(auth.email)
     }
   });
 }
@@ -1050,7 +1059,7 @@ async function handleDeleteAccount(auth) {
   return response(200, { ok: true, message: '账号已注销' });
 }
 
-// ============ 人设管理接口（管理员可在前端修改人设） ============
+// ============ 人设管理接口（登录用户均可在前端修改人设） ============
 async function handleGetCharacter(auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
   const prompt = await getCharacterPrompt();
@@ -1059,12 +1068,7 @@ async function handleGetCharacter(auth) {
 
 async function handleUpdateCharacter(body, auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
-  // 管理员校验：仅当 CloudBase 环境变量 ADMIN_EMAILS 显式配置时才启用，
-  // 避免误锁管理员账号。多个管理员用逗号分隔。
-  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
-  if (adminEmails.length > 0 && !adminEmails.includes(auth.email.toLowerCase())) {
-    return response(403, { ok: false, error: '无权限：仅管理员可修改人设' });
-  }
+  // 人人平等：任何登录用户均可修改纳棂人设，不单独限制管理员。
   const prompt = (body.characterPrompt || '').trim();
   if (!prompt) return response(400, { ok: false, error: '人设提示词不能为空' });
   if (prompt.length > 5000) return response(400, { ok: false, error: '人设提示词过长' });
