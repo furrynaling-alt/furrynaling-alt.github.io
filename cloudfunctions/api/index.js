@@ -274,7 +274,10 @@ async function getDeepSeekKey() {
 
 
 // ============ 加密工具（AES-256-GCM） ============
-const ENC_KEY = crypto.createHash('sha256').update('naling-chat-enc-key-2025').digest();
+// 加密种子优先从环境变量读取（CloudBase 控制台配置 ENC_KEY 后才真正安全）；
+// 未配置时回退到硬编码种子，保证历史加密数据仍可解密（但公开源码下该回退不安全）。
+const ENC_KEY_SEED = process.env.ENC_KEY || 'naling-chat-enc-key-2025';
+const ENC_KEY = crypto.createHash('sha256').update(ENC_KEY_SEED).digest();
 
 function encrypt(text) {
   const iv = crypto.randomBytes(16);
@@ -1056,6 +1059,12 @@ async function handleGetCharacter(auth) {
 
 async function handleUpdateCharacter(body, auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
+  // 管理员校验：仅当 CloudBase 环境变量 ADMIN_EMAILS 显式配置时才启用，
+  // 避免误锁管理员账号。多个管理员用逗号分隔。
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  if (adminEmails.length > 0 && !adminEmails.includes(auth.email.toLowerCase())) {
+    return response(403, { ok: false, error: '无权限：仅管理员可修改人设' });
+  }
   const prompt = (body.characterPrompt || '').trim();
   if (!prompt) return response(400, { ok: false, error: '人设提示词不能为空' });
   if (prompt.length > 5000) return response(400, { ok: false, error: '人设提示词过长' });
