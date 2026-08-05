@@ -1359,7 +1359,7 @@
 
 <script>
 // ========== API 配置 ==========
-const API_BASE = 'https://**************************.service.tcloudbase.com/api';
+const API_BASE = 'https://naling-sql-d8go4z9v64d3cd083.service.tcloudbase.com/api';
 
 // ========== 工具函数 ==========
 const $ = (sel, ctx) => (ctx || document).querySelector(sel);
@@ -1771,22 +1771,25 @@ $('#profileSaveBtn').addEventListener('click', async function() {
   this.textContent = t('profile.status.saving');
   setProfileStatus('', '');
 
+  // 乐观更新：先在本地点亮 UI，让用户立刻看到效果
+  profileNickname = nick;
+  updateProfilePanel();
+  updateCommentLock();
+
   try {
     const body = { nickname: nick };
     if (profileAvatar) body.avatar = profileAvatar;
     const resp = await api('/profile', 'POST', body);
     if (resp.ok) {
-      profileNickname = nick;
-      updateProfilePanel();
-      updateCommentLock();
       setProfileStatus('✓ 资料已保存', 'success');
-      // 刷新评论列表以更新显示
       if (isLoggedIn()) loadComments();
     } else {
-      setProfileStatus(resp.error || '保存失败', 'error');
+      setProfileStatus(resp.error || '服务器保存失败，请稍后重试', 'error');
+      console.error('[profile] 服务器保存失败:', JSON.stringify(resp));
     }
   } catch (e) {
-    setProfileStatus('网络错误', 'error');
+    setProfileStatus('网络异常：请检查连接后重试', 'error');
+    console.error('[profile] 网络错误:', e.message || e);
   } finally {
     this.disabled = false;
     this.textContent = t('profile.save');
