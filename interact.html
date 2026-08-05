@@ -1742,18 +1742,30 @@ $('#avatarFile').addEventListener('change', function() {
     setProfileStatus('图片不能超过 5MB', 'error');
     return;
   }
-  // 用 Canvas 压缩头像到 200x200，避免 base64 过大导致请求失败
+  // 用 Canvas 压缩头像到 300x300，等比缩放保留完整画面不裁剪
   const img = new Image();
   img.onload = function() {
-    const size = Math.min(img.width, img.height, 200);
+    const targetSize = 300;
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
+    canvas.width = canvas.height = targetSize;
     const ctx = canvas.getContext('2d');
-    // 裁剪中心正方形
-    const sx = (img.width - size) / 2;
-    const sy = (img.height - size) / 2;
-    ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
-    profileAvatar = canvas.toDataURL('image/jpeg', 0.75);
+
+    // 等比缩放：取较小缩放比，使整张图都装进正方形画布
+    const scale = Math.min(targetSize / img.width, targetSize / img.height);
+    const drawW = Math.round(img.width * scale);
+    const drawH = Math.round(img.height * scale);
+    const dx = Math.round((targetSize - drawW) / 2);
+    const dy = Math.round((targetSize - drawH) / 2);
+
+    // 先画模糊背景（用原图缩放到全画布做背景，避免空白黑边）
+    ctx.filter = 'blur(30px) brightness(0.7)';
+    ctx.drawImage(img, 0, 0, targetSize, targetSize);
+    ctx.filter = 'none';
+
+    // 再画清晰的前景图，居中显示，完整保留
+    ctx.drawImage(img, dx, dy, drawW, drawH);
+
+    profileAvatar = canvas.toDataURL('image/jpeg', 0.8);
     updateProfilePanel();
   };
   img.src = URL.createObjectURL(file);
