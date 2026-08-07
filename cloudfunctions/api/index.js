@@ -1187,7 +1187,17 @@ async function handleUpdateProfile(body, auth) {
     const avatar = String(body.avatar).trim();
     if (avatar.length > 500000) return response(400, { ok: false, error: '头像数据过大' });
 
-    // 头像修改频率限制：每天最多改 2 次（按本地日期重置）
+    // 腾讯云 IMS 图片内容安全审核头像（先审核，违规拦截不计修改额度、但计入违规次数）
+    if (avatar.startsWith('data:image')) {
+      const imgMod = await aiModerateImage(avatar);
+      if (imgMod.blocked) {
+        const vc = await addViolation(auth.email, imgMod);
+        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
+      }
+    }
+
+    // 头像修改频率限制：每天最多改 2 次（按本地日期重置）。审核通过后才占用额度，
+    // 因此「被拒不算一次」（违规拦截已在上一步 return，不会走到这里）。
     const todayStr = getBeijingDateStr();
     const avatarChangeDate = user.data[0].avatarChangeDate;
     let avatarChangeCount = user.data[0].avatarChangeCount || 0;
@@ -1196,15 +1206,6 @@ async function handleUpdateProfile(body, auth) {
     }
     if (avatarChangeCount >= 2) {
       return response(429, { ok: false, error: '头像每天最多修改 2 次，明天再来吧~' });
-    }
-
-    // 腾讯云 IMS 图片内容安全审核头像
-    if (avatar.startsWith('data:image')) {
-      const imgMod = await aiModerateImage(avatar);
-      if (imgMod.blocked) {
-        const vc = await addViolation(auth.email, imgMod);
-        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
-      }
     }
 
     update.avatar = avatar;
