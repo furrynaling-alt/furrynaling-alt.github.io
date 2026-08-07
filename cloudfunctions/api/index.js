@@ -498,7 +498,13 @@ async function aiModerateImage(base64Data) {
 
 // ============ 违规记录 ============
 async function addViolation(email, reason) {
-  const user = await db.collection('users').where({ email }).get();
+  // 兼容老账号：用户记录可能只存了 emailHash/emailEnc（无明文 email），需用三种标识匹配
+  const q = _.or([
+    { email: String(email).toLowerCase() },
+    { emailHash: emailHashOf(email) },
+    { emailEnc: encEmail(email) }
+  ]);
+  const user = await db.collection('users').where(q).get();
   if (user.data.length === 0) return 0;
   const newCount = (user.data[0].violationCount || 0) + 1;
   const update = { violationCount: newCount };
@@ -1196,8 +1202,8 @@ async function handleUpdateProfile(body, auth) {
     if (avatar.startsWith('data:image')) {
       const imgMod = await aiModerateImage(avatar);
       if (imgMod.blocked) {
-        await addViolation(auth.email, imgMod);
-        return response(403, { ok: false, blocked: true, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
+        const vc = await addViolation(auth.email, imgMod);
+        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
       }
     }
 
