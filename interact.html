@@ -1193,6 +1193,7 @@
     background:rgba(231,76,60,.1);
   }
   .c-like-btn:disabled{cursor:not-allowed;opacity:.5;}
+  .c-like-btn.liked:disabled{opacity:1;cursor:default;background:rgba(231,76,60,.1);}
   .c-delete-btn{
     display:inline-flex;align-items:center;justify-content:center;
     width:28px;height:28px;border-radius:50%;
@@ -2113,7 +2114,7 @@ async function loadComments() {
         </div>
         <div class="c-body">${escapeHtml(c.content)}</div>
         <div class="c-footer">
-          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${c.id}')" ${isLoggedIn() ? '' : 'disabled title="请先登录"'}>
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${c.id}')" ${isLoggedIn() ? (c.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
             ${likeIcon} <span>${c.likeCount || 0}</span>
           </button>
           <button class="c-reply-btn" onclick="openReply('${c.id}')">${ICON.reply} 回复</button>
@@ -2177,7 +2178,7 @@ function renderReplies(c) {
         </div>
         <div class="r-body">${escapeHtml(r.content)}</div>
         <div class="r-footer">
-          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${r.id}')" ${isLoggedIn() ? '' : 'disabled title="请先登录"'}>
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${r.id}')" ${isLoggedIn() ? (r.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
             <span>${likeIcon}</span> <span>${r.likeCount || 0}</span>
           </button>
         </div>
@@ -2617,16 +2618,22 @@ function getMyEmail() {
 
 async function toggleLike(commentId) {
   if (!isLoggedIn()) { alert(t('login.need')); showLogin(); return; }
+  const btn = document.querySelector(`#comment-${commentId} .c-like-btn`);
+  if (btn && btn.disabled) return; // 已点赞，禁止重复点击
+  if (btn) btn.disabled = true;    // 点击后立即禁用，防止连点
   try {
     const resp = await api('/comments/like', 'POST', { commentId });
     if (!resp.ok) throw new Error(resp.error);
-    // 更新页面中的点赞数和状态
-    const btn = document.querySelector(`#comment-${commentId} .c-like-btn`);
+    // 一个账号每评论只能点一次赞：点赞后保持已赞状态并禁用按钮，不可取消
     if (btn) {
-      btn.classList.toggle('liked', resp.liked);
+      btn.classList.add('liked');
       btn.innerHTML = ICON.like + ' <span>' + resp.likeCount + '</span>';
+      btn.disabled = true;
     }
-  } catch(e) { alert(t('comment.like.failed') + e.message); }
+  } catch(e) {
+    if (btn) btn.disabled = false; // 失败才允许重试
+    alert(t('comment.like.failed') + e.message);
+  }
 }
 
 async function deleteMyComment(commentId) {

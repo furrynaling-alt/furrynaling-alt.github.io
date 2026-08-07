@@ -53,7 +53,6 @@ const LOGIN_IP_WINDOW_MS = 5 * 60 * 1000;   // 登录 IP 频率窗口 5 分钟
 const LOGIN_IP_MAX = 10;                      // 每 IP 每窗口最多 10 次登录尝试
 const COMMENT_COOLDOWN_MS = 30 * 1000;        // 评论冷却 30 秒
 const COMMENT_DAILY_MAX = 30;                 // 每日评论上限
-const LIKE_COOLDOWN_MS = 3 * 1000;            // 点赞冷却 3 秒
 
 // 邮箱域名白名单（仅允许常用个人邮箱）
 const ALLOWED_EMAIL_DOMAINS = [
@@ -1059,28 +1058,27 @@ async function handleLikeComment(body, auth) {
   const commentId = (body.commentId || '').trim();
   if (!commentId) return response(400, { ok: false, error: '缺少commentId' });
 
-  // 频率限制：冷却 3 秒，防止快速点击刷数据库
-  const lastLike = await db.collection('likes')
-    .where({ email: auth.email }).orderBy('createdAt', 'desc').limit(1).get();
-  if (lastLike.data.length > 0 && (Date.now() - lastLike.data[0].createdAt) < LIKE_COOLDOWN_MS) {
-    return response(429, { ok: false, error: '操作太快了，请稍后再试' });
-  }
-
   const comment = await db.collection('comments').doc(commentId).get();
   if (!comment.data || comment.data.length === 0) return response(404, { ok: false, error: '帖子不存在' });
 
+  const email = emailMatch(auth.email);
   const existing = await db.collection('likes')
-    .where({ commentId, email: emailMatch(auth.email) }).get();
+    .where({ commentId, email: email }).get();
 
+  // 一个账号对每个评论只能点一次赞：已赞过直接返回，不可取消、不可重复点赞
   if (existing.data.length > 0) {
-    await db.collection('likes').doc(existing.data[0]._id).remove();
     const count = await db.collection('likes').where({ commentId }).count();
-    return response(200, { ok: true, liked: false, likeCount: count.total });
-  } else {
-    await db.collection('likes').add({ commentId, emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email), createdAt: Date.now() });
-    const count = await db.collection('likes').where({ commentId }).count();
-    return response(200, { ok: true, liked: true, likeCount: count.total });
+    return response(200, { ok: true, liked: true, likeCount: count.total, alreadyLiked: true });
   }
+
+  await db.collection('likes').add({
+    commentId,
+    emailHash: emailHashOf(auth.email),
+    emailEnc: encEmail(auth.email),
+    createdAt: Date.now()
+  });
+  const count = await db.collection('likes').where({ commentId }).count();
+  return response(200, { ok: true, liked: true, likeCount: count.total });
 }
 
 async function handleGetMyComments(query, auth) {
