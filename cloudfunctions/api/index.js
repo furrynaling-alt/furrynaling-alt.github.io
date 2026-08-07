@@ -943,8 +943,16 @@ async function handleGetComments(query, auth) {
 
   const likedSet = new Set();
   if (auth && allIds.length > 0) {
-    const myLikes = await db.collection('likes')
-      .where({ email: emailMatch(auth.email), commentId: _.in(allIds) }).get();
+    // 兼容历史点赞数据：likes 可能以 emailHash / emailEnc / 明文 email 三种方式存储，
+    // 用 or 查询统一匹配，确保刷新后「已赞」状态正确（按钮保持禁用，不可重复点赞）
+    const email = String(auth.email).toLowerCase();
+    const emailH = emailHashOf(auth.email);
+    const emailE = encEmail(auth.email);
+    const myLikes = await db.collection('likes').where(_.or([
+      { commentId: _.in(allIds), email: email },
+      { commentId: _.in(allIds), emailHash: emailH },
+      { commentId: _.in(allIds), emailEnc: emailE }
+    ])).get();
     myLikes.data.forEach(l => likedSet.add(l.commentId));
   }
 
@@ -1067,11 +1075,26 @@ async function handleLikeComment(body, auth) {
   const comment = await db.collection('comments').doc(commentId).get();
   if (!comment.data || comment.data.length === 0) return response(404, { ok: false, error: '帖子不存在' });
 
-  const email = emailMatch(auth.email);
-  const existing = await db.collection('likes')
-    .where({ commentId, email: email }).get();
+  // 封禁账号禁止点赞
+  const user = await db.collection('users').where({ email: emailMatch(auth.email) }).get();
+  if (user.data.length > 0 && user.data[0].bannedUntil && user.data[0].bannedUntil > Date.now()) {
+    const banMsg = getBanMessage(user.data[0].bannedUntil);
+    return response(403, { ok: false, banned: true, error: banMsg });
+  }
 
-  // 一个账号对每个评论只能点一次赞：已赞过直接返回，不可取消、不可重复点赞
+  const email = String(auth.email).toLowerCase();
+  const emailH = emailHashOf(auth.email);
+  const emailE = encEmail(auth.email);
+
+  // 一个账号对每个评论只能点一次赞（与邮箱哈希绑定）：
+  // 历史点赞可能存 emailHash/emailEnc，也可能存明文 email，统一用 or 查询去重
+  const existing = await db.collection('likes').where(_.or([
+    { commentId, email: email },
+    { commentId, emailHash: emailH },
+    { commentId, emailEnc: emailE }
+  ])).get();
+
+  // 已赞过直接返回，不可取消、不可重复点赞
   if (existing.data.length > 0) {
     const count = await db.collection('likes').where({ commentId }).count();
     return response(200, { ok: true, liked: true, likeCount: count.total, alreadyLiked: true });
@@ -1079,7 +1102,9 @@ async function handleLikeComment(body, auth) {
 
   await db.collection('likes').add({
     commentId,
-    email: String(auth.email).toLowerCase(),
+    email: email,
+    emailHash: emailH,
+    emailEnc: emailE,
     createdAt: Date.now()
   });
   const count = await db.collection('likes').where({ commentId }).count();
