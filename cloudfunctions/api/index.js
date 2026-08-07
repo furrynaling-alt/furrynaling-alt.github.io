@@ -1187,17 +1187,7 @@ async function handleUpdateProfile(body, auth) {
     const avatar = String(body.avatar).trim();
     if (avatar.length > 500000) return response(400, { ok: false, error: '头像数据过大' });
 
-    // 腾讯云 IMS 图片内容安全审核头像（先审核，违规拦截不计修改额度、但计入违规次数）
-    if (avatar.startsWith('data:image')) {
-      const imgMod = await aiModerateImage(avatar);
-      if (imgMod.blocked) {
-        const vc = await addViolation(auth.email, imgMod);
-        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
-      }
-    }
-
-    // 头像修改频率限制：每天最多改 2 次（按本地日期重置）。审核通过后才占用额度，
-    // 因此「被拒不算一次」（违规拦截已在上一步 return，不会走到这里）。
+    // 头像修改频率限制：每天最多改 2 次（按本地日期重置）
     const todayStr = getBeijingDateStr();
     const avatarChangeDate = user.data[0].avatarChangeDate;
     let avatarChangeCount = user.data[0].avatarChangeCount || 0;
@@ -1208,10 +1198,27 @@ async function handleUpdateProfile(body, auth) {
       return response(429, { ok: false, error: '头像每天最多修改 2 次，明天再来吧~' });
     }
 
+    // 本次上传即占用一次额度：无论审核是否通过都算一次，
+    // 因为腾讯云图片内容安全审核本身也要消耗次数。
+    const nextCount = avatarChangeCount + 1;
+
+    // 腾讯云 IMS 图片内容安全审核头像
+    if (avatar.startsWith('data:image')) {
+      const imgMod = await aiModerateImage(avatar);
+      if (imgMod.blocked) {
+        const vc = await addViolation(auth.email, imgMod);
+        // 违规被拦：头像不更新，但已上传图片、占用一次额度
+        update.avatarChangeDate = todayStr;
+        update.avatarChangeCount = nextCount;
+        await db.collection('users').doc(user.data[0]._id).update(update);
+        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
+      }
+    }
+
     update.avatar = avatar;
     update.avatarHash = hashAvatar(avatar);
     update.avatarChangeDate = todayStr;
-    update.avatarChangeCount = avatarChangeCount + 1;
+    update.avatarChangeCount = nextCount;
   }
 
   if (Object.keys(update).length === 0) return response(400, { ok: false, error: '没有需要更新的字段' });
