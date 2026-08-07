@@ -382,6 +382,7 @@
 
   /* ========== 个人资料面板 ========== */
   .ban-warning{
+    position:relative;z-index:1;
     background:linear-gradient(135deg,#fef0f0,#fff5f5);
     border:1px solid #fca5a5;
     border-radius:14px;
@@ -503,6 +504,9 @@
     padding:12px 0;
     border-bottom:1px solid var(--border);
   }
+  .my-comment-card.is-reply{padding-left:10px;border-left:3px solid var(--primary);}
+  .my-comment-reply-head{font-size:12px;color:var(--primary);font-weight:600;margin-bottom:6px;}
+  .my-comment-quote{background:rgba(128,128,128,.08);border-left:3px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;color:var(--text-mute);margin-bottom:8px;max-height:80px;overflow:hidden;}
   .my-comment-card:last-child{border-bottom:none;}
   .my-comment-body{
     font-size:14px;color:var(--text-sub);line-height:1.7;
@@ -847,6 +851,52 @@
   }
   .delete-modal .btn-confirm:hover{background:#c0392b;}
   .delete-modal .btn-confirm:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* 违规全局弹窗 */
+  .violation-overlay{
+    position:fixed;inset:0;z-index:3000;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;
+  }
+  .violation-overlay.open{display:flex;}
+  .violation-modal{
+    background:var(--bg);
+    border:1px solid #fca5a5;
+    border-radius:18px;
+    padding:34px 30px 26px;
+    max-width:420px;width:90%;
+    text-align:center;
+    box-shadow:0 24px 70px rgba(220,38,38,.25);
+    animation:fadeIn .3s var(--ease);
+  }
+  .violation-ico{
+    width:60px;height:60px;margin:0 auto 14px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#fef0f0,#fde8e8);
+    display:flex;align-items:center;justify-content:center;
+    color:#e74c3c;
+  }
+  .violation-ico svg{width:32px;height:32px;}
+  .violation-modal h3{color:var(--text);margin:0 0 14px;font-size:19px;}
+  .violation-body{
+    color:var(--text-sub);font-size:14px;line-height:1.75;text-align:left;
+    background:rgba(231,76,60,.06);
+    border:1px solid rgba(231,76,60,.18);
+    border-radius:12px;padding:14px 16px;margin-bottom:22px;
+  }
+  .violation-body b{color:#e74c3c;}
+  .violation-modal .btn-confirm{
+    padding:11px 32px;border-radius:50px;
+    border:none;background:#e74c3c;
+    color:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;font-weight:600;
+    transition:all .3s;
+  }
+  .violation-modal .btn-confirm:hover{background:#c0392b;}
+
+  /* 个人资料面板内部滚动时，内容需避开顶部固定导航栏（导航栏约 88px 高） */
+  #panelProfile.active{padding-top:108px;}
 
   /* ========== OC聊天样式 ========== */
   .chat-layout{
@@ -1343,6 +1393,16 @@
         <button class="btn-cancel" id="logoutCancelBtn">取消</button>
         <button class="btn-confirm" id="logoutConfirmBtn">确认退出</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 违规全局弹窗 -->
+  <div class="violation-overlay" id="globalViolationModal">
+    <div class="violation-modal">
+      <div class="violation-ico">${ICON.warn}</div>
+      <h3>内容未通过审核</h3>
+      <div class="violation-body" id="violationBody"></div>
+      <button class="btn-confirm" id="violationOkBtn">我已知晓</button>
     </div>
   </div>
 
@@ -1861,6 +1921,7 @@ function renderCachedAvatarInstant() {
 // ========== 个人资料管理 ==========
 let profileNickname = '';
 let profileAvatar = '';
+let savedAvatar = '';            // 服务器最近一次确认保存成功的头像（用于违规回退）
 let avatarLocallyEdited = false; // 用户已选新头像但尚未保存到服务器
 
 async function loadProfile() {
@@ -1880,6 +1941,7 @@ async function loadProfile() {
         profileAvatar = p.avatar || (cache ? cache.avatar : '');
         if (email) setCachedAvatar(email, profileAvatar, p.avatarHash);
       }
+      savedAvatar = profileAvatar; // 记录当前已确认的服务器头像，供违规回退使用
       window.currentUserIsAdmin = !!p.isAdmin;
       // 更新个人面板
       updateProfilePanel();
@@ -2050,6 +2112,20 @@ $('#profileSaveBtn').addEventListener('click', async function() {
       // 保存成功后用服务器返回的新哈希刷新本地缓存
       if (resp.avatarHash) setCachedAvatar(getMyEmail(), profileAvatar, resp.avatarHash);
       if (isLoggedIn()) loadComments();
+    } else if (resp.blocked) {
+      // 头像（或昵称）含违规内容：撤销本次本地修改，回退到上一个已保存头像，弹出全局警告
+      const vc = resp.violationCount || 0;
+      profileAvatar = savedAvatar || '';
+      avatarLocallyEdited = false;
+      updateProfilePanel();
+      const ca = $('#commentAlert');
+      if (ca) ca.classList.remove('show');
+      setProfileStatus('', '');
+      showViolationModal(
+        '你的' + (resp.category ? '头像' : '资料') + '因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，提交已被拦截。' +
+        '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
+      // 刷新一次个人面板，确保最新违规次数/封禁状态同步
+      loadProfile();
     } else {
       setProfileStatus(resp.error || '服务器保存失败，请稍后重试', 'error');
       console.error('[profile] 服务器保存失败:', JSON.stringify(resp));
@@ -2211,7 +2287,9 @@ async function submitReply(parentId) {
     loadComments();
   } else if (resp.blocked) {
     const vc = resp.violationCount || 0;
-    showPageAlert('violation',
+    const box = $('#reply-box-' + parentId);
+    if (box) { const ri = $('#reply-input-' + parentId); if (ri) ri.value = ''; }
+    showViolationModal(
       '你的回复因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
       '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
   } else if (resp.needProfile) {
@@ -2251,7 +2329,12 @@ $('#commentSubmit').addEventListener('click', async function() {
       });
     } else if (resp.blocked) {
       const vc = resp.violationCount || 0;
-      showPageAlert('violation',
+      // 清空输入框，避免违规内容残留，同时弹出全局警告
+      $('#commentInput').value = '';
+      $('#charCount').textContent = '0 / 1000';
+      const ca = $('#commentAlert');
+      if (ca) ca.classList.remove('show');
+      showViolationModal(
         '你的评论因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
         '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
     } else {
@@ -2501,6 +2584,20 @@ function showPageAlert(type, html, opts) {
   }
 }
 
+// 违规全局弹窗（覆盖全屏，确保用户一定会看到审核拦截结果）
+function showViolationModal(html) {
+  const modal = $('#globalViolationModal');
+  if (!modal) return;
+  $('#violationBody').innerHTML = html;
+  modal.classList.add('open');
+}
+$('#violationOkBtn').addEventListener('click', function() {
+  $('#globalViolationModal').classList.remove('open');
+});
+$('#globalViolationModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
 function showSpinner() {
   const msgs = $('#chatMessages');
   const empty = msgs.querySelector('.chat-empty-state');
@@ -2560,7 +2657,7 @@ async function sendMessage() {
     } else if (resp.blocked) {
       const vc = resp.violationCount || 0;
       addChatMessage('error', '消息因「' + (resp.reason || resp.category || '违规内容') + '」被拦截，本次已记为一次违规（当前累计 ' + vc + '/5 次，达到 5 次将永久封禁账号）。', '内容审核');
-      showPageAlert('violation',
+      showViolationModal(
         '你的消息因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
         '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
     } else {
@@ -2660,16 +2757,26 @@ async function loadMyComments() {
       container.innerHTML = '<div class="my-comment-empty">' + t('profile.no.posts') + '</div>';
       return;
     }
-    container.innerHTML = resp.data.map(c => `
-      <div class="my-comment-card">
+    container.innerHTML = resp.data.map(c => {
+      const isReply = c.parentId && c.parentId !== '';
+      const headHtml = isReply
+        ? `<div class="my-comment-reply-head">↩ 回复 @${escapeHtml(c.replyToNick || '某人')}</div>`
+        : '';
+      const quoteHtml = (isReply && c.parentContent)
+        ? `<div class="my-comment-quote">${escapeHtml(c.parentContent)}</div>`
+        : '';
+      return `
+      <div class="my-comment-card ${isReply ? 'is-reply' : ''}">
+        ${headHtml}
+        ${quoteHtml}
         <div class="my-comment-body">${escapeHtml(c.content)}</div>
         <div class="my-comment-meta">
           <span class="my-comment-time">${fmtTime(c.createdAt)}</span>
           <span class="my-comment-likes">${ICON.like} ${c.likeCount || 0}</span>
           <button class="my-delete-btn" onclick="deleteMyComment('${c.id}')">删除</button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   } catch(e) {
     container.innerHTML = '<div class="my-comment-empty">' + t('profile.load.failed') + '</div>';
   }

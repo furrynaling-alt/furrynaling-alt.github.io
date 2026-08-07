@@ -1111,6 +1111,7 @@ async function handleGetMyComments(query, auth) {
       createdAt: c.createdAt,
       parentId: c.parentId || '',
       replyToNick: c.replyToNick || '',
+      parentContent: c.parentContent || '',
       likeCount: likeCounts[c._id] || 0
     })),
     total: total.total, page, pageSize
