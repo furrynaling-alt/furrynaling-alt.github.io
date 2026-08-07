@@ -40,9 +40,15 @@ function getTmsClient() {
 
 const CODE_EXPIRE_MS = 5 * 60 * 1000;
 const MAX_VIOLATIONS = 5;
+
+// 头像哈希：用于前端缓存比对，避免每次都拉取大体积的头像数据
+function hashAvatar(avatar) {
+  if (!avatar) return '';
+  return crypto.createHash('sha256').update(String(avatar)).digest('hex').slice(0, 16);
+}
 const CODE_COOLDOWN_MS = 60 * 1000;
 const DAILY_CHAT_LIMIT = 180;
-const AVATAR_CHANGE_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 头像每天只能改一次
+const AVATAR_CHANGE_LIMIT_PER_DAY = 2;      // 头像每天最多修改次数（按北京时间日期重置）
 const LOGIN_IP_WINDOW_MS = 5 * 60 * 1000;   // 登录 IP 频率窗口 5 分钟
 const LOGIN_IP_MAX = 10;                      // 每 IP 每窗口最多 10 次登录尝试
 const COMMENT_COOLDOWN_MS = 30 * 1000;        // 评论冷却 30 秒
@@ -228,6 +234,11 @@ function getBanMessage(bannedUntil) {
   return `账号已被封禁，剩余${remain}天`;
 }
 
+// 以北京时间（东八区）的日期字符串作为"每天"的计数边界
+function getBeijingDateStr() {
+  return new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' });
+}
+
 // ============ 邮件发送 ============
 async function sendEmail(to, code) {
   const transporter = nodemailer.createTransport({
@@ -267,6 +278,11 @@ let _cachedDeepSeekKey = null;
 
 async function getDeepSeekKey() {
   if (_cachedDeepSeekKey) return _cachedDeepSeekKey;
+  // 优先使用环境变量里的密钥（便于随时轮换，无需改数据库），其次回退到数据库配置
+  if (DEEPSEEK_API_KEY) {
+    _cachedDeepSeekKey = DEEPSEEK_API_KEY;
+    return _cachedDeepSeekKey;
+  }
   try {
     const config = await db.collection('config').where({ key: 'deepseek_api_key' }).get();
     if (config.data.length > 0 && config.data[0].value) {
@@ -274,8 +290,7 @@ async function getDeepSeekKey() {
       return _cachedDeepSeekKey;
     }
   } catch (e) { console.error('[纳棂] 从数据库读取 DeepSeek 密钥失败:', e); }
-  _cachedDeepSeekKey = DEEPSEEK_API_KEY;
-  return _cachedDeepSeekKey;
+  return '';
 }
 
 
@@ -317,6 +332,25 @@ function decrypt(ciphertext) {
     // JSON.parse 失败说明是明文，直接返回
     return ciphertext;
   }
+}
+
+// ============ 邮箱加密存储（AES-256-GCM 密文 + SHA256 哈希用于查询） ============
+// 说明：邮箱以 emailEnc（密文）落库，查询时使用 emailHash；
+// 旧数据仍存明文 email，故所有查询用 _.in([明文, 哈希]) 向后兼容。
+function sha256Hex(s) {
+  return crypto.createHash('sha256').update(String(s)).digest('hex');
+}
+function emailHashOf(email) {
+  return sha256Hex('naling-ev1|' + String(email).toLowerCase());
+}
+function encEmail(email) {
+  return encrypt(String(email).toLowerCase());
+}
+function emailMatch(email) {
+  return _.in([String(email).toLowerCase(), emailHashOf(email)]);
+}
+function isOwnEmail(record, email) {
+  return record.email === String(email).toLowerCase() || record.emailHash === emailHashOf(email);
 }
 
 // ============ 配置初始化（人设提示词 + API密钥加密入库） ============
@@ -466,11 +500,13 @@ async function aiModerateImage(base64Data) {
 // ============ 违规记录 ============
 async function addViolation(email, reason) {
   const user = await db.collection('users').where({ email }).get();
-  if (user.data.length === 0) return;
+  if (user.data.length === 0) return 0;
   const newCount = (user.data[0].violationCount || 0) + 1;
   const update = { violationCount: newCount };
+  let bannedNow = false;
   if (newCount >= MAX_VIOLATIONS) {
     update.bannedUntil = Number.MAX_SAFE_INTEGER;
+    bannedNow = true;
   }
   await db.collection('users').doc(user.data[0]._id).update(update);
   // 违规记录存入独立的 violation_logs 子集（复用 messages 集合的 type=violation 字段）
@@ -481,6 +517,38 @@ async function addViolation(email, reason) {
     count: newCount,
     createdAt: Date.now()
   });
+
+  // 永久封号时，级联清空该账号绑定的所有评论（含其回复），避免已封禁用户的违规内容残留
+  if (bannedNow) {
+    try {
+      // 兼容老账号：评论可能用明文 email（库存）/ emailHash（新）/ emailEnc（新）三种标识
+      const matchKeys = [
+        { emailHash: emailHashOf(email) },
+        { emailEnc: encEmail(email) },
+        { email: String(email).toLowerCase() }
+      ];
+      const matchCond = _.or(matchKeys);
+      const userComments = await db.collection('comments').where(matchCond).get();
+      const topIds = userComments.data
+        .filter(c => !c.parentId || c.parentId === '')
+        .map(c => c._id);
+      // 软删除该用户所有评论
+      await db.collection('comments')
+        .where(matchCond)
+        .update({ isDeleted: true, deletedAt: Date.now() });
+      // 软删除这些顶层评论下的所有回复
+      if (topIds.length > 0) {
+        await db.collection('comments')
+          .where({ parentId: _.in(topIds) })
+          .update({ isDeleted: true, deletedAt: Date.now() });
+      }
+      console.log('[纳棂] 永久封号，已清空用户评论 ' + userComments.data.length + ' 条（含回复）');
+    } catch (e) {
+      console.error('[纳棂] 封号清空评论失败:', e);
+    }
+  }
+
+  return newCount;
 }
 
 // ============ 路由处理 ============
@@ -553,7 +621,7 @@ async function handleLogin(body, clientIP) {
 
   await db.collection('verify_codes').doc(vc.data[0]._id).update({ used: true });
 
-  const user = await db.collection('users').where({ email }).get();
+  const user = await db.collection('users').where({ email: emailMatch(email) }).get();
   if (user.data.length > 0) {
     if (user.data[0].isDeleted) return response(403, { ok: false, error: '该账号已注销' });
     if (user.data[0].bannedUntil && user.data[0].bannedUntil > Date.now()) {
@@ -564,7 +632,7 @@ async function handleLogin(body, clientIP) {
 
   if (user.data.length === 0) {
     await db.collection('users').add({
-      email, violationCount: 0, bannedUntil: null, isDeleted: false,
+      emailHash: emailHashOf(email), emailEnc: encEmail(email), violationCount: 0, bannedUntil: null, isDeleted: false,
       createdAt: Date.now(), lastLoginAt: Date.now()
     });
   } else {
@@ -587,7 +655,7 @@ async function handleModerate(body, auth) {
 async function handleChatConversations(auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
   const list = await db.collection('conversations')
-    .where({ email: auth.email }).orderBy('updatedAt', 'desc').limit(50).get();
+    .where({ email: emailMatch(auth.email) }).orderBy('updatedAt', 'desc').limit(50).get();
   return response(200, {
     ok: true,
     data: list.data.map(c => ({
@@ -603,9 +671,9 @@ async function handleChatConversations(auth) {
 async function handleCreateConversation(body, auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
   const title = (body.title || '新对话').trim().slice(0, 40);
-  const result = await db.collection('conversations').add({
-    email: auth.email,
-    titleEnc: encrypt(title),
+    const result = await db.collection('conversations').add({
+      emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email),
+      titleEnc: encrypt(title),
     msgCount: 0,
     createdAt: Date.now(),
     updatedAt: Date.now()
@@ -619,7 +687,7 @@ async function handleDeleteConversation(body, auth) {
   if (!convId) return response(400, { ok: false, error: '缺少对话ID' });
   const conv = await db.collection('conversations').doc(convId).get();
   if (!conv.data || conv.data.length === 0) return response(404, { ok: false, error: '对话不存在' });
-  if (conv.data[0].email !== auth.email) return response(403, { ok: false, error: '无权操作' });
+  if (!isOwnEmail(conv.data[0], auth.email)) return response(403, { ok: false, error: '无权操作' });
   // 删除对话及所有消息（现在用 messages 集合）
   await db.collection('messages').where({ conversationId: convId }).remove();
   await db.collection('conversations').doc(convId).remove();
@@ -632,7 +700,7 @@ async function handleGetMessages(query, auth) {
   if (!convId) return response(400, { ok: false, error: '缺少对话ID' });
   const conv = await db.collection('conversations').doc(convId).get();
   if (!conv.data || conv.data.length === 0) return response(404, { ok: false, error: '对话不存在' });
-  if (conv.data[0].email !== auth.email) return response(403, { ok: false, error: '无权操作' });
+  if (!isOwnEmail(conv.data[0], auth.email)) return response(403, { ok: false, error: '无权操作' });
 
   const msgs = await db.collection('messages')
     .where({ conversationId: convId, type: 'chat' }).orderBy('createdAt', 'asc').limit(200).get();
@@ -657,7 +725,7 @@ async function handleChat(body, auth) {
   if (!convId) return response(400, { ok: false, error: '缺少对话ID' });
 
   // 用户封禁检查
-  const user = await db.collection('users').where({ email: auth.email }).get();
+  const user = await db.collection('users').where({ email: emailMatch(auth.email) }).get();
   if (user.data.length > 0 && user.data[0].bannedUntil && user.data[0].bannedUntil > Date.now()) {
     const banMsg = getBanMessage(user.data[0].bannedUntil);
     return response(403, { ok: false, error: banMsg });
@@ -684,14 +752,14 @@ async function handleChat(body, auth) {
   // AI 内容审核
   const mod = await aiModerate(msg);
   if (mod.blocked) {
-    await addViolation(auth.email, mod);
-    return response(403, { ok: false, blocked: true, ...mod });
+    const vc = await addViolation(auth.email, mod);
+    return response(403, { ok: false, blocked: true, violationCount: vc, ...mod });
   }
 
   // 验证对话所有权
   const conv = await db.collection('conversations').doc(convId).get();
   if (!conv.data || conv.data.length === 0) return response(404, { ok: false, error: '对话不存在' });
-  if (conv.data[0].email !== auth.email) return response(403, { ok: false, error: '无权操作' });
+  if (!isOwnEmail(conv.data[0], auth.email)) return response(403, { ok: false, error: '无权操作' });
 
   // 获取该对话的历史消息（最近10轮）
   const history = await db.collection('messages')
@@ -720,8 +788,13 @@ async function handleChat(body, auth) {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({ model: 'deepseek-chat', messages, temperature: 0.85, max_tokens: 1000 })
     });
-    const data = await resp.json();
-    const reply = data.choices?.[0]?.message?.content || '汪？好像信号不太好...稍等一下嗷~';
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.choices || !data.choices[0] || !data.choices[0].message) {
+      const reason = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + resp.status);
+      console.error('[纳棂] DeepSeek 调用失败 status=' + resp.status + ' body=' + JSON.stringify(data).slice(0, 500));
+      return response(502, { ok: false, error: 'AI 服务返回错误：' + reason });
+    }
+    const reply = data.choices[0].message.content;
 
     // AI回复也做审核
     const replyMod = await aiModerate(reply);
@@ -730,11 +803,11 @@ async function handleChat(body, auth) {
     // 加密存储消息到 messages 集合
     const now = Date.now();
     await db.collection('messages').add({
-      conversationId: convId, email: auth.email, role: 'user', type: 'chat',
+      conversationId: convId, emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email), role: 'user', type: 'chat',
       contentEnc: encrypt(msg), createdAt: now
     });
     await db.collection('messages').add({
-      conversationId: convId, email: auth.email, role: 'assistant', type: 'chat',
+      conversationId: convId, emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email), role: 'assistant', type: 'chat',
       contentEnc: encrypt(finalReply), createdAt: now + 1
     });
     // 更新对话信息
@@ -785,7 +858,7 @@ async function handleChat(body, auth) {
 
 async function handleChatLimit(auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
-  const user = await db.collection('users').where({ email: auth.email }).get();
+  const user = await db.collection('users').where({ email: emailMatch(auth.email) }).get();
   if (user.data.length === 0) return response(200, { ok: true, remaining: DAILY_CHAT_LIMIT });
 
   const todayBeijing = new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' });
@@ -802,46 +875,104 @@ async function handleGetComments(query, auth) {
   const pageSize = Math.min(parseInt(query.pageSize) || 20, 50);
   const skip = (page - 1) * pageSize;
 
-  const result = await db.collection('comments')
-    .where({ approved: true, isDeleted: _.neq(true) }).orderBy('createdAt', 'desc').skip(skip).limit(pageSize).get();
-  const total = await db.collection('comments').where({ approved: true, isDeleted: _.neq(true) }).count();
+  // 顶层评论（无回复对象）
+  const topRes = await db.collection('comments')
+    .where({ approved: true, isDeleted: _.neq(true), parentId: _.or([_.eq(''), _.exists(false)]) })
+    .orderBy('createdAt', 'desc').skip(skip).limit(pageSize).get();
+  const total = await db.collection('comments')
+    .where({ approved: true, isDeleted: _.neq(true), parentId: _.or([_.eq(''), _.exists(false)]) }).count();
 
-  const emails = [...new Set(result.data.map(c => c.email))];
+  const topIds = topRes.data.map(c => c._id);
+
+  // 拉取这些顶层评论的直接回复
+  let repliesData = [];
+  if (topIds.length > 0) {
+    const repRes = await db.collection('comments')
+      .where({ approved: true, isDeleted: _.neq(true), parentId: _.in(topIds) })
+      .orderBy('createdAt', 'asc').limit(500).get();
+    repliesData = repRes.data;
+  }
+
+  // 仅用邮箱标识定位用户，绝不向前端返回任何邮箱明文或局部掩码
+  // 兼容老评论（明文 email）与新评论（emailHash / emailEnc）
+  const allComments = [...topRes.data, ...repliesData];
   const usersMap = {};
-  for (const email of emails) {
-    const u = await db.collection('users').where({ email }).get();
+  const lookups = [];
+  const seen = new Set();
+  const addLookup = (q, k) => {
+    const sig = JSON.stringify(q) + '|' + k;
+    if (seen.has(sig)) return;
+    seen.add(sig);
+    lookups.push({ q, k });
+  };
+  for (const c of allComments) {
+    if (c.emailHash) addLookup({ emailHash: c.emailHash }, c.emailHash);
+    if (c.emailEnc) addLookup({ emailEnc: c.emailEnc }, c.emailEnc);
+    // 兜底：解密 emailEnc 得到明文 email，兼容用户表缺 emailHash 的旧账号
+    let plain = null;
+    try { plain = decrypt(c.emailEnc); } catch (e) { plain = null; }
+    if (plain) {
+      const mkey = c.emailHash || c.emailEnc;
+      addLookup({ email: plain }, mkey);
+      addLookup({ emailHash: emailHashOf(plain) }, mkey);
+    }
+    if (c.email) {
+      addLookup({ email: c.email }, c.email);                   // 用户表若存明文 email
+      addLookup({ emailHash: emailHashOf(c.email) }, c.email);  // 用户表存 emailHash（map key 用明文，命中 buildItem 的 c.email）
+    }
+  }
+  for (const { q, k } of lookups) {
+    if (usersMap[k]) continue;
+    const u = await db.collection('users').where(q).get();
     if (u.data.length > 0) {
-      usersMap[email] = { nickname: u.data[0].nickname || '', avatar: u.data[0].avatar || '' };
+      usersMap[k] = { nickname: u.data[0].nickname || '', avatar: u.data[0].avatar || '' };
     }
   }
 
-  const commentIds = result.data.map(c => c._id);
+  const allIds = allComments.map(c => c._id);
   const likeCounts = {};
-  for (const cid of commentIds) {
+  for (const cid of allIds) {
     const lc = await db.collection('likes').where({ commentId: cid }).count();
     likeCounts[cid] = lc.total;
   }
 
   const likedSet = new Set();
-  if (auth && commentIds.length > 0) {
+  if (auth && allIds.length > 0) {
     const myLikes = await db.collection('likes')
-      .where({ email: auth.email, commentId: _.in(commentIds) }).get();
+      .where({ email: emailMatch(auth.email), commentId: _.in(allIds) }).get();
     myLikes.data.forEach(l => likedSet.add(l.commentId));
   }
 
-  return response(200, {
-    ok: true,
-    data: result.data.map(c => ({
+  const buildItem = (c) => {
+    const key = c.emailHash || c.email || c.emailEnc;
+    return {
       id: c._id,
-      email: c.email.split('@')[0].slice(0, 2) + '***@' + c.email.split('@')[1],
-      rawEmail: c.email,
       content: c.content,
       createdAt: c.createdAt,
-      nickname: (usersMap[c.email] || {}).nickname || c.email.split('@')[0],
-      avatar: (usersMap[c.email] || {}).avatar || '',
+      nickname: (usersMap[key] || {}).nickname || '用户',
+      avatar: (usersMap[key] || {}).avatar || '',
       likeCount: likeCounts[c._id] || 0,
-      likedByMe: likedSet.has(c._id)
-    })),
+      likedByMe: likedSet.has(c._id),
+      isMine: isOwnEmail(c, auth && auth.email),
+      parentId: c.parentId || '',
+      replyToNick: c.replyToNick || ''
+    };
+  };
+
+  const replyMap = {};
+  repliesData.forEach(r => {
+    (replyMap[r.parentId] = replyMap[r.parentId] || []).push(buildItem(r));
+  });
+
+  const data = topRes.data.map(c => {
+    const item = buildItem(c);
+    item.replies = replyMap[c._id] || [];
+    return item;
+  });
+
+  return response(200, {
+    ok: true,
+    data,
     total: total.total, page, pageSize,
     isAdmin: isAdminEmail(auth && auth.email)
   });
@@ -852,6 +983,16 @@ async function handleAddComment(body, auth) {
   const content = (body.content || '').trim();
   if (!content) return response(400, { ok: false, error: '内容不能为空' });
   if (content.length > 1000) return response(400, { ok: false, error: '内容过长' });
+
+  // 回复对象校验
+  const parentId = (body.parentId || '').trim();
+  let replyToNick = '';
+  if (parentId) {
+    const pDoc = await db.collection('comments').doc(parentId).get();
+    const pd = pDoc.data && (Array.isArray(pDoc.data) ? pDoc.data[0] : pDoc.data);
+    if (!pd || pd.isDeleted) return response(404, { ok: false, error: '回复的评论不存在' });
+    replyToNick = pd.nickname || '';
+  }
 
   // 频率限制：冷却 30 秒 + 每日上限 30 条
   const lastComment = await db.collection('comments')
@@ -882,12 +1023,13 @@ async function handleAddComment(body, auth) {
 
   const mod = await aiModerate(content);
   if (mod.blocked) {
-    await addViolation(auth.email, mod);
-    return response(403, { ok: false, blocked: true, ...mod });
+    const vc = await addViolation(auth.email, mod);
+    return response(403, { ok: false, blocked: true, violationCount: vc, ...mod });
   }
 
   const result = await db.collection('comments').add({
-    email: auth.email, content, approved: true, createdAt: Date.now()
+    emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email), content,
+    parentId, replyToNick, approved: true, createdAt: Date.now()
   });
   return response(200, { ok: true, id: result.id });
 }
@@ -902,11 +1044,13 @@ async function handleDeleteComment(body, auth) {
     return response(404, { ok: false, error: '帖子不存在' });
   }
   const c = Array.isArray(comment.data) ? comment.data[0] : comment.data;
-  if (c.email !== auth.email && !isAdminEmail(auth.email)) {
+  if (!isOwnEmail(c, auth.email) && !isAdminEmail(auth.email)) {
     return response(403, { ok: false, error: '只能删除自己的帖子' });
   }
 
   await db.collection('comments').doc(commentId).update({ isDeleted: true, deletedAt: Date.now() });
+  // 级联：该评论下的所有回复一并删除
+  await db.collection('comments').where({ parentId: commentId }).update({ isDeleted: true, deletedAt: Date.now() });
   return response(200, { ok: true, message: '帖子已删除' });
 }
 
@@ -926,14 +1070,14 @@ async function handleLikeComment(body, auth) {
   if (!comment.data || comment.data.length === 0) return response(404, { ok: false, error: '帖子不存在' });
 
   const existing = await db.collection('likes')
-    .where({ commentId, email: auth.email }).get();
+    .where({ commentId, email: emailMatch(auth.email) }).get();
 
   if (existing.data.length > 0) {
     await db.collection('likes').doc(existing.data[0]._id).remove();
     const count = await db.collection('likes').where({ commentId }).count();
     return response(200, { ok: true, liked: false, likeCount: count.total });
   } else {
-    await db.collection('likes').add({ commentId, email: auth.email, createdAt: Date.now() });
+    await db.collection('likes').add({ commentId, emailHash: emailHashOf(auth.email), emailEnc: encEmail(auth.email), createdAt: Date.now() });
     const count = await db.collection('likes').where({ commentId }).count();
     return response(200, { ok: true, liked: true, likeCount: count.total });
   }
@@ -946,11 +1090,11 @@ async function handleGetMyComments(query, auth) {
   const skip = (page - 1) * pageSize;
 
   const result = await db.collection('comments')
-    .where({ email: auth.email, isDeleted: _.neq(true) })
+    .where({ email: emailMatch(auth.email), isDeleted: _.neq(true) })
     .orderBy('createdAt', 'desc')
     .skip(skip).limit(pageSize).get();
   const total = await db.collection('comments')
-    .where({ email: auth.email, isDeleted: _.neq(true) }).count();
+    .where({ email: emailMatch(auth.email), isDeleted: _.neq(true) }).count();
 
   const commentIds = result.data.map(c => c._id);
   const likeCounts = {};
@@ -963,8 +1107,12 @@ async function handleGetMyComments(query, auth) {
     ok: true,
     data: result.data.map(c => ({
       id: c._id,
+      email: auth.email,
+      isMine: true,
       content: c.content,
       createdAt: c.createdAt,
+      parentId: c.parentId || '',
+      replyToNick: c.replyToNick || '',
       likeCount: likeCounts[c._id] || 0
     })),
     total: total.total, page, pageSize
@@ -972,18 +1120,33 @@ async function handleGetMyComments(query, auth) {
 }
 
 // ============ 个人资料 ============
-async function handleGetProfile(auth) {
+async function handleGetProfile(auth, query = {}) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
-  const user = await db.collection('users').where({ email: auth.email }).get();
+  const user = await db.collection('users').where({ email: emailMatch(auth.email) }).get();
   if (user.data.length === 0) return response(404, { ok: false, error: '账号不存在' });
   const u = user.data[0];
   const isBanned = u.bannedUntil && u.bannedUntil > Date.now();
   const isPermanent = isBanned && isPermanentlyBanned(u.bannedUntil);
+
+  // 头像哈希（兼容老账号：若已有头像但未记录哈希，则补算）
+  let avatarHash = u.avatarHash || '';
+  if (!avatarHash && u.avatar) {
+    avatarHash = hashAvatar(u.avatar);
+    await db.collection('users').doc(u._id).update({ avatarHash }).catch(() => {});
+  }
+
+  // 条件返回：客户端已缓存相同哈希时，不返回大体积头像数据，节省带宽
+  const clientHash = query.avatarHash || '';
+  const hashMatch = !!avatarHash && clientHash === avatarHash;
+
   return response(200, {
     ok: true,
     profile: {
       nickname: u.nickname || '',
-      avatar: u.avatar || '',
+      avatar: hashMatch ? '' : (u.avatar || ''),
+      avatarUnchanged: hashMatch,
+      avatarHash: avatarHash,
+      email: auth.email,
       violationCount: u.violationCount || 0,
       isBanned,
       isPermanentlyBanned: isPermanent,
@@ -995,7 +1158,7 @@ async function handleGetProfile(auth) {
 
 async function handleUpdateProfile(body, auth) {
   if (!auth) return response(401, { ok: false, error: '请先登录' });
-  const user = await db.collection('users').where({ email: auth.email }).get();
+  const user = await db.collection('users').where({ email: emailMatch(auth.email) }).get();
   if (user.data.length === 0) return response(404, { ok: false, error: '账号不存在' });
 
   if (user.data[0].bannedUntil && user.data[0].bannedUntil > Date.now()) {
@@ -1019,13 +1182,15 @@ async function handleUpdateProfile(body, auth) {
     const avatar = String(body.avatar).trim();
     if (avatar.length > 500000) return response(400, { ok: false, error: '头像数据过大' });
 
-    // 头像修改频率限制：每天只能改一次
-    if (user.data[0].lastAvatarChangeAt) {
-      const elapsed = Date.now() - user.data[0].lastAvatarChangeAt;
-      if (elapsed < AVATAR_CHANGE_COOLDOWN_MS) {
-        const remainingHours = Math.ceil((AVATAR_CHANGE_COOLDOWN_MS - elapsed) / 3600000);
-        return response(429, { ok: false, error: `头像每天只能修改一次，请${remainingHours}小时后再试` });
-      }
+    // 头像修改频率限制：每天最多改 2 次（按本地日期重置）
+    const todayStr = getBeijingDateStr();
+    const avatarChangeDate = user.data[0].avatarChangeDate;
+    let avatarChangeCount = user.data[0].avatarChangeCount || 0;
+    if (avatarChangeDate !== todayStr) {
+      avatarChangeCount = 0; // 跨天重置
+    }
+    if (avatarChangeCount >= 2) {
+      return response(429, { ok: false, error: '头像每天最多修改 2 次，明天再来吧~' });
     }
 
     // 腾讯云 IMS 图片内容安全审核头像
@@ -1038,13 +1203,20 @@ async function handleUpdateProfile(body, auth) {
     }
 
     update.avatar = avatar;
-    update.lastAvatarChangeAt = Date.now();
+    update.avatarHash = hashAvatar(avatar);
+    update.avatarChangeDate = todayStr;
+    update.avatarChangeCount = avatarChangeCount + 1;
   }
 
   if (Object.keys(update).length === 0) return response(400, { ok: false, error: '没有需要更新的字段' });
   await db.collection('users').doc(user.data[0]._id).update(update);
 
-  return response(200, { ok: true, message: '资料已更新' });
+  return response(200, {
+    ok: true,
+    message: '资料已更新',
+    avatarHash: update.avatarHash || u.avatarHash || '',
+    avatarUnchanged: false
+  });
 }
 
 async function handleDeleteAccount(auth) {
@@ -1210,13 +1382,96 @@ exports.main = async (event, context) => {
         return response(405, { error: 'Method not allowed' });
 
       case '/profile':
-        if (method === 'GET') return await handleGetProfile(auth);
+        if (method === 'GET') return await handleGetProfile(auth, query);
         if (method === 'PUT' || method === 'POST') return await handleUpdateProfile(body, auth);
         return response(405, { error: 'Method not allowed' });
 
       case '/account':
         if (method === 'DELETE') return await handleDeleteAccount(auth);
         return response(405, { error: 'Method not allowed' });
+
+      // 管理员一次性修复：为缺 emailHash/emailEnc 的旧用户补算字段
+      case '/admin/fix-user-hashes': {
+        if (!isAdminEmail(auth && auth.email)) return response(403, { ok: false, error: '仅管理员' });
+        if (method !== 'POST') return response(405, { error: 'Method not allowed' });
+        const all = await db.collection('users').limit(1000).get();
+        let fixed = 0;
+        for (const u of all.data) {
+          if (u.emailHash && u.emailEnc) continue;
+          let plain = u.email;
+          if (!plain && u.emailEnc) { try { plain = decrypt(u.emailEnc); } catch (e) { plain = null; } }
+          if (!plain) continue;
+          const update = {};
+          if (!u.emailHash) update.emailHash = emailHashOf(plain);
+          if (!u.emailEnc) update.emailEnc = encEmail(plain);
+          await db.collection('users').doc(u._id).update(update);
+          fixed++;
+        }
+        return response(200, { ok: true, fixed, total: all.data.length });
+      }
+
+      // 管理员一次性清理：软删除所有永久封禁账号的评论及回复（也支持手动指定 uid）
+      case '/admin/clean-banned': {
+        if (!isAdminEmail(auth && auth.email)) return response(403, { ok: false, error: '仅管理员可执行' });
+        if (method !== 'POST') return response(405, { error: 'Method not allowed' });
+        const debug = query && (query.debug === '1' || query.debug === 1);
+        const targetUid = (body && body.uid) ? String(body.uid) : null;
+        let usersToClean = [];
+        if (targetUid) {
+          const tu = await db.collection('users').doc(targetUid).get();
+          usersToClean = (tu.data && tu.data.length) ? tu.data : [];
+        } else {
+          const banned = await db.collection('users')
+            .where({ bannedUntil: _.gte(Date.now() + 365 * 86400000 * 50) }).get();
+          usersToClean = banned.data;
+        }
+        let totalCleaned = 0;
+        const debugInfo = [];
+        for (const u of usersToClean) {
+          const matchKeys = [];
+          if (u.emailHash) matchKeys.push({ emailHash: u.emailHash });
+          if (u.emailEnc) matchKeys.push({ emailEnc: u.emailEnc });
+          if (u.email) matchKeys.push({ email: String(u.email).toLowerCase() });
+          const matchCond = matchKeys.length === 1 ? matchKeys[0] : (matchKeys.length ? _.or(matchKeys) : null);
+          let ownCount = 0;
+          let activeCount = 0;
+          if (matchCond) {
+            const own = await db.collection('comments').where(matchCond).get();
+            ownCount = own.data.length;
+            const ownActive = await db.collection('comments').where(_.and([matchCond, { isDeleted: _.neq(true) }])).get();
+            activeCount = ownActive.data.length;
+            const topIds = own.data.filter(c => !c.parentId || c.parentId === '').map(c => c._id);
+            if (!debug && ownCount > 0) {
+              await db.collection('comments').where(matchCond).update({ isDeleted: true, deletedAt: Date.now() });
+            }
+            if (!debug && topIds.length > 0) {
+              await db.collection('comments').where({ parentId: _.in(topIds) }).update({ isDeleted: true, deletedAt: Date.now() });
+            }
+            totalCleaned += ownCount;
+          }
+          if (debug) {
+            debugInfo.push({ uid: u._id, hasEmail: !!u.email, hasEmailHash: !!u.emailHash, hasEmailEnc: !!u.emailEnc, ownComments: ownCount, ownActive: activeCount });
+          }
+        }
+        if (debug) return response(200, { ok: true, debug: debugInfo, cleanedAccounts: usersToClean.length });
+        return response(200, { ok: true, cleaned: totalCleaned, cleanedAccounts: usersToClean.length });
+      }
+
+      // 管理员解封：清除指定账号的封禁与违规计数
+      case '/admin/unban': {
+        if (!isAdminEmail(auth && auth.email)) return response(403, { ok: false, error: '仅管理员可执行' });
+        if (method !== 'POST') return response(405, { error: 'Method not allowed' });
+        const target = (body.email || body.uid || '').trim();
+        if (!target) return response(400, { ok: false, error: '缺少 email 或 uid' });
+        const q = target.includes('@')
+          ? _.or([{ email: target.toLowerCase() }, { emailHash: emailHashOf(target) }, { emailEnc: encEmail(target) }])
+          : { _id: target };
+        const users = await db.collection('users').where(q).get();
+        if (users.data.length === 0) return response(404, { ok: false, error: '未找到该账号' });
+        const uid = users.data[0]._id;
+        await db.collection('users').doc(uid).update({ bannedUntil: 0, violationCount: 0 });
+        return response(200, { ok: true, uid, unbanned: true });
+      }
 
       default:
         return response(404, { ok: false, error: 'Not found', path });

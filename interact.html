@@ -340,35 +340,45 @@
 
   /* ========== 页面主体 ========== */
   .main-wrap{
-    max-width:800px;margin:0 auto;padding:80px 20px 60px;
+    max-width:800px;margin:0 auto;padding:80px 20px 100px;
   }
 
   /* ========== 标签页切换 ========== */
   .tab-bar{
-    display:flex;gap:4px;
-    background:var(--card-bg);
-    border:1px solid var(--border);
-    border-radius:50px;
-    padding:4px;margin-bottom:28px;
+    position:fixed;left:50%;transform:translateX(-50%);bottom:0;
+    width:100%;max-width:800px;
+    display:flex;
+    background:var(--bg-card);
+    border-top:1px solid var(--border);
+    box-shadow:0 -4px 20px rgba(0,0,0,.06);
+    z-index:50;
+    padding:6px 0 calc(8px + env(safe-area-inset-bottom));
     backdrop-filter:blur(8px);
   }
   .tab-btn{
-    flex:1;padding:12px 24px;
-    border:none;border-radius:50px;
-    background:transparent;
-    font-size:15px;font-weight:600;
-    color:var(--text-sub);
-    cursor:pointer;
-    transition:all .3s var(--ease);
-    font-family:inherit;
+    flex:1;
+    border:none;background:transparent;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:8px 0;cursor:pointer;
+    color:var(--text-mute);font-size:12px;font-weight:600;
+    font-family:inherit;transition:color .2s;
   }
-  .tab-btn.active{
-    background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff;
-    box-shadow:0 4px 16px var(--primary-glow);
-  }
+  .tab-btn .tab-ico{font-size:22px;line-height:1.1;transition:transform .2s;}
+  .tab-btn.active{color:var(--primary);}
+  .tab-btn.active .tab-ico{transform:translateY(-1px);}
   .tab-panel{display:none;min-height:420px;}
   .tab-panel.active{display:block;}
+
+  /* 个人资料面板：内容较长时面板内部滚动，避免整页出现浏览器原生滚动条 */
+  body.no-page-scroll{overflow:hidden;}
+  #panelProfile.active{
+    max-height:calc(100vh - 120px);
+    overflow-y:auto;
+    padding-right:6px;
+  }
+  #panelProfile.active::-webkit-scrollbar{width:6px;}
+  #panelProfile.active::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  #panelProfile.active::-webkit-scrollbar-track{background:transparent;}
 
   /* ========== 个人资料面板 ========== */
   .ban-warning{
@@ -536,6 +546,42 @@
   }
   .comment-lock-tip.show{display:block;}
 
+  /* 页面内提示横幅（替代浏览器原生 alert） */
+  .page-alert{
+    display:none;
+    align-items:flex-start;gap:10px;
+    padding:14px 16px;margin-bottom:14px;
+    border-radius:14px;
+    font-size:14px;line-height:1.55;
+    border:1px solid transparent;
+    animation:alertIn .25s var(--ease);
+  }
+  .page-alert.show{display:flex;}
+  .page-alert .pa-icon{flex:0 0 auto;width:20px;height:20px;margin-top:1px;}
+  .page-alert .pa-icon svg{width:20px;height:20px;}
+  .page-alert .pa-body{flex:1;min-width:0;}
+  .page-alert .pa-body b{font-weight:700;}
+  @keyframes alertIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+  .page-alert.info{
+    background:rgba(59,130,246,.08);
+    border-color:rgba(59,130,246,.25);
+    color:#2563eb;
+  }
+  .page-alert.error{
+    background:rgba(239,68,68,.08);
+    border-color:rgba(239,68,68,.25);
+    color:#dc2626;
+  }
+  .page-alert.violation{
+    background:rgba(239,68,68,.10);
+    border-color:rgba(239,68,68,.35);
+    color:#dc2626;
+  }
+  .page-alert.violation .pa-icon{color:#dc2626;}
+  [data-theme="dark"] .page-alert.info{color:#93c5fd;}
+  [data-theme="dark"] .page-alert.error,
+  [data-theme="dark"] .page-alert.violation{color:#fca5a5;}
+
   /* ========== 登录弹窗（精致版） ========== */
   .modal-overlay{
     position:fixed;inset:0;z-index:200;
@@ -690,7 +736,8 @@
 
   /* 已登录状态 */
   .user-bar{
-    display:flex;align-items:center;justify-content:space-between;
+    display:none !important; /* 按需求隐藏已登录状态栏 */
+    align-items:center;justify-content:space-between;
     padding:12px 20px;margin-bottom:24px;
     background:var(--card-bg);
     border:1px solid var(--border);
@@ -699,6 +746,7 @@
     backdrop-filter:blur(8px);
   }
   .user-bar .user-email{font-weight:600;color:var(--primary);}
+  .user-bar .user-avatar-img{width:30px;height:30px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid var(--primary-soft);}
   .user-bar .logout-btn{
     background:var(--primary-soft);
     color:var(--text-sub);
@@ -1156,6 +1204,27 @@
   .c-delete-btn:hover{background:rgba(231,76,60,.12);color:#e74c3c;}
   .c-delete-btn.admin{background:rgba(231,76,60,.14);color:#e74c3c;border:1px solid rgba(231,76,60,.3);}
   .c-delete-btn.admin:hover{background:rgba(231,76,60,.24);}
+  .c-reply-btn{
+    background:transparent;border:1px solid var(--border);color:var(--text-mute);
+    border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;transition:.18s;
+  }
+  .c-reply-btn:hover{color:var(--primary);border-color:var(--primary);}
+  .reply-box{margin-top:12px;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:10px;}
+  .reply-box textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:14px;resize:vertical;min-height:60px;background:#fff;color:var(--text);box-sizing:border-box;}
+  .reply-box textarea:focus{outline:none;border-color:var(--primary);}
+  .reply-box-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-mute);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;transition:.18s;}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+  .replies{margin-top:14px;border-left:3px solid var(--border);padding-left:14px;display:flex;flex-direction:column;gap:14px;}
+  .reply-item{background:var(--bg-soft);border-radius:12px;padding:12px 14px;}
+  .r-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .r-avatar,.r-avatar-img{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:var(--primary);color:#fff;object-fit:cover;}
+  .r-name{font-weight:600;font-size:14px;color:var(--text);}
+  .reply-to{font-size:12px;color:var(--primary);font-weight:600;}
+  .r-time{font-size:12px;color:var(--text-mute);margin-left:auto;}
+  .r-body{font-size:14px;line-height:1.6;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+  .r-footer{margin-top:8px;}
+  .r-footer .c-like-btn{font-size:13px;padding:3px 10px;}
   .comment-empty{text-align:center;padding:40px 20px;color:var(--text-mute);}
   .pagination{
     display:flex;justify-content:center;gap:8px;margin-top:24px;
@@ -1186,6 +1255,26 @@
   .login-prompt h3{font-size:20px;color:var(--text);margin-bottom:8px;}
   .login-prompt p{font-size:14px;color:var(--text-sub);margin-bottom:20px;}
 
+  /* ========== SVG 图标统一尺寸（替代 emoji） ========== */
+  .tab-ico svg{width:24px;height:24px;display:block;}
+  .modal-icon svg{width:30px;height:30px;display:block;}
+  .modal-box .modal-icon{color:var(--primary);}
+  .sidebar-toggle-btn svg{width:18px;height:18px;display:block;}
+  .chat-header-btn svg{width:18px;height:18px;display:block;}
+  .send-btn svg{width:20px;height:20px;display:block;}
+  .chat-empty-state .empty-icon svg{width:56px;height:56px;display:block;}
+  .login-prompt .prompt-icon{color:var(--primary);}
+  .login-prompt .prompt-icon svg{width:56px;height:56px;display:block;}
+  .conv-del svg{width:14px;height:14px;display:block;}
+  .c-delete-btn svg{width:18px;height:18px;display:block;}
+  .avatar-placeholder svg{width:48px;height:48px;display:block;}
+  .avatar-edit svg{width:16px;height:16px;display:block;}
+  .c-like-btn svg{width:16px;height:16px;display:block;flex-shrink:0;}
+  .c-like-btn.liked svg{fill:currentColor;}
+  .c-reply-btn svg{width:15px;height:15px;display:block;}
+  .my-comment-likes svg{width:14px;height:14px;display:inline-block;vertical-align:-2px;}
+  .ban-warning svg{width:18px;height:18px;vertical-align:-3px;margin-right:4px;flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -1209,11 +1298,6 @@
         <button class="lang-btn" data-lang="ja" data-i18n-title="lang.ja" title="日本語">JP</button>
         <button class="theme-toggle-btn" id="themeToggle" title="切换明暗模式">阴暗</button>
       </li>
-      <li class="nav-sub-tabs">
-        <button class="nav-tab-btn active" data-subtab="chat" data-i18n="tab.chat">OC聊天</button>
-        <button class="nav-tab-btn" data-subtab="comments" data-i18n="tab.comments">评论区</button>
-        <button class="nav-tab-btn" data-subtab="profile" data-i18n="tab.profile">个人</button>
-      </li>
     </ul>
     <button class="nav-toggle" id="navToggle" aria-label="菜单" data-i18n-aria="aria.menu">
       <span></span><span></span><span></span>
@@ -1226,13 +1310,14 @@
 
   <!-- 标签页切换 -->
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="chat" data-i18n="tab.chat">OC聊天</button>
-    <button class="tab-btn" data-tab="comments" data-i18n="tab.comments">评论区</button>
-    <button class="tab-btn" data-tab="profile" data-i18n="tab.profile">个人</button>
+    <button class="tab-btn active" data-tab="chat"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg></span><span class="tab-label" data-i18n="tab.chat">OC聊天</span></button>
+    <button class="tab-btn" data-tab="comments"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="tab-label" data-i18n="tab.comments">评论区</span></button>
+    <button class="tab-btn" data-tab="profile"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="tab-label" data-i18n="tab.profile">个人</span></button>
   </div>
 
   <!-- 已登录状态栏 -->
   <div class="user-bar" id="userBar" style="display:none">
+    <img class="user-avatar-img" id="userAvatar" src="" alt="" style="display:none">
     <span>已登录：<span class="user-email" id="userEmail"></span></span>
   </div>
 
@@ -1248,11 +1333,23 @@
     </div>
   </div>
 
+  <!-- 退出登录确认弹窗 -->
+  <div class="delete-modal-overlay" id="logoutModal">
+    <div class="delete-modal">
+      <h3>确认退出登录？</h3>
+      <p>退出后需要重新登录才能继续使用聊天与评论功能。确定要退出当前账号吗？</p>
+      <div class="btn-row">
+        <button class="btn-cancel" id="logoutCancelBtn">取消</button>
+        <button class="btn-confirm" id="logoutConfirmBtn">确认退出</button>
+      </div>
+    </div>
+  </div>
+
   <!-- OC聊天面板 -->
   <div class="tab-panel active" id="panelChat">
     <div id="chatGuest">
       <div class="login-prompt">
-        <div class="prompt-icon">🔐</div>
+        <div class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h3 data-i18n="login.need">请先登录</h3>
         <p data-i18n="login.profile.required">需要邮箱验证码登录后才能使用</p>
         <button class="btn-primary" id="showLoginBtn" style="width:auto;padding:12px 36px;" data-i18n="login.submit">登录</button>
@@ -1264,7 +1361,7 @@
         <aside class="chat-sidebar" id="chatSidebar">
           <div class="sidebar-header">
             <span data-i18n="chat.history">对话历史</span>
-            <button class="sidebar-toggle-btn" id="sidebarToggle" title="收起侧边栏">☰</button>
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="收起侧边栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
           </div>
           <button class="new-chat-btn" id="newChatBtn" data-i18n="chat.new">+ 新建对话</button>
           <div class="conv-list" id="convList">
@@ -1275,7 +1372,7 @@
         <!-- 右侧聊天主体 -->
         <div class="chat-main">
           <div class="chat-header">
-            <button class="chat-header-btn" id="chatSidebarToggle" title="对话历史">☰</button>
+            <button class="chat-header-btn" id="chatSidebarToggle" title="对话历史"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
             <span class="chat-title" id="chatTitle">纳棂</span>
             <span class="chat-remaining" id="chatRemaining" title="今日剩余对话次数"></span>
             <button class="chat-header-btn" id="chatFullscreenBtn" title="全屏" aria-label="全屏">
@@ -1295,13 +1392,13 @@
           </div>
           <div class="chat-messages" id="chatMessages">
             <div class="chat-empty-state" id="chatEmpty">
-              <div class="empty-icon">🐾</div>
+              <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="13" r="1.6"/><circle cx="9.5" cy="9" r="1.6"/><circle cx="14.5" cy="9" r="1.6"/><circle cx="18.5" cy="13" r="1.6"/><path d="M12 14c-2.5 0-4.5 1.6-4.8 3.6-.2 1.4.8 2.4 2.3 2.4 1 0 1.5-.5 2.5-.5s1.5.5 2.5.5c1.5 0 2.5-1 2.3-2.4C16.5 15.6 14.5 14 12 14z"/></svg></div>
               <p data-i18n="chat.no.conversations">选择一个对话或新建一个，开始和纳棂聊天吧~</p>
             </div>
           </div>
           <div class="chat-input-wrap">
             <input type="text" id="chatInput" data-i18n-placeholder="chat.placeholder" placeholder="登录后直接和纳棂聊天..." maxlength="2000" disabled>
-            <button class="send-btn" id="chatSend" disabled data-i18n="chat.send">▶</button>
+            <button class="send-btn" id="chatSend" disabled aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
           </div>
         </div>
       </div>
@@ -1312,14 +1409,15 @@
   <div class="tab-panel" id="panelComments">
     <div id="commentGuest">
       <div class="login-prompt">
-        <div class="prompt-icon">💌</div>
+        <div class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></div>
         <h3 data-i18n="login.need">请先登录</h3>
         <p data-i18n="login.profile.required">需要邮箱验证码登录后才能评论</p>
         <button class="btn-primary" id="showLoginBtn2" style="width:auto;padding:12px 36px;" data-i18n="login.submit">登录</button>
       </div>
     </div>
     <div id="commentLogged" style="display:none">
-      <div class="comment-lock-tip" id="commentLockTip" data-i18n="comment.locked">⚠️ 请先在「个人」标签页完善资料（昵称+头像）后再发表评论</div>
+      <div class="comment-lock-tip" id="commentLockTip" data-i18n="comment.locked">请先在「个人」标签页完善资料（昵称+头像）后再发表评论</div>
+      <div class="page-alert" id="commentAlert" style="display:none"></div>
     <div class="comment-form" id="commentFormWrap">
         <textarea id="commentInput" data-i18n-placeholder="comment.placeholder" placeholder="写下你的想法..." maxlength="1000"></textarea>
         <div class="form-footer">
@@ -1336,7 +1434,7 @@
   <div class="tab-panel" id="panelProfile">
     <div id="profileGuest">
       <div class="login-prompt">
-        <div class="prompt-icon">👤</div>
+        <div class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <h3 data-i18n="login.need">请先登录</h3>
         <p data-i18n="login.profile.required">设置头像和昵称后即可参与评论</p>
       </div>
@@ -1346,8 +1444,8 @@
       <div class="profile-panel">
         <div class="profile-avatar-wrap" id="avatarWrap">
           <img id="avatarImg" src="" alt="头像" style="display:none">
-          <div class="avatar-placeholder" id="avatarPlaceholder">🐾</div>
-          <div class="avatar-edit" data-i18n="profile.avatar.edit">✎</div>
+          <div class="avatar-placeholder" id="avatarPlaceholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="13" r="1.6"/><circle cx="9.5" cy="9" r="1.6"/><circle cx="14.5" cy="9" r="1.6"/><circle cx="18.5" cy="13" r="1.6"/><path d="M12 14c-2.5 0-4.5 1.6-4.8 3.6-.2 1.4.8 2.4 2.3 2.4 1 0 1.5-.5 2.5-.5s1.5.5 2.5.5c1.5 0 2.5-1 2.3-2.4C16.5 15.6 14.5 14 12 14z"/></svg></div>
+          <div class="avatar-edit" aria-label="编辑头像"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></div>
         </div>
         <input type="file" id="avatarFile" accept="image/*" style="display:none">
         <div class="profile-nickname-wrap">
@@ -1356,11 +1454,11 @@
         </div>
         <button class="profile-save-btn" id="profileSaveBtn" data-i18n="profile.save">保存资料</button>
         <div class="profile-status" id="profileStatus"></div>
-        <div class="profile-complete-badge" id="profileBadge" style="display:none" data-i18n="profile.saved">✓ 资料已完善</div>
+        <div class="profile-complete-badge" id="profileBadge" style="display:none" data-i18n="profile.saved">资料已完善</div>
       </div>
       <!-- 我的帖子 -->
       <div class="my-comments-section">
-        <h3 class="my-comments-title" data-i18n="profile.my.posts">📝 我的帖子</h3>
+        <h3 class="my-comments-title" data-i18n="profile.my.posts">我的帖子</h3>
         <div id="myCommentsList"><div class="my-comment-empty" data-i18n="profile.loading">加载中...</div></div>
       </div>
       <!-- 账号管理 -->
@@ -1379,12 +1477,12 @@
 <!-- ========== 登录弹窗 ========== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
-    <div class="modal-icon">✉️</div>
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></div>
     <h2 data-i18n="login.title">邮箱登录</h2>
     <p class="modal-desc" data-i18n="login.need">无需注册，输入邮箱即可快速登录<small>我们会向您的邮箱发送6位验证码</small></p>
     <div id="stepEmail">
       <div class="input-group">
-        <label data-i18n="login.email">📬 邮箱地址</label>
+        <label data-i18n="login.email">邮箱地址</label>
         <input type="email" id="loginEmail" data-i18n-placeholder="login.email.placeholder" placeholder="your@email.com" autocomplete="email">
       </div>
       <button class="btn-primary" id="sendCodeBtn" data-i18n="login.send">发送验证码</button>
@@ -1394,7 +1492,7 @@
     <div id="stepCode" style="display:none">
       <button class="modal-back-btn" id="backBtn" data-i18n="login.email">← 更换邮箱</button>
       <div class="input-group">
-        <label data-i18n="login.code">🔢 验证码</label>
+        <label data-i18n="login.code">验证码</label>
         <div class="code-row">
           <input type="text" id="loginCode" data-i18n-placeholder="login.code.placeholder" placeholder="输入6位验证码" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
         </div>
@@ -1415,6 +1513,23 @@ const API_BASE = 'https://naling-sql-d8go4z9v64d3cd083.service.tcloudbase.com/ap
 // ========== 工具函数 ==========
 const $ = (sel, ctx) => (ctx || document).querySelector(sel);
 const $$ = (sel, ctx) => (ctx || document).querySelectorAll(sel);
+
+// ===== SVG 图标（替代 emoji） =====
+const ICON = {
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  paw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="13" r="1.6"/><circle cx="9.5" cy="9" r="1.6"/><circle cx="14.5" cy="9" r="1.6"/><circle cx="18.5" cy="13" r="1.6"/><path d="M12 14c-2.5 0-4.5 1.6-4.8 3.6-.2 1.4.8 2.4 2.3 2.4 1 0 1.5-.5 2.5-.5s1.5.5 2.5.5c1.5 0 2.5-1 2.3-2.4C16.5 15.6 14.5 14 12 14z"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  like: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>',
+  reply: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
 
 async function api(path, method, body) {
   const token = localStorage.getItem('naling-token');
@@ -1600,6 +1715,7 @@ function updateAuthUI() {
   $('#profileLogged').style.display = logged ? 'block' : 'none';
   if (logged) {
     $('#userEmail').textContent = getEmail();
+    renderCachedAvatarInstant();
     loadProfile();
     loadConversations(); // 登录后加载对话列表
     updateChatRemaining(); // 更新剩余对话次数
@@ -1621,8 +1737,22 @@ function updateAuthUI() {
 }
 
 $('#logoutBtn').addEventListener('click', function() {
+  $('#logoutModal').classList.add('open');
+});
+
+$('#logoutCancelBtn').addEventListener('click', function() {
+  $('#logoutModal').classList.remove('open');
+});
+
+$('#logoutModal').addEventListener('click', function(e) {
+  if (e.target === this) $('#logoutModal').classList.remove('open');
+});
+
+$('#logoutConfirmBtn').addEventListener('click', function() {
   localStorage.removeItem('naling-token');
   localStorage.removeItem('naling-email');
+  document.body.classList.remove('no-page-scroll');
+  $('#logoutModal').classList.remove('open');
   updateAuthUI();
 });
 
@@ -1680,6 +1810,8 @@ $$('.tab-btn').forEach(btn => {
     });
     // 更新当前标签
     currentTab = tabName;
+    // 个人资料面板内部滚动：锁住整页滚动，避免浏览器原生侧边条
+    document.body.classList.toggle('no-page-scroll', tabName === 'profile');
     // 切换标签时加载对应内容
     if (tabName === 'profile' && isLoggedIn()) {
       loadProfile();
@@ -1693,17 +1825,61 @@ $$('.tab-btn').forEach(btn => {
 $('#showLoginBtn').addEventListener('click', showLogin);
 $('#showLoginBtn2').addEventListener('click', showLogin);
 
+// ========== 头像本地缓存（按邮箱哈希比对，未变更则不重新拉取大体积头像） ==========
+const AVATAR_CACHE_KEY = 'naling_avatar_cache_v1';
+function _readAvatarCacheAll() {
+  try { return JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || '{}'); }
+  catch (e) { return {}; }
+}
+function getCachedAvatar(email) {
+  if (!email) return null;
+  const all = _readAvatarCacheAll();
+  return all[email] || null;
+}
+function setCachedAvatar(email, avatar, hash) {
+  if (!email || !avatar) return;
+  try {
+    const all = _readAvatarCacheAll();
+    all[email] = { avatar, hash };
+    localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(all));
+  } catch (e) { /* 容量超限时忽略 */ }
+}
+// 登录后立即用本地缓存头像渲染，避免空白闪烁（随后 loadProfile 会与服务器比对）
+function renderCachedAvatarInstant() {
+  const cache = getCachedAvatar(getMyEmail());
+  if (cache && cache.avatar) {
+    profileAvatar = cache.avatar;
+    const ai = $('#avatarImg');
+    if (ai) { ai.src = cache.avatar; ai.style.display = 'block'; }
+    const ph = $('#avatarPlaceholder');
+    if (ph) ph.style.display = 'none';
+    refreshUserBarAvatar();
+  }
+}
+
 // ========== 个人资料管理 ==========
 let profileNickname = '';
 let profileAvatar = '';
+let avatarLocallyEdited = false; // 用户已选新头像但尚未保存到服务器
 
 async function loadProfile() {
   try {
-    const resp = await api('/profile', 'GET');
+    const email = getMyEmail();
+    const cache = getCachedAvatar(email);
+    // 把本地缓存的头像哈希带上：服务器若判定未变更则不返回大体积头像数据
+    const q = (cache && cache.hash) ? '?avatarHash=' + encodeURIComponent(cache.hash) : '';
+    const resp = await api('/profile' + q, 'GET');
     if (resp.ok && resp.profile) {
-      profileNickname = resp.profile.nickname || '';
-      profileAvatar = resp.profile.avatar || '';
-      window.currentUserIsAdmin = !!resp.profile.isAdmin;
+      const p = resp.profile;
+      profileNickname = p.nickname || '';
+      if (p.avatarUnchanged && cache && cache.avatar && !avatarLocallyEdited) {
+        // 服务器头像未变且本地无未保存改动：直接复用本地缓存，不再拉取
+        profileAvatar = cache.avatar;
+      } else {
+        profileAvatar = p.avatar || (cache ? cache.avatar : '');
+        if (email) setCachedAvatar(email, profileAvatar, p.avatarHash);
+      }
+      window.currentUserIsAdmin = !!p.isAdmin;
       // 更新个人面板
       updateProfilePanel();
       // 更新评论区锁定状态
@@ -1719,10 +1895,10 @@ async function loadProfile() {
         const banWarn = $('#banWarning');
         if (banWarn) {
           if (resp.profile.isPermanentlyBanned) {
-            banWarn.innerHTML = '<strong>⚠️ 账号已被永久封禁</strong><br>由于累计违规5次，此账号已被永久封禁，无法注销。';
+            banWarn.innerHTML = ICON.warn + '<strong>账号已被永久封禁</strong><br>由于累计违规5次，此账号已被永久封禁，无法注销。';
           } else {
             const vc = resp.profile.violationCount || 0;
-            banWarn.innerHTML = '<strong>⚠️ 违规警告</strong><br>累计违规 <b>' + vc + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
+            banWarn.innerHTML = ICON.warn + '<strong>违规警告</strong><br>累计违规 <b>' + vc + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
           }
           banWarn.style.display = 'block';
         }
@@ -1741,7 +1917,7 @@ async function loadProfile() {
         // 有违规记录但未封禁
         const banWarn = $('#banWarning');
         if (banWarn) {
-          banWarn.innerHTML = '<strong>⚠️ 违规警告</strong><br>累计违规 <b>' + resp.profile.violationCount + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
+          banWarn.innerHTML = ICON.warn + '<strong>违规警告</strong><br>累计违规 <b>' + resp.profile.violationCount + '/5</b> 次，5次后将永久封禁账号。请注意文明交流。';
           banWarn.style.display = 'block';
         }
       }
@@ -1765,6 +1941,19 @@ function updateProfilePanel() {
     $('#profileBadge').style.display = 'inline-flex';
   } else {
     $('#profileBadge').style.display = 'none';
+  }
+  refreshUserBarAvatar();
+}
+
+// 刷新顶部栏头像，确保改头像后全局一致
+function refreshUserBarAvatar() {
+  const el = $('#userAvatar');
+  if (!el) return;
+  if (profileAvatar) {
+    el.src = profileAvatar;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
   }
 }
 
@@ -1818,6 +2007,7 @@ $('#avatarFile').addEventListener('change', function() {
     ctx.drawImage(img, dx, dy, drawW, drawH);
 
     profileAvatar = canvas.toDataURL('image/jpeg', 0.8);
+    avatarLocallyEdited = true;
     updateProfilePanel();
   };
   img.src = URL.createObjectURL(file);
@@ -1854,7 +2044,10 @@ $('#profileSaveBtn').addEventListener('click', async function() {
     if (profileAvatar) body.avatar = profileAvatar;
     const resp = await api('/profile', 'POST', body);
     if (resp.ok) {
-      setProfileStatus('✓ 资料已保存', 'success');
+      setProfileStatus('资料已保存', 'success');
+      avatarLocallyEdited = false;
+      // 保存成功后用服务器返回的新哈希刷新本地缓存
+      if (resp.avatarHash) setCachedAvatar(getMyEmail(), profileAvatar, resp.avatarHash);
       if (isLoggedIn()) loadComments();
     } else {
       setProfileStatus(resp.error || '服务器保存失败，请稍后重试', 'error');
@@ -1904,23 +2097,35 @@ async function loadComments() {
       const avatarHtml = avatar
         ? `<img src="${escapeHtml(avatar)}" alt="头像" class="c-avatar-img">`
         : `<div class="c-avatar">${nick.charAt(0).toUpperCase()}</div>`;
-      const isMine = myEmail && c.rawEmail === myEmail;
+      const isMine = !!c.isMine;
       const likeClass = c.likedByMe ? 'liked' : '';
-      const likeIcon = c.likedByMe ? '❤️' : '🤍';
+      const likeIcon = ICON.like;
+      const delBtn = (isMine || window.currentUserIsAdmin)
+        ? `<button class="c-delete-btn ${window.currentUserIsAdmin && !isMine ? 'admin' : ''}" onclick="deleteMyComment('${c.id}')" title="${isMine ? '删除' : '管理员删除'}">${ICON.close}</button>`
+        : '';
       return `
       <div class="comment-card" id="comment-${c.id}">
         <div class="c-header">
           ${avatarHtml}
           <span class="c-name">${escapeHtml(nick)}</span>
           <span class="c-time">${fmtTime(c.createdAt)}</span>
-          ${isMine || window.currentUserIsAdmin ? `<button class="c-delete-btn ${window.currentUserIsAdmin && !isMine ? 'admin' : ''}" onclick="deleteMyComment('${c.id}')" title="${isMine ? '删除' : '管理员删除'}">×</button>` : ''}
+          ${delBtn}
         </div>
         <div class="c-body">${escapeHtml(c.content)}</div>
         <div class="c-footer">
           <button class="c-like-btn ${likeClass}" onclick="toggleLike('${c.id}')" ${isLoggedIn() ? '' : 'disabled title="请先登录"'}>
             ${likeIcon} <span>${c.likeCount || 0}</span>
           </button>
+          <button class="c-reply-btn" onclick="openReply('${c.id}')">${ICON.reply} 回复</button>
         </div>
+        <div class="reply-box" id="reply-box-${c.id}" style="display:none">
+          <textarea id="reply-input-${c.id}" placeholder="回复 @${escapeHtml(nick)}..." maxlength="1000"></textarea>
+          <div class="reply-box-footer">
+            <button class="btn-secondary" onclick="submitReply('${c.id}')">发送</button>
+            <button class="btn-ghost" onclick="closeReply('${c.id}')">取消</button>
+          </div>
+        </div>
+        ${renderReplies(c)}
       </div>
       `;
     }).join('');
@@ -1947,6 +2152,74 @@ function goPage(p) {
   $('#commentList').scrollIntoView({ behavior: 'smooth' });
 }
 
+function renderReplies(c) {
+  if (!c.replies || c.replies.length === 0) return '';
+  const html = c.replies.map(r => {
+    const rNick = r.nickname || '用户';
+    const avatar = r.avatar
+      ? `<img src="${escapeHtml(r.avatar)}" alt="" class="r-avatar-img">`
+      : `<div class="r-avatar">${rNick.charAt(0).toUpperCase()}</div>`;
+    const isMine = !!r.isMine;
+    const likeClass = r.likedByMe ? 'liked' : '';
+    const likeIcon = ICON.like;
+    const delBtn = (isMine || window.currentUserIsAdmin)
+      ? `<button class="c-delete-btn ${window.currentUserIsAdmin && !isMine ? 'admin' : ''}" onclick="deleteMyComment('${r.id}')" title="${isMine ? '删除' : '管理员删除'}">${ICON.close}</button>`
+      : '';
+    const replyTo = r.replyToNick ? `<span class="reply-to">@${escapeHtml(r.replyToNick)}</span>` : '';
+    return `
+      <div class="reply-item" id="comment-${r.id}">
+        <div class="r-header">
+          ${avatar}
+          ${replyTo}
+          <span class="r-name">${escapeHtml(rNick)}</span>
+          <span class="r-time">${fmtTime(r.createdAt)}</span>
+          ${delBtn}
+        </div>
+        <div class="r-body">${escapeHtml(r.content)}</div>
+        <div class="r-footer">
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${r.id}')" ${isLoggedIn() ? '' : 'disabled title="请先登录"'}>
+            <span>${likeIcon}</span> <span>${r.likeCount || 0}</span>
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+  return `<div class="replies">${html}</div>`;
+}
+
+function openReply(id) {
+  const box = $('#reply-box-' + id);
+  if (!box) return;
+  box.style.display = 'block';
+  $('#reply-input-' + id).focus();
+}
+
+function closeReply(id) {
+  const box = $('#reply-box-' + id);
+  if (box) box.style.display = 'none';
+}
+
+async function submitReply(parentId) {
+  const input = $('#reply-input-' + parentId);
+  if (!input) return;
+  const content = (input.value || '').trim();
+  if (!content) return;
+  if (content.length > 1000) { alert('回复内容过长（上限1000字）'); return; }
+
+  const resp = await api('/comments', 'POST', { content, parentId });
+  if (resp.ok) {
+    loadComments();
+  } else if (resp.blocked) {
+    const vc = resp.violationCount || 0;
+    showPageAlert('violation',
+      '你的回复因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
+      '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
+  } else if (resp.needProfile) {
+    showPageAlert('info', '请先完善个人资料（昵称+头像）后再评论');
+  } else {
+    showPageAlert('error', escapeHtml(resp.error || '发送失败，请稍后再试'));
+  }
+}
+
 $('#commentSubmit').addEventListener('click', async function() {
   const content = $('#commentInput').value.trim();
   if (!content) return;
@@ -1965,8 +2238,10 @@ $('#commentSubmit').addEventListener('click', async function() {
       $('#charCount').textContent = '0 / 1000';
       commentPage = 1;
       loadComments();
+      const ca = $('#commentAlert');
+      if (ca) ca.classList.remove('show');
     } else if (resp.needProfile) {
-      alert(t('comment.locked'));
+      showPageAlert('info', t('comment.locked'));
       // 自动切换到个人标签页
       $$('.tab-btn').forEach(b => { b.classList.remove('active'); if(b.dataset.tab==='profile') b.classList.add('active'); });
       $$('.tab-panel').forEach(p => { p.classList.remove('active'); if(p.id==='panelProfile') p.classList.add('active'); });
@@ -1974,12 +2249,15 @@ $('#commentSubmit').addEventListener('click', async function() {
         b.classList.toggle('active', b.dataset.subtab === 'profile');
       });
     } else if (resp.blocked) {
-      alert('⚠️ 评论因「' + (resp.reason || resp.category || '违规内容') + '」被拦截\n\n累计违规5次将永久封禁账号，请注意文明交流');
+      const vc = resp.violationCount || 0;
+      showPageAlert('violation',
+        '你的评论因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
+        '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
     } else {
-      alert(resp.error || t('comment.postFailed'));
+      showPageAlert('error', escapeHtml(resp.error || t('comment.postFailed')));
     }
   } catch (e) {
-    alert(t('error.network'));
+    showPageAlert('error', t('error.network'));
   }
 
   this.disabled = false;
@@ -2012,7 +2290,7 @@ function renderConvList() {
     const activeClass = c.id === currentConvId ? ' active' : '';
     return `<div class="conv-item${activeClass}" data-id="${c.id}">
       <span class="conv-title">${escapeHtml(c.title)}</span>
-      <button class="conv-del" data-id="${c.id}" title="删除">×</button>
+      <button class="conv-del" data-id="${c.id}" title="删除">${ICON.close}</button>
     </div>`;
   }).join('');
 
@@ -2052,7 +2330,7 @@ async function switchConversation(id) {
       renderMessages(resp.data);
     }
   } catch (e) {
-    addChatMessage('error', '加载对话失败', '⚠️ 错误');
+    addChatMessage('error', '加载对话失败', '错误');
   }
 }
 
@@ -2066,10 +2344,10 @@ async function createNewConversation() {
       resetChatView();
       enableChatInput();
     } else {
-      addChatMessage('error', resp.error || '创建对话失败', '⚠️ 错误');
+      addChatMessage('error', resp.error || '创建对话失败', '错误');
     }
   } catch (e) {
-    addChatMessage('error', '创建对话失败', '⚠️ 错误');
+    addChatMessage('error', '创建对话失败', '错误');
   }
 }
 
@@ -2167,7 +2445,7 @@ function enableChatInput() {
 
 function resetChatView() {
   const msgs = $('#chatMessages');
-  msgs.innerHTML = '<div class="chat-empty-state"><div class="empty-icon">🐾</div><p>' + t('chat.no.conversations') + '</p></div>';
+  msgs.innerHTML = '<div class="chat-empty-state"><div class="empty-icon">' + ICON.paw + '</div><p>' + t('chat.no.conversations') + '</p></div>';
 }
 
 function renderMessages(messages) {
@@ -2181,7 +2459,7 @@ function renderMessages(messages) {
     if (m.role === 'user') {
       addChatMessageEl('user', m.content, '我');
     } else if (m.role === 'assistant') {
-      addChatMessageEl('oc', m.content, '🐾 纳棂');
+      addChatMessageEl('oc', m.content, '纳棂');
     }
   });
 }
@@ -2205,6 +2483,21 @@ function addChatMessageEl(type, text, label) {
 
 function addChatMessage(type, text, label) {
   addChatMessageEl(type, text, label);
+}
+
+// 页面内提示横幅（替代浏览器原生 alert，让用户清楚看到违规/失败原因）
+function showPageAlert(type, html, opts) {
+  opts = opts || {};
+  const el = $('#commentAlert');
+  if (!el) return;
+  el.className = 'page-alert show ' + (type || 'info');
+  const iconSvg = (type === 'violation' || type === 'error')
+    ? ICON.warn : ICON.info || '';
+  el.innerHTML = '<span class="pa-icon">' + iconSvg + '</span><div class="pa-body">' + html + '</div>';
+  if (opts.autoHide) {
+    clearTimeout(el._timer);
+    el._timer = setTimeout(function() { el.classList.remove('show'); }, opts.autoHide);
+  }
 }
 
 function showSpinner() {
@@ -2247,7 +2540,7 @@ async function sendMessage() {
     if (!currentConvId) {
       await createNewConversation();
       if (!currentConvId) {
-        addChatMessage('error', '创建对话失败，请稍后再试', '⚠️ 错误');
+        addChatMessage('error', '创建对话失败，请稍后再试', '错误');
         return;
       }
       renderConvList();
@@ -2260,17 +2553,21 @@ async function sendMessage() {
     const resp = await api('/chat', 'POST', { message: msg, conversationId: currentConvId });
     hideSpinner();
     if (resp.ok) {
-      addChatMessage('oc', resp.reply, '🐾 纳棂');
+      addChatMessage('oc', resp.reply, '纳棂');
       // 更新剩余次数
       if (resp.remaining !== undefined) updateChatRemainingDisplay(resp.remaining);
     } else if (resp.blocked) {
-      addChatMessage('error', '⚠️ 消息因「' + (resp.reason || resp.category || '违规内容') + '」被拦截\n\n累计违规5次将永久封禁账号，请注意文明交流', '⚠️ 内容审核');
+      const vc = resp.violationCount || 0;
+      addChatMessage('error', '消息因「' + (resp.reason || resp.category || '违规内容') + '」被拦截，本次已记为一次违规（当前累计 ' + vc + '/5 次，达到 5 次将永久封禁账号）。', '内容审核');
+      showPageAlert('violation',
+        '你的消息因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，已被拦截。' +
+        '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
     } else {
-      addChatMessage('error', resp.error || 'AI暂时无法回复', '⚠️ 提示');
+      addChatMessage('error', resp.error || 'AI暂时无法回复', '提示');
     }
   } catch (e) {
     hideSpinner();
-    addChatMessage('error', '网络错误，请稍后再试', '⚠️ 错误');
+    addChatMessage('error', '网络错误，请稍后再试', '错误');
   } finally {
     waitingReply = false;
     input.disabled = false;
@@ -2327,7 +2624,7 @@ async function toggleLike(commentId) {
     const btn = document.querySelector(`#comment-${commentId} .c-like-btn`);
     if (btn) {
       btn.classList.toggle('liked', resp.liked);
-      btn.innerHTML = (resp.liked ? '❤️' : '🤍') + ' <span>' + resp.likeCount + '</span>';
+      btn.innerHTML = ICON.like + ' <span>' + resp.likeCount + '</span>';
     }
   } catch(e) { alert(t('comment.like.failed') + e.message); }
 }
@@ -2361,7 +2658,7 @@ async function loadMyComments() {
         <div class="my-comment-body">${escapeHtml(c.content)}</div>
         <div class="my-comment-meta">
           <span class="my-comment-time">${fmtTime(c.createdAt)}</span>
-          <span class="my-comment-likes">❤️ ${c.likeCount || 0}</span>
+          <span class="my-comment-likes">${ICON.like} ${c.likeCount || 0}</span>
           <button class="my-delete-btn" onclick="deleteMyComment('${c.id}')">删除</button>
         </div>
       </div>
@@ -2383,19 +2680,19 @@ var i18nDict = {
     "login.title":"登录","login.email":"邮箱地址","login.email.placeholder":"请输入邮箱","login.code":"验证码","login.code.placeholder":"6位验证码",
     "login.send":"发送验证码","login.sent":"已发送","login.submit":"登录","login.logout":"退出登录",
     "login.need":"请先登录","login.profile.required":"请完善个人资料后再评论",
-    "chat.new":"+ 新对话","chat.new.default":"新对话","chat.delete":"删除","chat.delete.confirm":"确定删除该对话？",
+    "chat.new":"开始对话","chat.new.default":"新对话","chat.delete":"删除","chat.delete.confirm":"确定删除该对话？",
     "chat.placeholder":"输入消息...","chat.send":"发送","chat.loading":"加载中...","chat.empty":"暂无对话",
     "chat.history":"对话历史",
-    "chat.thinking":"思考中...","chat.error":"发送失败，请重试","chat.no.conversations":"点击 + 开始新对话",
-    "comment.title":"评论区","comment.empty":"✨ 还没有帖子，来说点什么吧~","comment.load.error":"⚠️ 加载失败，请重试",
+    "chat.thinking":"思考中...","chat.error":"发送失败，请重试","chat.no.conversations":"点击开始对话",
+    "comment.title":"评论区","comment.empty":"还没有帖子，来说点什么吧~","comment.load.error":"加载失败，请重试",
     "comment.placeholder":"分享你的想法...","comment.submit":"发布","comment.login.tip":"请先登录后再发布帖子",
     "comment.locked":"请先完善个人资料（头像 + 昵称）后再发布帖子",
     "comment.delete.confirm":"确定要删除这条帖子吗？","comment.delete.failed":"删除失败：",
     "comment.like.failed":"操作失败：","profile.title":"个人资料",
     "profile.nickname":"昵称","profile.nickname.placeholder":"给自己取个名字吧~","profile.save":"保存资料",
-    "profile.saved":"✓ 资料已完善","profile.avatar.edit":"✎",
-    "profile.my.posts":"📝 我的帖子","profile.no.posts":"还没有发过帖子","profile.load.failed":"加载失败",
-    "profile.loading":"加载中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功 ✓",
+    "profile.saved":"资料已完善","profile.avatar.edit":"✎",
+    "profile.my.posts":"我的帖子","profile.no.posts":"还没有发过帖子","profile.load.failed":"加载失败",
+    "profile.loading":"加载中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功",
     "profile.status.error":"保存失败，请重试",
     "account.deleted":"账号已成功注销。","account.deleteFailed":"注销失败，请稍后再试",
     "account.confirm":"确认注销","error.network":"网络错误，请稍后再试",
@@ -2411,19 +2708,19 @@ var i18nDict = {
     "login.title":"登入","login.email":"電子郵件","login.email.placeholder":"請輸入電子郵件","login.code":"驗證碼","login.code.placeholder":"6位驗證碼",
     "login.send":"發送驗證碼","login.sent":"已發送","login.submit":"登入","login.logout":"登出",
     "login.need":"請先登入","login.profile.required":"請完善個人資料後再評論",
-    "chat.new":"+ 新對話","chat.new.default":"新對話","chat.delete":"刪除","chat.delete.confirm":"確定刪除此對話？",
+    "chat.new":"開始對話","chat.new.default":"新對話","chat.delete":"刪除","chat.delete.confirm":"確定刪除此對話？",
     "chat.placeholder":"輸入訊息...","chat.send":"發送","chat.loading":"載入中...","chat.empty":"暫無對話",
     "chat.history":"對話歷史",
-    "chat.thinking":"思考中...","chat.error":"發送失敗，請重試","chat.no.conversations":"點擊 + 開始新對話",
-    "comment.title":"評論區","comment.empty":"✨ 還沒有貼文，來說點什麼吧~","comment.load.error":"⚠️ 載入失敗，請重試",
+    "chat.thinking":"思考中...","chat.error":"發送失敗，請重試","chat.no.conversations":"點擊開始對話",
+    "comment.title":"評論區","comment.empty":"還沒有貼文，來說點什麼吧~","comment.load.error":"載入失敗，請重試",
     "comment.placeholder":"分享你的想法...","comment.submit":"發布","comment.login.tip":"請先登入後再發布貼文",
     "comment.locked":"請先完善個人資料（頭像 + 暱稱）後再發布貼文",
     "comment.delete.confirm":"確定要刪除此貼文嗎？","comment.delete.failed":"刪除失敗：",
     "comment.like.failed":"操作失敗：","profile.title":"個人資料",
     "profile.nickname":"暱稱","profile.nickname.placeholder":"給自己取個名字吧~","profile.save":"儲存資料",
-    "profile.saved":"✓ 資料已完善","profile.avatar.edit":"✎",
-    "profile.my.posts":"📝 我的貼文","profile.no.posts":"還沒有發過貼文","profile.load.failed":"載入失敗",
-    "profile.loading":"載入中...","profile.status.saving":"儲存中...","profile.status.saved":"儲存成功 ✓",
+    "profile.saved":"資料已完善","profile.avatar.edit":"✎",
+    "profile.my.posts":"我的貼文","profile.no.posts":"還沒有發過貼文","profile.load.failed":"載入失敗",
+    "profile.loading":"載入中...","profile.status.saving":"儲存中...","profile.status.saved":"儲存成功",
     "profile.status.error":"儲存失敗，請重試",
     "account.deleted":"帳號已成功註銷。","account.deleteFailed":"註銷失敗，請稍後再試",
     "account.confirm":"確認註銷","error.network":"網絡錯誤，請稍後再試",
@@ -2439,19 +2736,19 @@ var i18nDict = {
     "login.title":"ཐོ་འགོད།","login.email":"གློག་འཕྲིན།","login.email.placeholder":"གློག་འཕྲིན་ནང་འཇུག","login.code":"ངོས་འཛིན་ཨང་གྲངས།","login.code.placeholder":"ཨང་གྲངས་ ༦",
     "login.send":"ངོས་འཛིན་ཨང་གྲངས་གཏོང་།","login.sent":"གཏོང་ཟིན།","login.submit":"ཐོ་འགོད།","login.logout":"ཕྱིར་བྱོལ།",
     "login.need":"སྔོན་ལ་ཐོ་འགོད་གནང་།","login.profile.required":"སྔོན་ལ་མི་སྒེར་གནས་ཚུལ་ཚང་བཅོས་གནང་།",
-    "chat.new":"+ སྐད་ཆ་གསར་པ།","chat.new.default":"སྐད་ཆ་གསར་པ།","chat.delete":"གསུབ།","chat.delete.confirm":"སྐད་ཆ་འདི་གསུབ་རྩིས་ཡོད་དམ།",
+    "chat.new":"སྐད་ཆ་གསར་པ།","chat.new.default":"སྐད་ཆ་གསར་པ།","chat.delete":"གསུབ།","chat.delete.confirm":"སྐད་ཆ་འདི་གསུབ་རྩིས་ཡོད་དམ།",
     "chat.placeholder":"གཏམ་འཇུག...","chat.send":"གཏོང་།","chat.loading":"འཇུག་བཞིན་པ...","chat.empty":"སྐད་ཆ་མེད།",
     "chat.history":"སྐད་ཆའི་ལོ་རྒྱུས།",
-    "chat.thinking":"བསམ་གཞིགས་བྱེད་བཞིན་པ...","chat.error":"གཏོང་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།","chat.no.conversations":"+ སྐད་ཆ་གསར་པ་འགོ་འཛུགས།",
-    "comment.title":"དཔྱད་གཏམ།","comment.empty":"✨ ད་དུང་ཡིག་ཟམ་མེད། ཅི་ཞིག་ལབ་དང་།","comment.load.error":"⚠️ འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
+    "chat.thinking":"བསམ་གཞིགས་བྱེད་བཞིན་པ...","chat.error":"གཏོང་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།","chat.no.conversations":"སྐད་ཆ་གསར་པ་འགོ་འཛུགས།",
+    "comment.title":"དཔྱད་གཏམ།","comment.empty":"ད་དུང་ཡིག་ཟམ་མེད། ཅི་ཞིག་ལབ་དང་།","comment.load.error":"འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
     "comment.placeholder":"ཁྱེད་ཀྱི་བསམ་ཚུལ་བརྗོད།","comment.submit":"སྤེལ།","comment.login.tip":"སྔོན་ལ་ཐོ་འགོད་གནང་།",
     "comment.locked":"སྔོན་ལ་མི་སྒེར་གནས་ཚུལ་ཚང་བཅོས་གནང་།",
     "comment.delete.confirm":"ཡིག་ཟམ་འདི་གསུབ་རྩིས་ཡོད་དམ།","comment.delete.failed":"གསུབ་མ་ཐུབ། ",
     "comment.like.failed":"བྱ་བ་མ་ཐུབ། ","profile.title":"མི་སྒེར་གནས་ཚུལ།",
     "profile.nickname":"མིང་།","profile.nickname.placeholder":"རང་ཉིད་ལ་མིང་ཞིག་འདོགས།","profile.save":"གནས་ཚུལ་ཉར་ཚགས།",
-    "profile.saved":"✓ གནས་ཚུལ་ཚང་ཟིན།","profile.avatar.edit":"✎",
-    "profile.my.posts":"📝 ངའི་ཡིག་ཟམ།","profile.no.posts":"ད་དུང་ཡིག་ཟམ་མ་སྤེལ།","profile.load.failed":"འཇུག་མ་ཐུབ།",
-    "profile.loading":"འཇུག་བཞིན་པ...","profile.status.saving":"ཉར་ཚགས་བྱེད་བཞིན་པ...","profile.status.saved":"ཉར་ཚགས་འཕྲོད་སོང་། ✓",
+    "profile.saved":"གནས་ཚུལ་ཚང་ཟིན།","profile.avatar.edit":"✎",
+    "profile.my.posts":"ངའི་ཡིག་ཟམ།","profile.no.posts":"ད་དུང་ཡིག་ཟམ་མ་སྤེལ།","profile.load.failed":"འཇུག་མ་ཐུབ།",
+    "profile.loading":"འཇུག་བཞིན་པ...","profile.status.saving":"ཉར་ཚགས་བྱེད་བཞིན་པ...","profile.status.saved":"ཉར་ཚགས་འཕྲོད་སོང་།",
     "profile.status.error":"ཉར་ཚགས་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
     "account.deleted":"ཐོ་ཐོབ་ལེགས་པར་མེད་པར་བཟོས།","account.deleteFailed":"མེད་པར་མ་བཟོད། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
     "account.confirm":"མེད་པར་བཟོ་རྩིས།","error.network":"དྲ་རྒྱ་ནོར་འཁྲུལ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་།",
@@ -2467,19 +2764,19 @@ var i18nDict = {
     "login.title":"Login","login.email":"Email","login.email.placeholder":"Enter your email","login.code":"Code","login.code.placeholder":"6-digit code",
     "login.send":"Send Code","login.sent":"Sent","login.submit":"Login","login.logout":"Logout",
     "login.need":"Please login first","login.profile.required":"Please complete your profile before commenting",
-    "chat.new":"+ New Chat","chat.new.default":"New Chat","chat.delete":"Delete","chat.delete.confirm":"Delete this conversation?",
+    "chat.new":"New Chat","chat.new.default":"New Chat","chat.delete":"Delete","chat.delete.confirm":"Delete this conversation?",
     "chat.placeholder":"Type a message...","chat.send":"Send","chat.loading":"Loading...","chat.empty":"No conversations",
     "chat.history":"Chat History",
-    "chat.thinking":"Thinking...","chat.error":"Send failed, please retry","chat.no.conversations":"Click + to start a new chat",
-    "comment.title":"Comments","comment.empty":"✨ No posts yet, say something~","comment.load.error":"⚠️ Load failed, please retry",
+    "chat.thinking":"Thinking...","chat.error":"Send failed, please retry","chat.no.conversations":"Click to start a new chat",
+    "comment.title":"Comments","comment.empty":"No posts yet, say something~","comment.load.error":"Load failed, please retry",
     "comment.placeholder":"Share your thoughts...","comment.submit":"Post","comment.login.tip":"Please login to post",
     "comment.locked":"Please complete your profile (avatar + nickname) before posting",
     "comment.delete.confirm":"Delete this post?","comment.delete.failed":"Delete failed: ",
     "comment.like.failed":"Action failed: ","profile.title":"Profile",
     "profile.nickname":"Nickname","profile.nickname.placeholder":"Give yourself a name~","profile.save":"Save Profile",
-    "profile.saved":"✓ Profile Complete","profile.avatar.edit":"✎",
-    "profile.my.posts":"📝 My Posts","profile.no.posts":"No posts yet","profile.load.failed":"Load failed",
-    "profile.loading":"Loading...","profile.status.saving":"Saving...","profile.status.saved":"Saved ✓",
+    "profile.saved":"Profile Complete","profile.avatar.edit":"✎",
+    "profile.my.posts":"My Posts","profile.no.posts":"No posts yet","profile.load.failed":"Load failed",
+    "profile.loading":"Loading...","profile.status.saving":"Saving...","profile.status.saved":"Saved",
     "profile.status.error":"Save failed, please retry",
     "account.deleted":"Account deleted successfully.","account.deleteFailed":"Delete failed, please retry",
     "account.confirm":"Confirm Delete","error.network":"Network error, please retry",
@@ -2495,19 +2792,19 @@ var i18nDict = {
     "login.title":"ログイン","login.email":"メールアドレス","login.email.placeholder":"メールアドレスを入力","login.code":"認証コード","login.code.placeholder":"6桁のコード",
     "login.send":"コード送信","login.sent":"送信済み","login.submit":"ログイン","login.logout":"ログアウト",
     "login.need":"先にログインしてください","login.profile.required":"コメントする前にプロフィールを完成させてください",
-    "chat.new":"+ 新規チャット","chat.new.default":"新規チャット","chat.delete":"削除","chat.delete.confirm":"この会話を削除しますか？",
+    "chat.new":"新規チャット","chat.new.default":"新規チャット","chat.delete":"削除","chat.delete.confirm":"この会話を削除しますか？",
     "chat.placeholder":"メッセージを入力...","chat.send":"送信","chat.loading":"読み込み中...","chat.empty":"会話がありません",
     "chat.history":"チャット履歴",
-    "chat.thinking":"考え中...","chat.error":"送信に失敗しました。再試行してください","chat.no.conversations":"+ をクリックして新規チャットを開始",
-    "comment.title":"コメント","comment.empty":"✨ まだ投稿がありません。何か話しましょう〜","comment.load.error":"⚠️ 読み込みに失敗しました。再試行してください",
+    "chat.thinking":"考え中...","chat.error":"送信に失敗しました。再試行してください","chat.no.conversations":"新規チャットを開始",
+    "comment.title":"コメント","comment.empty":"まだ投稿がありません。何か話しましょう〜","comment.load.error":"読み込みに失敗しました。再試行してください",
     "comment.placeholder":"あなたの考えを共有...","comment.submit":"投稿","comment.login.tip":"投稿するにはログインしてください",
     "comment.locked":"投稿する前にプロフィール（アバター＋ニックネーム）を完成させてください",
     "comment.delete.confirm":"この投稿を削除しますか？","comment.delete.failed":"削除失敗：",
     "comment.like.failed":"操作失敗：","profile.title":"プロフィール",
     "profile.nickname":"ニックネーム","profile.nickname.placeholder":"名前をつけましょう〜","profile.save":"プロフィール保存",
-    "profile.saved":"✓ プロフィール完了","profile.avatar.edit":"✎",
-    "profile.my.posts":"📝 自分の投稿","profile.no.posts":"まだ投稿がありません","profile.load.failed":"読み込み失敗",
-    "profile.loading":"読み込み中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功 ✓",
+    "profile.saved":"プロフィール完了","profile.avatar.edit":"✎",
+    "profile.my.posts":"自分の投稿","profile.no.posts":"まだ投稿がありません","profile.load.failed":"読み込み失敗",
+    "profile.loading":"読み込み中...","profile.status.saving":"保存中...","profile.status.saved":"保存成功",
     "profile.status.error":"保存に失敗しました。再試行してください",
     "account.deleted":"アカウントが正常に削除されました。","account.deleteFailed":"削除に失敗しました。再試行してください",
     "account.confirm":"削除確認","error.network":"ネットワークエラー、再試行してください",
@@ -2606,6 +2903,8 @@ navLinks.querySelectorAll('.nav-tab-btn').forEach(function(btn) {
     // 关闭菜单
     navToggle.classList.remove('active');
     navLinks.classList.remove('open');
+    // 个人资料面板内部滚动：锁住整页滚动，避免浏览器原生侧边条
+    document.body.classList.toggle('no-page-scroll', tabName === 'profile');
     // 加载对应内容
     currentTab = tabName;
     if (tabName === 'profile' && isLoggedIn()) { loadProfile(); loadMyComments(); }

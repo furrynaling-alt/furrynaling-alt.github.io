@@ -6,42 +6,53 @@
 <title>隐私协议 - 纳棂 NALING</title>
 <style>
   :root{
-    --bg:#0f1117; --panel:#171a23; --text:#e8eaf0; --text-sub:#aab1c2;
-    --text-mute:#7a8294; --primary:#8b6cf0; --primary-soft:rgba(139,108,240,.16);
-    --border:#2a2f3c; --soft:#1f2330;
+    --bg:#FFFDF9; --bg-soft:#FFF7EC;
+    --card:rgba(255,255,255,.82); --card-border:rgba(0,0,0,.07);
+    --text:#202124; --text-sub:#5f6368; --text-mute:#9aa0a6;
+    --primary:#FF8A00; --primary-2:#FFB347; --primary-soft:#FFE5BF;
+    --danger:#e0533d; --ok:#2e8b57;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:linear-gradient(160deg,#0c0e14,#12141d 60%,#0c0e14);
-    color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    line-height:1.9; -webkit-font-smoothing:antialiased;
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #FFF1DD 0%, transparent 60%),
+      linear-gradient(165deg,#FFFDF9 0%,#FFF7EC 55%,#FFFDF9 100%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.9; -webkit-font-smoothing:antialiased; min-height:100vh;
   }
-  .wrap{max-width:880px; margin:0 auto; padding:56px 22px 90px;}
-  header.hero{text-align:center; margin-bottom:42px;}
-  header.hero .logo{font-size:36px; font-weight:800; letter-spacing:3px;
-    background:linear-gradient(135deg,var(--primary),#c9b6ff); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .wrap{max-width:880px; margin:0 auto; padding:54px 22px 90px;}
+  header.hero{text-align:center; margin-bottom:38px;}
+  header.hero .logo{font-size:38px; font-weight:800; letter-spacing:3px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;}
   header.hero .sub{color:var(--text-sub); margin-top:10px; font-size:15px;}
   header.hero .updated{color:var(--text-mute); font-size:13px; margin-top:8px;}
-  .card{background:var(--panel); border:1px solid var(--border); border-radius:18px;
-    padding:30px 36px; margin-bottom:22px; box-shadow:0 10px 40px rgba(0,0,0,.25);}
-  .card h2{font-size:21px; margin:0 0 16px; color:#fff; display:flex; align-items:center; gap:10px;}
-  .card h2 .ico{font-size:22px;}
-  .card p{margin:0 0 14px; color:var(--text-sub);}
+  .card{background:var(--card); border:1px solid var(--card-border); border-radius:18px;
+    padding:28px 34px; margin-bottom:20px; box-shadow:0 8px 30px rgba(255,138,0,.06); backdrop-filter:blur(6px);}
+  .card h2{font-size:20px; margin:0 0 14px; color:#202124; display:flex; align-items:center; gap:10px;}
+  .card h2 .ico{font-size:22px; color:var(--primary); display:inline-flex; align-items:center;}
+  .card h2 .ico svg{width:24px; height:24px; display:block; flex-shrink:0;}
+  .note.ok .ico{color:var(--ok); display:inline-flex; vertical-align:-4px;}
+  .note.ok .ico svg{width:18px; height:18px; display:block; flex-shrink:0;}
+  footer a svg{width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;}
+  .card p{margin:0 0 13px; color:var(--text-sub);}
   .card p:last-child{margin-bottom:0;}
   .card ul{margin:0 0 6px; padding-left:22px; color:var(--text-sub);}
-  .card li{margin-bottom:8px;}
-  .card strong{color:#fff;}
-  .card code{background:var(--soft); padding:2px 7px; border-radius:6px; font-size:13px; color:#c9b6ff;}
-  .hl{color:var(--primary); font-weight:600;}
-  .note{background:var(--soft); border-left:3px solid var(--primary); padding:14px 18px; border-radius:10px;
+  .card li{margin-bottom:9px;}
+  .card strong{color:#202124;}
+  .card code{background:#FFF1DD; padding:2px 8px; border-radius:7px; font-size:13px; color:#c05600; border:1px solid rgba(255,138,0,.18);}
+  .hl{color:var(--primary); font-weight:700;}
+  .note{background:#FFF6EC; border-left:4px solid var(--primary); padding:13px 18px; border-radius:12px;
     color:var(--text-sub); font-size:14px; margin:14px 0;}
-  .toc{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:6px;}
-  .toc a{display:block; padding:10px 14px; background:var(--soft); border-radius:10px; color:var(--text-sub);
-    text-decoration:none; font-size:14px; transition:all .25s; border:1px solid transparent;}
-  .toc a:hover{color:#fff; border-color:var(--primary); background:var(--primary-soft);}
-  footer{text-align:center; color:var(--text-mute); font-size:13px; margin-top:30px;}
-  footer a{color:var(--primary); text-decoration:none;}
-  @media(max-width:600px){ .card{padding:24px 20px;} .wrap{padding:36px 14px 70px;} }
+  .note.ok{border-left-color:var(--ok); background:#eef8f1;}
+  .tag{display:inline-block; font-size:12px; padding:2px 10px; border-radius:50px;
+    background:var(--primary-soft); color:#c05600; margin-right:6px;}
+  footer{text-align:center; color:var(--text-mute); font-size:13px; margin-top:28px;}
+  footer a{color:var(--primary); text-decoration:none; font-weight:600;}
+  footer a:hover{text-decoration:underline;}
+  @media(max-width:600px){ .card{padding:22px 18px;} .wrap{padding:36px 14px 70px;} }
 </style>
 </head>
 <body>
@@ -49,124 +60,122 @@
   <header class="hero">
     <div class="logo">纳棂 NALING</div>
     <div class="sub">隐私协议 · Privacy Policy</div>
-    <div class="updated">最后更新：2026 年 8 月 5 日　|　生效日期：2026 年 8 月 5 日</div>
+    <div class="updated">制定日期：2026 年 8 月 5 日　|　最近修订：2026 年 8 月 6 日　|　生效日期：2026 年 8 月 6 日</div>
   </header>
 
   <div class="card">
-    <h2><span class="ico">📜</span>一、前言</h2>
-    <p>欢迎使用「纳棂 NALING」（以下简称"本服务""我们"）。我们深知个人信息对您的重要性，也深知为您的信息安全提供保障是我们的责任。本隐私协议旨在以清晰、透明的方式，向您说明我们在您使用本服务的过程中，<strong>收集哪些信息、如何使用、如何存储、如何保护，以及您可以行使哪些权利</strong>。</p>
-    <p>我们的核心承诺只有一句话：<span class="hl">您的每一份数据，都属于您自己，并以加密方式存储；除您本人和必要的系统运行外，任何人都无法读取。</span>本协议将围绕这一承诺展开，请您在登录和使用前仔细阅读。若您不同意本协议中的任何条款，请勿使用本服务。</p>
-    <div class="note">本协议适用于通过纳棂官方网页（含聊天、评论区、个人资料等全部功能）使用本服务的所有用户。使用本服务即视为您已充分理解并同意本协议的全部内容。</div>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>一、核心承诺</h2>
+    <p>纳棂把"<span class="hl">你的数据只属于你</span>"作为不可妥协的底线。本协议的每一条都围绕这一底线展开：你的邮箱、你的 AI 聊天记录、你的评论，都受到加密与严格隔离的保护；除你本人登录态及必要的系统运行外，任何人都无法读取，平台也<strong>绝不向任何其他用户或第三方泄露</strong>。</p>
+    <div class="note ok"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>关于"邮箱是否会被泄露"——我们已在技术层面彻底堵住：公开评论接口不再向前端返回任何邮箱信息（包括掩码），数据库中邮箱以密文存储。下面是具体做法。</div>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🗂️</span>二、我们收集的信息</h2>
-    <p>我们遵循"<strong>最小必要</strong>"原则收集信息，仅收集为您提供服务和保障安全所必需的数据：</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>二、邮箱：加密存储，且永不对外泄露</h2>
+    <p>这是用户最关心的问题，我们给出明确、可验证的回答：</p>
     <ul>
-      <li><strong>账号标识（邮箱地址）</strong>：您登录时提供的邮箱。它是您在本服务中的唯一身份标识，也是我们为您隔离数据、绑定聊天记录与评论的依据。</li>
-      <li><strong>昵称与头像</strong>：您自愿填写的昵称、上传的头像图片。您可以选择不设置，仅以"游客"身份浏览评论区。</li>
-      <li><strong>聊天内容</strong>：您与纳棂（AI 助手）对话产生的全部文本记录。这是您最核心的私密数据。</li>
-      <li><strong>评论内容</strong>：您在评论区发布的帖子、点赞行为及点赞对象信息。</li>
-      <li><strong>技术日志</strong>：为保障服务安全与稳定运行，我们会记录必要的登录 IP、登录时间、设备与浏览器类型等基础日志，用于频率限制与安全防护，不会用于用户画像分析。</li>
+      <li><span class="tag">加密存储</span>你的邮箱在写入数据库时，会先用 <code>AES-256-GCM</code> 加密为密文（字段 <code>emailEnc</code>）后再落库；同时计算一个 <code>SHA-256</code> 哈希（字段 <code>emailHash</code>）仅用于查询匹配。新注册及后续产生的数据<strong>不再以明文保存邮箱</strong>。</li>
+      <li><span class="tag">永不泄露</span>评论区、个人资料等所有面向其他用户的接口，<strong>都不会返回任何邮箱信息</strong>——既不会返回完整邮箱，也不会返回"前两位+域名"之类的掩码。他人在评论区只能看到你设置的昵称，看不到你的邮箱。</li>
+      <li><span class="tag">隔离访问</span>后端每次读取、修改、删除你的数据，都会校验操作者身份与数据归属（<code>emailHash === 当前登录账号</code>），不一致直接拒绝（返回 403）。管理员同样无法读取你的邮箱明文。</li>
+      <li><span class="tag">密钥隔离</span>解密邮箱所需的密钥（<code>ENC_KEY</code>）只存在于云端运行环境，不写入前端页面、不出现于公开源码、不随客户端下发。</li>
     </ul>
-    <p>我们<strong>不收集</strong>您的真实姓名、身份证号、银行卡、通讯录、精确地理位置等敏感个人信息，也不在聊天之外读取您设备上的其他文件。</p>
+    <div class="note">简言之：他人通过接口只能拿到昵称，拿不到邮箱；数据库里你的邮箱是一串密文；即便直连数据库，没有云端密钥也无法还原。</div>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🔐</span>三、数据的加密存储（核心承诺）</h2>
-    <p>这是本协议最重要的部分。我们向您郑重保证：<span class="hl">所有属于您的私密数据，在存储时均经过加密处理，且彼此严格隔离。</span></p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>三、AI 聊天记录：端到端式加密，按账号隔离</h2>
     <ul>
-      <li><strong>聊天记录端到端式加密</strong>：您与纳棂的每一条对话内容，在写入数据库前都会使用 <code>AES-256-GCM</code> 强加密算法加密，密文形式落库。密钥（<code>ENC_KEY</code>）仅配置在云端运行环境中，不会出现在任何前端页面、公开源码或可下载文件中。</li>
-      <li><strong>按邮箱隔离</strong>：您的聊天记录与评论都与您的<strong>邮箱身份绑定</strong>。数据库层面，系统只会返回"属于当前登录账号"的数据——您永远只能看到自己的聊天和自己的帖子。</li>
-      <li><strong>越权访问防护</strong>：读取、发送、删除任何聊天或评论前，后端都会校验操作者身份与数据归属（<code>email === 当前登录邮箱</code>），不一致将直接拒绝（返回 403）。也就是说，即便有人能直接打开数据库，看到的也只是无法解读的密文；而通过接口访问他人数据则会被身份校验拦截。</li>
-      <li><strong>身份令牌保护</strong>：您登录后获得的身份令牌（JWT）由云端持有的随机密钥（<code>JWT_SECRET</code>）签名。该密钥与加密密钥一样，仅存在于云端，未写入公开代码。第三方无法伪造他人身份来读取您的明文数据。</li>
-    </ul>
-    <div class="note">简言之：您的聊天在数据库里是"乱码"，只有用您自己的账号登录后才能解密查看；任何未经您授权的人，无论通过直接读取数据库还是调用接口，都只能得到没有意义的加密数据。我们对您数据的保密性负责。</div>
-  </div>
-
-  <div class="card">
-    <h2><span class="ico">⚙️</span>四、我们如何使用您的信息</h2>
-    <ul>
-      <li>为您提供 AI 对话服务，并在您登录后向您展示您自己的历史聊天记录与评论。</li>
-      <li>向您发送登录验证码（仅用于完成登录，不做其他用途）。</li>
-      <li>在评论区展示您设置的昵称与头像，并维护点赞等互动关系。</li>
-      <li>实施频率限制与安全防护（例如防止单一 IP 暴力登录、刷评论、刷赞），维护社区秩序。</li>
-      <li>在您行使注销、删除等权利时，定位并处理属于您的数据。</li>
-    </ul>
-    <p>我们<strong>不会</strong>将您的聊天内容、邮箱或评论用于训练模型之外的广告投放，<strong>不会</strong>向广告商出售或交换您的个人信息。</p>
-  </div>
-
-  <div class="card">
-    <h2><span class="ico">🚫</span>五、我们不会做的事</h2>
-    <ul>
-      <li>不会在未经您同意的情况下，将您的可识别个人信息（邮箱、聊天、评论）出售、出租或共享给第三方。</li>
-      <li>不会把您的聊天内容用于针对您的商业广告定向。</li>
-      <li>不会在公开页面或前端代码中暴露任何加密密钥、数据库凭据或服务密钥。</li>
-      <li>不会以明文形式存储您的聊天记录或评论内容。</li>
-      <li>不会因您未完善昵称、头像等可选资料而限制您的浏览权限。</li>
+      <li><strong>内容加密</strong>：你与纳棂的每一句对话，在写入数据库前都用 <code>AES-256-GCM</code> 加密（字段 <code>contentEnc</code>），密文落库。密钥仅在云端。</li>
+      <li><strong>按邮箱绑定</strong>：每条聊天、每个对话都和你登录的邮箱绑定。数据库层面，系统只会返回"属于当前登录账号"的数据。</li>
+      <li><strong>越权即拦</strong>：读取、发送、删除任意聊天前，后端都校验 <code>对话归属 === 当前登录邮箱</code>，否则返回 403。任何人都无法进入他人对话、读取他人聊天。</li>
+      <li><strong>管理员也看不到</strong>：管理员账号的权限仅限于删除公开评论（见第七节），<strong>无权解密或阅读任何用户的私密聊天</strong>。加密机制对包括管理员在内的所有人都同样生效。</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🧹</span>六、数据的保留与删除</h2>
-    <p>您对自己的数据拥有充分的控制权：</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>四、其他加密与安全原则</h2>
     <ul>
-      <li><strong>注销账号</strong>：在"个人资料"页面中，您可以随时点击"注销账号"。注销后，系统将删除该邮箱名下的评论、点赞记录与资料，您将无法再读取该账号下的历史数据。请在操作前确认已导出或备份您希望保留的内容。</li>
-      <li><strong>删除单条评论</strong>：您可以删除自己发布的任意评论。</li>
-      <li><strong>保留期限</strong>：在您未注销账号的情况下，我们会持续为您保存数据以便您随时查看；若您长期未登录且账号无任何活动，我们可能在提前通知后，按最少必要原则清理休眠账号的冗余数据。</li>
+      <li><strong>身份令牌（JWT）随机签名</strong>：你登录后获得的身份令牌由云端持有的<strong>随机密钥</strong>（<code>JWT_SECRET</code>）签名，该密钥与加密密钥一样仅存于云端、未写入公开代码。第三方无法伪造他人身份来访问你的数据。</li>
+      <li><strong>密钥绝不进源码/前端</strong>：所有密钥（<code>ENC_KEY</code>、<code>JWT_SECRET</code>、各 API Key）均配置在云端环境变量，公开仓库与前端包中不存在任何可用密钥。</li>
+      <li><strong>登录验证码保护</strong>：登录采用"邮箱 + 一次性验证码"，验证码有时效且单次有效；同一 IP 有频率限制，防止暴力破解。</li>
+      <li><strong>第三方最小化</strong>：仅接入运行所必需的服务，全部列明如下：
+        <ul>
+          <li><strong>腾讯云开发（CloudBase）</strong>：提供数据库存储与云函数运行环境，承载你的账号、聊天、评论等全部数据。</li>
+          <li><strong>大模型服务（DeepSeek 等）</strong>：接收你发送的对话内容以生成回复；仅在对话发生时使用，不保留用于其他目的。</li>
+          <li><strong>邮件服务</strong>：仅用于向你发送登录验证码，不向其提供明文邮箱用于营销。</li>
+          <li><strong>内容安全审核服务（第三方 / 平台内置）</strong>：对你发布的公开评论、昵称等公开内容进行合规审核（含文本与图片涉政、涉黄、暴恐、广告、辱骂等识别）。审核仅作用于公开的、你主动发布的内容，<strong>不触及你的 AI 私密聊天</strong>；审核判定为违规的内容会被拦截或交由管理员处理。</li>
+        </ul>
+        我们不向上述任何第三方提供可识别到个人的明文邮箱用于营销，也不向其共享你的私密聊天记录。
+      </li>
+      <li><strong>评论内容公开可见</strong>：你在评论区发布的帖子本就是公开内容，会展示给所有访客（以昵称呈现），因此评论正文不单独加密——这是公开社区的固有属性，与私密聊天不同。</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🛡️</span>七、管理员与内容审核</h2>
-    <p>为维护社区环境、处理违规内容，本服务设有<strong>管理员账号</strong>。管理员的权限受到严格限定：</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>五、我们收集什么</h2>
     <ul>
-      <li>管理员可以删除评论区中违反社区规范、对平台或其他用户不利的帖子。这是管理员存在的唯一目的——<strong>内容审核</strong>。</li>
-      <li>管理员<strong>无权解密或阅读</strong>任何用户的私密聊天记录。聊天内容的加密机制对包括管理员在内的所有人都同样生效，管理员只能看到评论区中已公开的内容。</li>
-      <li>管理员权限通过云端配置（<code>ADMIN_EMAILS</code>）限定具体邮箱，任何普通账号默认不具备该权限。</li>
-      <li>评论区人人平等：任何登录用户都可以自由发布评论、设置自己的昵称与头像；管理员不享有内容创作上的特权。</li>
+      <li><strong>账号标识（邮箱）</strong>：登录用，加密存储（见第二节）。</li>
+      <li><strong>昵称与头像</strong>：可选项，用于评论区展示。</li>
+      <li><strong>AI 聊天内容</strong>：你与纳棂的对话，加密存储（见第三节）。</li>
+      <li><strong>公开评论</strong>：你在评论区发布的帖子与点赞关系。</li>
+      <li><strong>基础技术日志</strong>：登录 IP、时间、设备类型等，仅用于频率限制与安全防护，不做用户画像。</li>
+    </ul>
+    <p>我们不收集真实姓名、身份证、银行卡、通讯录、精确地理位置等敏感信息，也不在聊天之外读取你设备上的其他文件。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>六、信息如何使用</h2>
+    <ul>
+      <li>提供 AI 对话，并在你登录后向你展示<strong>你自己</strong>的历史聊天与评论。</li>
+      <li>向你发送登录验证码（仅此用途）。</li>
+      <li>在评论区以昵称展示你、维护点赞互动。</li>
+      <li>实施频率限制与安全防护，维护社区秩序。</li>
+    </ul>
+    <p>我们<strong>不会</strong>将你的聊天内容、邮箱或评论用于广告投放，<strong>不会</strong>向广告商出售或交换你的个人信息。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></span>七、数据保留与你的控制权</h2>
+    <ul>
+      <li><strong>注销账号</strong>：在"个人资料"页可随时注销，系统将删除该邮箱名下的评论、点赞与资料，历史数据不可恢复。</li>
+      <li><strong>删除单条评论</strong>：你可删除自己发布的任意评论。</li>
+      <li><strong>管理员删评</strong>：仅管理员的特定邮箱拥有删除他人公开评论的权限，用于清理违规内容；该权限<strong>不延伸至读取聊天或邮箱</strong>。</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🔗</span>八、我们使用的第三方服务</h2>
-    <p>为提供完整功能，本服务依赖以下受信任的第三方基础设施，它们仅在必要范围内处理数据：</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="4" y1="6" x2="20" y2="6"/><path d="M4 6 1.5 11a2.5 2.5 0 0 0 5 0z"/><path d="M20 6l-2.5 5a2.5 2.5 0 0 0 5 0z"/><line x1="7" y1="21" x2="17" y2="21"/></svg></span>八、违规行为与账号处置力度</h2>
+    <p>为维护社区秩序与遵守国家法律法规（包括但不限于《网络安全法》《刑法》《网络信息内容生态治理规定》等），我们对发布违规内容的行为采取分级处置。以下力度公开透明，任何人可对照预期后果：</p>
     <ul>
-      <li><strong>腾讯云开发（CloudBase）</strong>：提供云函数运行环境与数据库存储，是本服务的数据承载平台。</li>
-      <li><strong>DeepSeek 等大模型服务</strong>：用于生成纳棂的对话回复。您发送给纳棂的对话内容会按模型服务方的规定进行处理以生成回答。</li>
-      <li><strong>邮件发送服务（SMTP）</strong>：仅用于向您填写的邮箱发送一次性登录验证码，不会保存验证码以外的邮件内容。</li>
+      <li><strong>一级（轻微违规）</strong>：评论含轻度广告、无意义刷屏、轻微不友善用语等。处置：<span class="hl">警告 + 删除该条内容</span>；首次一般不封号，累计达 3 次升级处置。</li>
+      <li><strong>二级（一般违规）</strong>：辱骂攻击他人、发布虚假信息、恶意引流、重复发布违规内容等。处置：<span class="hl">封禁账号 1–7 天</span>并清空相关评论；到期后自动解封，期间不可登录。</li>
+      <li><strong>三级（严重违规）</strong>：涉黄、涉赌、诈骗信息、侵犯他人隐私（如泄露他人邮箱/手机号）、恶意骚扰等。处置：<span class="hl">封禁账号 30 天</span>或<strong>永久封禁</strong>，并删除全部违规内容。</li>
+      <li><strong>四级（违法犯罪）</strong>：涉政违法、暴恐、儿童色情、组织违法活动、明确违法的诈骗/贩毒等信息。处置：<span class="hl">立即永久封禁</span>，保留相关日志与内容记录，并<strong>依法向有关主管部门报告、配合调查</strong>。</li>
     </ul>
-    <p>上述服务商均受其自身隐私政策约束。我们仅将必需的数据传递给它们，并要求其按照不低于本协议的或适用的法律法规标准保护您的信息。</p>
+    <div class="note">处置说明：① 封禁由系统审核命中或管理员核实后执行，管理员可对公开评论进行删除与必要的账号处置；② 被处置账号可通过"联系我们"申诉，我们会在 15 个工作日内复核；③ 账号一旦被判定四级违规，原则上不予解封，且平台保留向监管报送的义务。</div>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🍪</span>九、登录令牌（Token）与本地存储</h2>
-    <p>登录成功后，我们会把您的身份令牌保存在您浏览器的本地存储（<code>localStorage</code>）中，用于维持登录状态，避免您每次操作都重新验证。该令牌不包含您的密码或明文聊天内容，且只在访问本服务域名时发送。</p>
-    <p>建议您在使用公共或他人设备登录后，及时通过"个人资料 → 退出登录"清除本地令牌，以防他人使用您的设备继续以您的身份操作。</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>九、未成年人保护</h2>
+    <p>本服务主要面向成年用户。建议未成年人在监护人指导下使用。若我们发现收集了未获监护人同意的未成年人个人信息，会尽快删除。监护人可通过下方邮箱联系我们处理。</p>
   </div>
 
   <div class="card">
-    <h2><span class="ico">👶</span>十、未成年人保护</h2>
-    <p>本服务主要面向成年用户。我们建议未成年人在监护人指导下使用。若我们发现收集了未满法定年龄且未获监护人同意的未成年人个人信息，会尽快删除相关记录。如您是监护人并发现相关情况，可通过下方联系方式与我们取得联系。</p>
-  </div>
-
-  <div class="card">
-    <h2><span class="ico">📮</span>十一、联系我们</h2>
-    <p>如您对本隐私协议、您的数据处理或权利行使有任何疑问、建议或投诉，欢迎通过以下方式联系我们：</p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>十、联系我们</h2>
+    <p>对隐私协议、你的数据处理或权利行使有疑问、建议或投诉，请联系：</p>
     <ul>
       <li>邮箱：<span class="hl">furrynaling@outlook.com</span></li>
-      <li>我们将在收到请求后尽快（一般不超过 15 个工作日）予以答复与处理。</li>
+      <li>我们将在收到后尽快（一般不超过 15 个工作日）答复与处理。</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2><span class="ico">🔄</span>十二、协议的更新</h2>
-    <p>随着服务演进与法律法规变化，我们可能适时修订本隐私协议。发生重大变更时，我们会在本页面更新"最后更新"日期，并在必要时通过站内提示或邮件通知您。若您在本协议更新后继续使用本服务，即视为接受更新后的内容。</p>
-    <p>我们建议您定期查看本协议，以了解我们如何保护您的信息。感谢您对纳棂的信任——<span class="hl">守好您的每一份隐私，是我们不变的承诺。</span></p>
+    <h2><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>十一、协议更新</h2>
+    <p>随着服务演进与法规变化，我们可能适时修订本协议，并在本页面更新"最后更新"日期，必要时通过站内提示或邮件通知。重大变更后继续使用本服务，即视为接受更新内容。</p>
+    <p>感谢你信任纳棂——<span class="hl">守住你的每一份隐私，是我们的底层设计，而不只是一句承诺。</span></p>
   </div>
 
   <footer>
-    <a href="interact.html">← 返回纳棂</a>　·　纳棂 NALING © 2026
+    <a href="interact.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>返回纳棂</a>
   </footer>
 </div>
 </body>
