@@ -1079,8 +1079,7 @@ async function handleLikeComment(body, auth) {
 
   await db.collection('likes').add({
     commentId,
-    emailHash: emailHashOf(auth.email),
-    emailEnc: encEmail(auth.email),
+    email: String(auth.email).toLowerCase(),
     createdAt: Date.now()
   });
   const count = await db.collection('likes').where({ commentId }).count();
@@ -1179,7 +1178,10 @@ async function handleUpdateProfile(body, auth) {
     if (nick.length < 1) return response(400, { ok: false, error: '昵称不能为空' });
     // 审核昵称
     const nickMod = await aiModerate(nick);
-    if (nickMod.blocked) return response(403, { ok: false, blocked: true, ...nickMod, error: '昵称包含违规内容' });
+    if (nickMod.blocked) {
+      const vc = await addViolation(auth.email, nickMod);
+      return response(403, { ok: false, blocked: true, field: 'nickname', violationCount: vc, ...nickMod, error: '昵称包含违规内容' });
+    }
     update.nickname = nick;
   }
 
@@ -1211,7 +1213,7 @@ async function handleUpdateProfile(body, auth) {
         update.avatarChangeDate = todayStr;
         update.avatarChangeCount = nextCount;
         await db.collection('users').doc(user.data[0]._id).update(update);
-        return response(403, { ok: false, blocked: true, violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
+        return response(403, { ok: false, blocked: true, field: 'avatar', violationCount: vc, ...imgMod, error: '头像包含违规内容（' + (imgMod.category || '违规') + '）' });
       }
     }
 

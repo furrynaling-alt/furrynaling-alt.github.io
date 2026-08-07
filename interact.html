@@ -340,7 +340,7 @@
 
   /* ========== 页面主体 ========== */
   .main-wrap{
-    max-width:800px;margin:0 auto;padding:80px 20px 100px;
+    max-width:800px;margin:0 auto;padding:92px 20px 100px;
   }
 
   /* ========== 标签页切换 ========== */
@@ -895,8 +895,7 @@
   }
   .violation-modal .btn-confirm:hover{background:#c0392b;}
 
-  /* 个人资料面板内部滚动时，内容需避开顶部固定导航栏（导航栏约 88px 高） */
-  #panelProfile.active{padding-top:108px;}
+
 
   /* ========== OC聊天样式 ========== */
   .chat-layout{
@@ -1609,15 +1608,11 @@ async function api(path, method, body) {
     const resp = await fetch(API_BASE + path, opts);
     clearTimeout(timeoutId);
     if (!resp.ok) {
-      let errMsg = `请求失败 (${resp.status})`;
-      try {
-        const body = await resp.json();
-        if (body && body.error) errMsg = body.error;
-      } catch (_) {
-        // 非 JSON 响应，使用默认错误信息
-      }
-      console.error('API请求失败:', resp.status, errMsg);
-      return { ok: false, error: errMsg };
+      let body = {};
+      try { body = await resp.json(); } catch (_) {}
+      if (!body.error) body.error = `请求失败 (${resp.status})`;
+      console.error('API请求失败:', resp.status, body.error);
+      return { ok: false, ...body };
     }
     return resp.json();
   } catch (e) {
@@ -1922,6 +1917,7 @@ function renderCachedAvatarInstant() {
 let profileNickname = '';
 let profileAvatar = '';
 let savedAvatar = '';            // 服务器最近一次确认保存成功的头像（用于违规回退）
+let savedNickname = '';          // 服务器最近一次确认保存成功的昵称（用于违规回退）
 let avatarLocallyEdited = false; // 用户已选新头像但尚未保存到服务器
 
 async function loadProfile() {
@@ -1941,7 +1937,8 @@ async function loadProfile() {
         profileAvatar = p.avatar || (cache ? cache.avatar : '');
         if (email) setCachedAvatar(email, profileAvatar, p.avatarHash);
       }
-      savedAvatar = profileAvatar; // 记录当前已确认的服务器头像，供违规回退使用
+      savedAvatar = profileAvatar;   // 记录当前已确认的服务器头像，供违规回退使用
+      savedNickname = profileNickname; // 记录当前已确认的服务器昵称，供违规回退使用
       window.currentUserIsAdmin = !!p.isAdmin;
       // 更新个人面板
       updateProfilePanel();
@@ -2113,16 +2110,26 @@ $('#profileSaveBtn').addEventListener('click', async function() {
       if (resp.avatarHash) setCachedAvatar(getMyEmail(), profileAvatar, resp.avatarHash);
       if (isLoggedIn()) loadComments();
     } else if (resp.blocked) {
-      // 头像（或昵称）含违规内容：撤销本次本地修改，回退到上一个已保存头像，弹出全局警告
+      // 头像或昵称含违规内容：撤销本次本地修改，清空对应输入框，弹出全局警告
       const vc = resp.violationCount || 0;
-      profileAvatar = savedAvatar || '';
-      avatarLocallyEdited = false;
+      const field = resp.field || 'avatar';
+      if (field === 'avatar') {
+        profileAvatar = savedAvatar || '';
+        avatarLocallyEdited = false;
+        const af = $('#avatarFile');
+        if (af) af.value = '';
+      } else {
+        profileNickname = savedNickname || '';
+        const ni = $('#nicknameInput');
+        if (ni) ni.value = profileNickname;
+      }
       updateProfilePanel();
       const ca = $('#commentAlert');
       if (ca) ca.classList.remove('show');
       setProfileStatus('', '');
+      const fieldName = field === 'avatar' ? '头像' : '昵称';
       showViolationModal(
-        '你的' + (resp.category ? '头像' : '资料') + '因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，提交已被拦截。' +
+        '你的' + fieldName + '因「<b>' + escapeHtml(resp.reason || resp.category || '违规内容') + '</b>」未通过审核，提交已被拦截。' +
         '<br>本次已记为一次违规，当前累计 <b>' + vc + '/5</b> 次，达到 5 次将永久封禁账号，请注意文明交流。');
       // 刷新一次个人面板，确保最新违规次数/封禁状态同步
       loadProfile();
@@ -2190,7 +2197,7 @@ async function loadComments() {
         </div>
         <div class="c-body">${escapeHtml(c.content)}</div>
         <div class="c-footer">
-          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${c.id}')" ${isLoggedIn() ? (c.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike(this, '${c.id}')" ${isLoggedIn() ? (c.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
             ${likeIcon} <span>${c.likeCount || 0}</span>
           </button>
           <button class="c-reply-btn" onclick="openReply('${c.id}')">${ICON.reply} 回复</button>
@@ -2254,7 +2261,7 @@ function renderReplies(c) {
         </div>
         <div class="r-body">${escapeHtml(r.content)}</div>
         <div class="r-footer">
-          <button class="c-like-btn ${likeClass}" onclick="toggleLike('${r.id}')" ${isLoggedIn() ? (r.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
+          <button class="c-like-btn ${likeClass}" onclick="toggleLike(this, '${r.id}')" ${isLoggedIn() ? (r.likedByMe ? 'disabled' : '') : 'disabled title="请先登录"'}>
             <span>${likeIcon}</span> <span>${r.likeCount || 0}</span>
           </button>
         </div>
@@ -2713,22 +2720,20 @@ function getMyEmail() {
   } catch(e) { return null; }
 }
 
-async function toggleLike(commentId) {
+async function toggleLike(btn, commentId) {
   if (!isLoggedIn()) { alert(t('login.need')); showLogin(); return; }
-  const btn = document.querySelector(`#comment-${commentId} .c-like-btn`);
-  if (btn && btn.disabled) return; // 已点赞，禁止重复点击
-  if (btn) btn.disabled = true;    // 点击后立即禁用，防止连点
+  if (!btn) return;
+  if (btn.disabled) return; // 已点赞，禁止重复点击
+  btn.disabled = true;      // 点击后立即禁用，防止连点
   try {
     const resp = await api('/comments/like', 'POST', { commentId });
     if (!resp.ok) throw new Error(resp.error);
-    // 一个账号每评论只能点一次赞：点赞后保持已赞状态并禁用按钮，不可取消
-    if (btn) {
-      btn.classList.add('liked');
-      btn.innerHTML = ICON.like + ' <span>' + resp.likeCount + '</span>';
-      btn.disabled = true;
-    }
+    // 一个账号每个评论只能点一次赞：点赞后保持已赞状态并禁用按钮，不可取消
+    btn.classList.add('liked');
+    const countSpan = btn.querySelector('span:last-child');
+    if (countSpan) countSpan.textContent = resp.likeCount;
   } catch(e) {
-    if (btn) btn.disabled = false; // 失败才允许重试
+    btn.disabled = false; // 失败才允许重试
     alert(t('comment.like.failed') + e.message);
   }
 }
